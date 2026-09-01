@@ -1,0 +1,1 @@
+Adds Greater Restoration, a 3 SP active spell with 3 charges that removes all debuffs and grants clarity for 1 turn.

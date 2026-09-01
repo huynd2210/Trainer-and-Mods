@@ -1,0 +1,1 @@
+Shows the player's current status-effect and damage immunities on the character UI.

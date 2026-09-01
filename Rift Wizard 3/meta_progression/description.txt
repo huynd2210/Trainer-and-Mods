@@ -1,0 +1,5 @@
+META-PROGRESSION
+
+Completed realms award Echoes, a permanent currency. Victories grant 10 bonus Echoes. Spend them from the new LEGACY title-menu entry on permanent unlocks: random starting equipment, up to +5 starting SP, additional SP orbs, components and Rifts in each realm, or 1 SH at the beginning of every realm.
+
+Progress from the earlier automatic-bonus version is migrated automatically. Bonuses only apply while this mod is enabled.

@@ -1,0 +1,1 @@
+Passive ability pack containing Cleanse, Death Ward, and Last Ditch. Passives trigger automatically, are not casts, do not progress the turn, and never occupy one of the wizard's 10 spell slots. Lethal-damage passives resolve in purchase order.

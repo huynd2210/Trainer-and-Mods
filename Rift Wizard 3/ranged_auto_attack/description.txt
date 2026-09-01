@@ -1,0 +1,1 @@
+Adds a charge-free ranged auto-attack. Press X to target an enemy within range 5 for 1 Physical damage. This attack is not a spell, cast, or spell-slot occupant.

@@ -1,0 +1,1 @@
+Adds a charge-free melee auto-attack. Move into an adjacent enemy to deal 1 Physical damage. This attack is not a spell, cast, or spell-slot occupant.

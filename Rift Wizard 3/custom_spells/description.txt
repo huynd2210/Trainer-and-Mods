@@ -1,0 +1,1 @@
+Adds custom player spells: Scorching Blast, Time Stop, Cosmic Binding, Spell Shield, Barrier, and Radiant Blast.

@@ -1,0 +1,1 @@
+Records finished runs and adds a Run History entry to the title menu.

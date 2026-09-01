@@ -1,0 +1,1 @@
+Adds persistent kill counts to the bestiary and shows them in the bestiary list.
