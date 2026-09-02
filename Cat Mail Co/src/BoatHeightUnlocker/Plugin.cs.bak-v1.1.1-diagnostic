@@ -1,0 +1,188 @@
+using BepInEx;
+using BepInEx.Configuration;
+using BepInEx.Unity.IL2CPP;
+using HarmonyLib;
+
+namespace CatMailCo.BoatHeightUnlocker;
+
+[BepInPlugin(Guid, Name, Version)]
+[BepInProcess("CatMailCo.exe")]
+public sealed class Plugin : BasePlugin
+{
+    public const string Guid = "com.catmailco.boatheightunlocker";
+    public const string Name = "Boat Height Unlocker";
+    public const string Version = "1.1.0";
+
+    internal static Plugin Instance { get; private set; } = null!;
+    internal static ConfigEntry<float> MaximumHeight { get; private set; } = null!;
+    internal static ConfigEntry<bool> LogPlacements { get; private set; } = null!;
+
+    internal static void LogInfo(string message) => Instance.Log.LogInfo(message);
+
+    public override void Load()
+    {
+        Instance = this;
+        MaximumHeight = Config.Bind(
+            "Boat",
+            "MaximumHeight",
+            1000f,
+            "Maximum boat stack height in game units. 1000 effectively removes the restriction; " +
+            "a smaller value such as 50 caps the stack at that height.");
+        LogPlacements = Config.Bind(
+            "Debug",
+            "LogPlacements",
+            false,
+            "Log every boat placement attempt with the current and maximum height. Diagnostic only.");
+
+        Harmony.CreateAndPatchAll(typeof(BoatStoragePatches), Guid);
+        Log.LogInfo($"{Name} {Version} loaded; boat height limit is {MaximumHeight.Value}.");
+    }
+
+    public override bool Unload()
+    {
+        Harmony.UnpatchID(Guid);
+        return true;
+    }
+}
+
+internal static class BoatStorage
+{
+    // Boat heights observed in this build sit well under 1.0, so the floor has to
+    // allow fractional ceilings or no configured value could ever bind.
+    internal static float Limit => Math.Max(0.01f, Plugin.MaximumHeight.Value);
+
+    internal static bool IsBoatStore(EntityInteractableStore store)
+    {
+        if (store == null)
+            return false;
+
+        try
+        {
+            if (store.StorageType == StorageType.Boat)
+                return true;
+
+            var root = store.GetRootStore(false);
+            return root != null && root.StorageType == StorageType.Boat;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    // A parcel placed into a nested store is height-checked against the stack it
+    // ultimately belongs to, so the ceilings must be written on the root as well
+    // as on the store that received the call.
+    internal static void ApplyLimit(EntityInteractableStore store)
+    {
+        if (!IsBoatStore(store))
+            return;
+
+        ApplyLimitToKnownBoatStore(store);
+
+        try
+        {
+            ApplyLimitToKnownBoatStore(store.GetRootStore(false));
+            ApplyLimitToKnownBoatStore(store.GetRootStore(true));
+        }
+        catch
+        {
+            // A store queried before its hierarchy is wired up; the next call covers it.
+        }
+    }
+
+    internal static void ApplyLimitToKnownBoatStore(EntityInteractableStore store)
+    {
+        if (store == null)
+            return;
+
+        // ParcelDeliverer supplies the authoritative boat storage object, even
+        // on builds where its serialized StorageType is assigned a frame later.
+        //
+        // Only the two ceilings are written. IsHeightApproved is deliberately
+        // left to the game's own UpdateApprovedHeight, which compares the live
+        // height against StorageMaximumApprovedHeight -- forcing it true here
+        // made every stack legal regardless of the configured maximum.
+        ReportStockCeiling(store);
+
+        var limit = Limit;
+        store.StorageMaximumHeight = limit;
+        store.StorageMaximumApprovedHeight = limit;
+    }
+
+    private static readonly HashSet<int> ReportedStores = new();
+
+    // Records each boat store's untouched ceilings the first time it is seen, so
+    // the log shows the scale the game actually works in.
+    private static void ReportStockCeiling(EntityInteractableStore store)
+    {
+        if (!Plugin.LogPlacements.Value)
+            return;
+
+        try
+        {
+            if (!ReportedStores.Add(store.GetInstanceID()))
+                return;
+
+            Plugin.LogInfo(
+                $"boat store {store.name} stock ceilings: " +
+                $"height {store.StorageMaximumHeight:0.####}, " +
+                $"approved {store.StorageMaximumApprovedHeight:0.####}, " +
+                $"type {store.StorageType}, root {(store.GetRootStore(false) == store ? "self" : "other")}");
+        }
+        catch
+        {
+            // Diagnostics must never break placement.
+        }
+    }
+}
+
+internal static class BoatStoragePatches
+{
+    // Postfix, not prefix: the game's own Awake assigns the serialized ceilings,
+    // so a prefix would be overwritten before the store is ever used.
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(EntityInteractableStore), nameof(EntityInteractableStore.Awake))]
+    private static void AfterStoreAwake(EntityInteractableStore __instance) => BoatStorage.ApplyLimit(__instance);
+
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(EntityInteractableStore), nameof(EntityInteractableStore.CanStoreEntity))]
+    private static void BeforeParcelPlacement(EntityInteractableStore __instance) => BoatStorage.ApplyLimit(__instance);
+
+    // The placement preview reads the same ceilings; without this the ghost can
+    // show a legal slot that CanStoreEntity then rejects.
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(EntityInteractableStore), nameof(EntityInteractableStore.PreviewStorage))]
+    private static void BeforeStoragePreview(EntityInteractableStore __instance) => BoatStorage.ApplyLimit(__instance);
+
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(EntityInteractableStore), nameof(EntityInteractableStore.UpdateApprovedHeight))]
+    private static void BeforeHeightApprovalUpdate(EntityInteractableStore __instance) => BoatStorage.ApplyLimit(__instance);
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(ParcelDeliverer), nameof(ParcelDeliverer.Initialize))]
+    private static void AfterBoatInitialize(EntityInteractableStore __0) => BoatStorage.ApplyLimitToKnownBoatStore(__0);
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(ParcelDeliverer), nameof(ParcelDeliverer.InitializeFromNetwork))]
+    private static void AfterNetworkBoatInitialize(EntityInteractableStore __0) => BoatStorage.ApplyLimitToKnownBoatStore(__0);
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(EntityInteractableStore), nameof(EntityInteractableStore.CanStoreEntity))]
+    private static void AfterParcelPlacement(EntityInteractableStore __instance, StoreResult __result)
+    {
+        if (!Plugin.LogPlacements.Value || !BoatStorage.IsBoatStore(__instance))
+            return;
+
+        var root = __instance.GetRootStore(false);
+        var rootCeiling = root == null ? -1f : root.StorageMaximumHeight;
+
+        Plugin.LogInfo(
+            $"boat placement -> {__result}; height {__instance.CurrentHeight:0.###}, " +
+            $"Height {__instance.Height:0.###}, " +
+            $"root ceiling {rootCeiling:0.###}, " +
+            $"ceiling {__instance.StorageMaximumHeight:0.###}, " +
+            $"approved ceiling {__instance.StorageMaximumApprovedHeight:0.###}, " +
+            $"approved {__instance.IsHeightApproved}");
+    }
+}

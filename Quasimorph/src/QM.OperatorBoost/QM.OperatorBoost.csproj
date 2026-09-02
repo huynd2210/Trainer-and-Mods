@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>QM.OperatorBoost</AssemblyName>
+    <RootNamespace>QM.OperatorBoost</RootNamespace>
+    <Version>1.0.0</Version>
+  </PropertyGroup>
+</Project>

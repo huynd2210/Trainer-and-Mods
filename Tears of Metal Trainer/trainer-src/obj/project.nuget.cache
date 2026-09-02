@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "R5nhQquCJaQ=",
+  "success": true,
+  "projectFilePath": "C:\\Games\\Tears.of.Metal\\game\\trainer-src\\TearsOfMetal.Trainer.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Admin\\.nuget\\packages\\microsoft.net.illink.tasks\\8.0.29\\microsoft.net.illink.tasks.8.0.29.nupkg.sha512"
+  ],
+  "logs": []
+}

@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>QM.KillTracker</AssemblyName>
+    <RootNamespace>QM.KillTracker</RootNamespace>
+    <Version>1.0.0</Version>
+  </PropertyGroup>
+</Project>

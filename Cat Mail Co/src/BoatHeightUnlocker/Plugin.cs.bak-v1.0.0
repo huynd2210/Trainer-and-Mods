@@ -1,0 +1,110 @@
+using BepInEx;
+using BepInEx.Configuration;
+using BepInEx.Unity.IL2CPP;
+using HarmonyLib;
+
+namespace CatMailCo.BoatHeightUnlocker;
+
+[BepInPlugin(Guid, Name, Version)]
+[BepInProcess("CatMailCo.exe")]
+public sealed class Plugin : BasePlugin
+{
+    public const string Guid = "com.catmailco.boatheightunlocker";
+    public const string Name = "Boat Height Unlocker";
+    public const string Version = "1.0.0";
+
+    internal static Plugin Instance { get; private set; } = null!;
+    internal static ConfigEntry<float> MaximumHeight { get; private set; } = null!;
+
+    public override void Load()
+    {
+        Instance = this;
+        MaximumHeight = Config.Bind(
+            "Boat",
+            "MaximumHeight",
+            1000f,
+            "Maximum boat stack height in game units. The default 1000 effectively removes the restriction.");
+
+        Harmony.CreateAndPatchAll(typeof(BoatStoragePatches), Guid);
+        Log.LogInfo($"{Name} {Version} loaded; boat height limit is {MaximumHeight.Value}.");
+    }
+
+    public override bool Unload()
+    {
+        Harmony.UnpatchID(Guid);
+        return true;
+    }
+}
+
+internal static class BoatStorage
+{
+    internal static bool IsBoatStore(EntityInteractableStore store)
+    {
+        if (store == null)
+            return false;
+
+        try
+        {
+            if (store.StorageType == StorageType.Boat)
+                return true;
+
+            var root = store.GetRootStore(false);
+            return root != null && root.StorageType == StorageType.Boat;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    internal static void Relax(EntityInteractableStore store)
+    {
+        if (!IsBoatStore(store))
+            return;
+
+        var maximum = Math.Max(10f, Plugin.MaximumHeight.Value);
+        store.StorageMaximumHeight = maximum;
+        store.StorageMaximumApprovedHeight = maximum;
+        store.IsHeightApproved = true;
+    }
+
+    internal static void RelaxKnownBoatStore(EntityInteractableStore store)
+    {
+        if (store == null)
+            return;
+
+        // ParcelDeliverer supplies the authoritative boat storage object, even
+        // on builds where its serialized StorageType is assigned a frame later.
+        var maximum = Math.Max(10f, Plugin.MaximumHeight.Value);
+        store.StorageMaximumHeight = maximum;
+        store.StorageMaximumApprovedHeight = maximum;
+        store.IsHeightApproved = true;
+    }
+}
+
+internal static class BoatStoragePatches
+{
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(EntityInteractableStore), nameof(EntityInteractableStore.Awake))]
+    private static void BeforeStoreAwake(EntityInteractableStore __instance) => BoatStorage.Relax(__instance);
+
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(EntityInteractableStore), nameof(EntityInteractableStore.CanStoreEntity))]
+    private static void BeforeParcelPlacement(EntityInteractableStore __instance) => BoatStorage.Relax(__instance);
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(EntityInteractableStore), nameof(EntityInteractableStore.UpdateApprovedHeight))]
+    private static void AfterHeightApprovalUpdate(EntityInteractableStore __instance)
+    {
+        if (BoatStorage.IsBoatStore(__instance))
+            __instance.IsHeightApproved = true;
+    }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(ParcelDeliverer), nameof(ParcelDeliverer.Initialize))]
+    private static void BeforeBoatInitialize(EntityInteractableStore __0) => BoatStorage.RelaxKnownBoatStore(__0);
+
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(ParcelDeliverer), nameof(ParcelDeliverer.InitializeFromNetwork))]
+    private static void BeforeNetworkBoatInitialize(EntityInteractableStore __0) => BoatStorage.RelaxKnownBoatStore(__0);
+}

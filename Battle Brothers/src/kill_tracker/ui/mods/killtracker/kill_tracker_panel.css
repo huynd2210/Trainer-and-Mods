@@ -1,0 +1,65 @@
+/* Kill Tracker - "Kill Record" button + popup styling.
+   Layout only; text colour/size come from the game's font classes where possible,
+   with explicit fallbacks so it still reads fine if a class is missing. */
+
+.killtracker-button {
+	position: absolute;
+	top: 10px;
+	left: 10px;
+	z-index: 500;
+	padding: 4px 12px;
+	cursor: pointer;
+	background-color: rgba(20, 16, 10, 0.85);
+	border: 1px solid #6b5836;
+	border-radius: 2px;
+	color: #c5a25a;
+	white-space: nowrap;
+}
+
+.killtracker-button:hover {
+	color: #ffe2a6;
+	border-color: #9a7f4e;
+}
+
+.killtracker-popup-container {
+	padding: 10px 16px;
+	min-width: 340px;
+	max-width: 460px;
+}
+
+.killtracker-popup-header {
+	margin-bottom: 10px;
+	text-align: center;
+	color: #e2c88d;
+}
+
+.killtracker-popup-list {
+	max-height: 480px;
+	overflow-y: auto;
+	overflow-x: hidden;
+	padding-right: 6px;
+}
+
+.killtracker-popup-row {
+	display: flex;
+	justify-content: space-between;
+	align-items: baseline;
+	padding: 3px 0;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.killtracker-popup-name {
+	text-align: left;
+	padding-right: 24px;
+}
+
+.killtracker-popup-count {
+	text-align: right;
+	min-width: 3em;
+	color: #d8c9a8;
+}
+
+.killtracker-popup-empty {
+	padding: 10px 0;
+	text-align: center;
+}

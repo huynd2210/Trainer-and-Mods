@@ -1,0 +1,33 @@
+CULTIC mod release manifest
+Built: 2026-08-31 22:31:26 +07:00
+Game build: v2026.01.10 / Unity 6000.0.61f1 (74a0adb02c31)
+BepInEx: 5.4.23.5
+
+CULTIC God Mode v1.0.1
+  DLL SHA-256: 8B9B356A8876E47F0C74A4DC4DA4518E263AD6241915A87EBF1AADD1B23A7F84
+  Mod only: C:\Games\CULTIC.v2026.01.10\CULTIC\GodModeSource\release\GodMode.zip (11,694 bytes)
+  BepInEx bundled: C:\Games\CULTIC.v2026.01.10\CULTIC\GodModeSource\release\GodMode-Pack.zip (665,457 bytes)
+CULTIC Kill Tracker v1.1.0
+  DLL SHA-256: 2BB938823811CD6FD8E56AFF46455575830038572EB37705BFA4073E1D1B3F80
+  Mod only: C:\Games\CULTIC.v2026.01.10\CULTIC\KillTrackerSource\release\KillTracker.zip (13,137 bytes)
+  BepInEx bundled: C:\Games\CULTIC.v2026.01.10\CULTIC\KillTrackerSource\release\KillTracker-Pack.zip (666,996 bytes)
+CULTIC Lighter Brighter v1.1.0
+  DLL SHA-256: E66F01338299CA828B03E38E613E5DF5C390240591F3393615A834321B522347
+  Mod only: C:\Games\CULTIC.v2026.01.10\CULTIC\LighterBrighterSource\release\LighterBrighter.zip (5,443 bytes)
+  BepInEx bundled: C:\Games\CULTIC.v2026.01.10\CULTIC\LighterBrighterSource\release\LighterBrighter-Pack.zip (659,272 bytes)
+CULTIC Minimap v1.4.0
+  DLL SHA-256: 57FBEE3B4D3935AE797CF38C90FC49ED831FD0230934683AAF1584D0387A2F39
+  Mod only: C:\Games\CULTIC.v2026.01.10\CULTIC\MinimapSource\release\Minimap.zip (74,924 bytes)
+  BepInEx bundled: C:\Games\CULTIC.v2026.01.10\CULTIC\MinimapSource\release\Minimap-Pack.zip (728,737 bytes)
+CULTIC Replay v1.4.0
+  DLL SHA-256: 5FBB085CB6CEF904ACAEA99AC1491C896C1F87DC6677EF7F318B5DBE26756ADA
+  Mod only: C:\Games\CULTIC.v2026.01.10\CULTIC\ReplaySource\release\CulticReplay.zip (33,765 bytes)
+  BepInEx bundled: C:\Games\CULTIC.v2026.01.10\CULTIC\ReplaySource\release\CulticReplay-Pack.zip (687,533 bytes)
+CULTIC SuperHot v1.3.2
+  DLL SHA-256: 00A3D4FBA197889F14B7FF910BE86B4AD1CE782671AF16C213394171BC71C261
+  Mod only: C:\Games\CULTIC.v2026.01.10\CULTIC\SuperHotSource\release\SuperHot.zip (8,948 bytes)
+  BepInEx bundled: C:\Games\CULTIC.v2026.01.10\CULTIC\SuperHotSource\release\SuperHot-Pack.zip (662,717 bytes)
+CULTIC Hotkey Trainer v1.2.0
+  DLL SHA-256: 5AC2BB72BE95A7115BAA87ED6F0AAB6A2B553362F8FB4A39C0E151DFF18803F7
+  Mod only: C:\Games\CULTIC.v2026.01.10\CULTIC\TrainerSource\release\CulticTrainer.zip (7,856 bytes)
+  BepInEx bundled: C:\Games\CULTIC.v2026.01.10\CULTIC\TrainerSource\release\CulticTrainer-Pack.zip (661,632 bytes)

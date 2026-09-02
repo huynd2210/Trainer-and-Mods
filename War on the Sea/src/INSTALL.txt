@@ -1,0 +1,31 @@
+War on the Sea Trainer v1.3.0 - Self-Contained Pack
+===================================================
+This pack bundles BepInEx 5.4.23.2 (x64) plus the WoTSTrainer plugin, so no
+separate BepInEx install is needed. It targets the x64 Mono build of
+War on the Sea v1.09a.
+
+INSTALL
+-------
+1. Extract this zip INTO the game folder (the folder that contains
+   WarOnTheSea.exe). It drops winhttp.dll, doorstop_config.ini and a
+   BepInEx\ folder next to the executable.
+2. Launch WarOnTheSea.exe.
+3. Open or load a campaign, then:
+     F1 = Infinite Command Points (purchases never fail)
+     F2 = Reveal All (no fog of war - campaign map + tactical battles:
+          all enemy units visible, detected and identified; exact enemy
+          composition in contact tooltips)
+
+REMOVE
+------
+Delete the three items you just added: winhttp.dll, doorstop_config.ini,
+and the BepInEx\ folder. Nothing existing is touched.
+
+NOTES
+-----
+- First launch of BepInEx may take a few seconds longer (it builds its
+  config folder). The plugin log is at game\BepInEx\LogOutput.log.
+- Both cheats are player-side only; the enemy AI is unaffected.
+- F1 (command points): the pool never depletes; the counter shows your
+  real available pool and purchases never fail.
+- F2 (reveal map): toggling off lets the fog return as spot timers decay.

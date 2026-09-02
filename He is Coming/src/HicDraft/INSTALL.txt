@@ -1,0 +1,33 @@
+He is Coming - Equipment Draft
+==============================
+
+This archive contains BepInEx 6 (bleeding edge, IL2CPP, win-x64) and the Equipment Draft mod.
+
+Install
+-------
+1. Close the game.
+2. Extract everything in this archive into your "He is Coming" game folder - the one holding
+   "He is coming.exe" and GameAssembly.dll.
+   You should end up with:
+       He is coming.exe
+       winhttp.dll
+       doorstop_config.ini
+       dotnet\
+       BepInEx\core\
+       BepInEx\plugins\HicDraft.dll
+3. Start the game.
+
+The FIRST launch takes several minutes with a black window while BepInEx converts the game's
+IL2CPP code into assemblies it can work with. This happens once. Later launches are normal speed.
+
+Use
+---
+Press F7 in a run to open the draft menu, click an item to equip it, press F7 or the compendium's
+back button to leave.
+
+Change the hotkey in BepInEx\config\dev.heiscoming.draft.cfg after the first launch.
+
+Uninstall
+---------
+Delete winhttp.dll, doorstop_config.ini, .doorstop_version, the dotnet folder and the BepInEx
+folder. Nothing in the game's own files is modified.

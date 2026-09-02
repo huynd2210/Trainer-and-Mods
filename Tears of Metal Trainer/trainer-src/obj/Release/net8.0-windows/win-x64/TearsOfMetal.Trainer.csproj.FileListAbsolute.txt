@@ -1,0 +1,13 @@
+C:\Games\Tears.of.Metal\game\trainer-src\bin\Release\net8.0-windows\win-x64\README.md
+C:\Games\Tears.of.Metal\game\trainer-src\bin\Release\net8.0-windows\win-x64\Tears of Metal Trainer.exe
+C:\Games\Tears.of.Metal\game\trainer-src\bin\Release\net8.0-windows\win-x64\Tears of Metal Trainer.deps.json
+C:\Games\Tears.of.Metal\game\trainer-src\bin\Release\net8.0-windows\win-x64\Tears of Metal Trainer.runtimeconfig.json
+C:\Games\Tears.of.Metal\game\trainer-src\bin\Release\net8.0-windows\win-x64\Tears of Metal Trainer.dll
+C:\Games\Tears.of.Metal\game\trainer-src\obj\Release\net8.0-windows\win-x64\TearsOfMetal.Trainer.GeneratedMSBuildEditorConfig.editorconfig
+C:\Games\Tears.of.Metal\game\trainer-src\obj\Release\net8.0-windows\win-x64\TearsOfMetal.Trainer.AssemblyInfoInputs.cache
+C:\Games\Tears.of.Metal\game\trainer-src\obj\Release\net8.0-windows\win-x64\TearsOfMetal.Trainer.AssemblyInfo.cs
+C:\Games\Tears.of.Metal\game\trainer-src\obj\Release\net8.0-windows\win-x64\TearsOfMetal.Trainer.csproj.CoreCompileInputs.cache
+C:\Games\Tears.of.Metal\game\trainer-src\obj\Release\net8.0-windows\win-x64\Tears of Metal Trainer.dll
+C:\Games\Tears.of.Metal\game\trainer-src\obj\Release\net8.0-windows\win-x64\refint\Tears of Metal Trainer.dll
+C:\Games\Tears.of.Metal\game\trainer-src\obj\Release\net8.0-windows\win-x64\TearsOfMetal.Trainer.genruntimeconfig.cache
+C:\Games\Tears.of.Metal\game\trainer-src\obj\Release\net8.0-windows\win-x64\ref\Tears of Metal Trainer.dll

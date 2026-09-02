@@ -1,0 +1,183 @@
+﻿term,type,category,age,mood,english
+ClientDialogues2/BehaviorConstraint_0,BehaviorConstraint,ConstraintHeavy,Any,Friendly,"Watch your back, it's heavy."
+ClientDialogues2/BehaviorConstraint_1,BehaviorConstraint,ConstraintHeavy,Any,Neutral,I hope you have someone to help you because it's heavy.
+ClientDialogues2/BehaviorConstraint_2,BehaviorConstraint,ConstraintHeavy,Any,Neutral,You look strong enough; it's really not lightweight.
+ClientDialogues2/BehaviorConstraint_3,BehaviorConstraint,ConstraintHeavy,Any,Grumpy,You think you can carry this package with those arms?
+ClientDialogues2/BehaviorConstraint_4,BehaviorConstraint,ConstraintHeavy,Any,Anxious,Please be careful it is heavy!
+ClientDialogues2/BehaviorConstraint_5,BehaviorConstraint,Fragile,Any,Neutral,"Be cautious, it's a fragile box."
+ClientDialogues2/BehaviorConstraint_6,BehaviorConstraint,Fragile,Any,Grumpy,You better not be clumsy with this box.
+ClientDialogues2/BehaviorConstraint_7,BehaviorConstraint,Fragile,Any,Anxious,Please be careful. There is a fragile item inside.
+ClientDialogues2/BehaviorConstraint_8,BehaviorConstraint,Fragile,Any,Friendly,"It's fragile, be careful handling it."
+ClientDialogues2/BehaviorConstraint_9,BehaviorConstraint,Fragile,Any,Anxious,"I hope it was stored properly, it's fragile."
+ClientDialogues2/BehaviorConstraint_10,BehaviorConstraint,ContactForbidden,Any,Neutral,It's a very specific item that can't be close to similar objects.
+ClientDialogues2/BehaviorConstraint_11,BehaviorConstraint,ContactForbidden,Any,Anxious,"Be careful, it's a bit unstable and can produce strange reactions all around itself."
+ClientDialogues2/BehaviorConstraint_12,BehaviorConstraint,ContactForbidden,Any,Grumpy,I believe you've been smart enough not to store it next to objects that could damage it.
+ClientDialogues2/BehaviorConstraint_13,BehaviorConstraint,ContactForbidden,Any,Neutral,It's the kind of parcel that becomes unstable near other boxes.
+ClientDialogues2/BehaviorConstraint_14,BehaviorConstraint,ContactForbidden,Any,Neutral,My package can't be stored next to some other boxes.
+ClientDialogues2/ByeDeposit_0,ByeDeposit,,Any,Neutral,Thank you!
+ClientDialogues2/ByeDeposit_1,ByeDeposit,,Any,Neutral,Please be careful with it. Bye!
+ClientDialogues2/ByeDeposit_2,ByeDeposit,,Old,Grumpy,You better be cautious.
+ClientDialogues2/ByeDeposit_3,ByeDeposit,,Any,Anxious,Thanks! I hope it won't get damaged…
+ClientDialogues2/ByeDeposit_4,ByeDeposit,,Any,Friendly,"Thank you very much, take care of that!"
+ClientDialogues2/ByeDeposit_5,ByeDeposit,,Old,Friendly,"If you can send this as soon as you can, thank you, my dear."
+ClientDialogues2/Goodbye_0,Goodbye,,Any,Friendly,"Thank you, goodbye!"
+ClientDialogues2/Goodbye_1,Goodbye,,Any,Neutral,"Thanks, have a nice day."
+ClientDialogues2/Goodbye_2,Goodbye,,Any,Friendly,"Thank you, bye!"
+ClientDialogues2/Goodbye_3,Goodbye,,Young,Friendly,See ya!
+ClientDialogues2/Goodbye_4,Goodbye,,Old,Grumpy,About time.
+ClientDialogues2/Goodbye_5,Goodbye,,Any,Shy,<size=60%>Thank you very much… Goodbye… </size>
+ClientDialogues2/Goodbye_6,Goodbye,,Old,Friendly,"Thank you, my dear, have a heavenly day."
+ClientDialogues2/Goodbye_7,Goodbye,,Middle,Friendly,"Great, keep up the good work!"
+ClientDialogues2/Goodbye_8,Goodbye,,Middle,Grumpy,Finally.
+ClientDialogues2/Goodbye_9,Goodbye,,Young,Friendly,Thank you! Bye-bye!
+ClientDialogues2/GoodbyeRefused_0,GoodbyeRefused,,Any,Friendly,"No worries, I'll come another time. See ya!"
+ClientDialogues2/GoodbyeRefused_1,GoodbyeRefused,,Any,Neutral,"It's ok, see you next time!"
+ClientDialogues2/GoodbyeRefused_2,GoodbyeRefused,,Old,Grumpy,As if I had all the time in the world.
+ClientDialogues2/GoodbyeRefused_3,GoodbyeRefused,,Any,Anxious,Oh… No problem… I guess?
+ClientDialogues2/GoodbyeRefused_4,GoodbyeRefused,,Any,Anxious,"Oh no, I hope there is no issue with my parcel… I'll come back later."
+ClientDialogues2/Hello_0,Hello,,Any,Friendly,Hello!
+ClientDialogues2/Hello_1,Hello,,Old,Neutral,Good morning.
+ClientDialogues2/Hello_2,Hello,,Any,Friendly,Hey!
+ClientDialogues2/Hello_3,Hello,,Middle,Neutral,Sup?
+ClientDialogues2/Hello_4,Hello,,Old,Neutral,Good evening.
+ClientDialogues2/Hello_5,Hello,,Middle,Friendly,What's up?
+ClientDialogues2/Hello_6,Hello,,Old,Neutral,Greetings.
+ClientDialogues2/Hello_7,Hello,,Old,Neutral,How do you do?
+ClientDialogues2/Hello_8,Hello,,Any,Neutral,Hi.
+ClientDialogues2/Hello_9,Hello,,Young,Friendly,Yo!
+ClientDialogues2/Hello_10,Hello,,Middle,Friendly,"Hello, nice to see you."
+ClientDialogues2/Hello_11,Hello,,Middle,Friendly,Hello there.
+ClientDialogues2/Hello_12,Hello,,Young,Excited,Hiiii!
+ClientDialogues2/Hello_13,Hello,,Old,Neutral,Good day.
+ClientDialogues2/Hello_14,Hello,,Middle,Friendly,Good to see you.
+ClientDialogues2/Hello_15,Hello,,Middle,Friendly,G'day.
+ClientDialogues2/Hello_16,Hello,,Middle,Shy,<size=60%>… Hello… Sorry to bother you…</size>
+ClientDialogues2/Hello_17,Hello,,Any,Anxious,Uh… Hello…
+ClientDialogues2/Hello_18,Hello,,Any,Shy,<size=60%>… Hi…</size>
+ClientDialogues2/Hello_19,Hello,,Old,Grumpy,"Huh? Oh, hi."
+ClientDialogues2/Hello_20,Hello,,Middle,Grumpy,You again.
+ClientDialogues2/Hello_21,Hello,,Young,Shy,<size=60%>… Hi… Do you have my package?</size>
+ClientDialogues2/HelloDeposit_0,HelloDeposit,,Any,Neutral,Hi! Here you are. Take care of this shipment please.
+ClientDialogues2/HelloDeposit_1,HelloDeposit,,Any,Neutral,"Hello, can you take care of that?"
+ClientDialogues2/HelloDeposit_2,HelloDeposit,,Any,Neutral,"Hi, I'd like to send that."
+ClientDialogues2/HelloDeposit_3,HelloDeposit,,Young,Excited,"Hiiii, my dad told me to ask you to send this!"
+ClientDialogues2/HelloDeposit_4,HelloDeposit,,Old,Grumpy,Huh… I need to send that.
+ClientDialogues2/HelloDeposit_5,HelloDeposit,,Any,Shy,"<size=60%>Hello… Sorry to bother you, I have this shipment to send.</size>"
+ClientDialogues2/HelloDeposit_6,HelloDeposit,,Any,Friendly,"Hello, how are you? Can you please take care of that?"
+ClientDialogues2/HelloDeposit_7,HelloDeposit,,Any,Anxious,Uh… Hi… Can you please take extra care of this shipment?
+ClientDialogues2/HelloDeposit_8,HelloDeposit,,Any,Neutral,"Good day, I'd like to send this shipment."
+ClientDialogues2/HelloDeposit_9,HelloDeposit,,Any,Neutral,"Hello, I've brought something to ship."
+ClientDialogues2/Link_0,Link,,Any,,"By the way,"
+ClientDialogues2/Link_1,Link,,Any,,"So,"
+ClientDialogues2/Link_2,Link,,Any,,"Also,"
+ClientDialogues2/Link_3,Link,,Any,,"First,"
+ClientDialogues2/Link_4,Link,,Any,,"Finally,"
+ClientDialogues2/Link_5,Link,,Any,,"But,"
+ClientDialogues2/Link_6,Link,,Any,,"For all I know,"
+ClientDialogues2/Link_7,Link,,Any,,Another point is that
+ClientDialogues2/Link_8,Link,,Any,,And
+ClientDialogues2/Link_9,Link,,Any,,"On top of that,"
+ClientDialogues2/PersonName_0,PersonName,MatchName,Any,Neutral,My name is $NAME$ $SURNAME$.
+ClientDialogues2/PersonName_1,PersonName,MatchSurname,Any,Grumpy,Look for $SURNAME$.
+ClientDialogues2/PersonName_2,PersonName,MatchName,Young,Excited,The parcel is for my brother $NAME$!
+ClientDialogues2/PersonName_3,PersonName,MatchName,Any,Neutral,I'm $NAME$ $SURNAME$.
+ClientDialogues2/PersonName_4,PersonName,MatchSurname,Young,Neutral,"The parcel is for my mom, her last name is $SURNAME$."
+ClientDialogues2/PersonName_5,PersonName,MatchName,Middle,Neutral,"It's for my wife, $NAME$ $SURNAME$."
+ClientDialogues2/PersonName_6,PersonName,MatchSurname,Any,Shy,<size=60%>My name is $NAME$ $SURNAME$… But the parcel is for my brother.</size>
+ClientDialogues2/PersonName_7,PersonName,MatchName,Any,Anxious,Uh… I… I'm $NAME$… $SURNAME$.
+ClientDialogues2/PersonName_8,PersonName,MatchName,Old,Grumpy,"Don't you recognize me? It's me, $NAME$!"
+ClientDialogues2/PersonName_9,PersonName,MatchName,Any,Anxious,Huh… My… My name is $NAME$… $NAME$ $SURNAME$.
+ClientDialogues2/PersonName_10,PersonName,MatchSurname,Young,Excited,"My mom sent me to pick up her parcel, I'm $NAME$ $SURNAME$!"
+ClientDialogues2/RequestWrongParcel_0,RequestWrongParcel,,Any,Neutral,That one isn't for me.
+ClientDialogues2/RequestWrongParcel_1,RequestWrongParcel,,Any,Neutral,I believe this is the wrong parcel.
+ClientDialogues2/RequestWrongParcel_2,RequestWrongParcel,,Any,Neutral,That doesn't look like my parcel…
+ClientDialogues2/RequestWrongParcel_3,RequestWrongParcel,,Any,Neutral,Are you sure this is my parcel? Because I'm sure it isn't. 
+ClientDialogues2/RequestWrongParcel_4,RequestWrongParcel,,Old,Grumpy,Can you please focus? I don't have all the time. 
+ClientDialogues2/RequestWrongParcel_5,RequestWrongParcel,,Any,Shy,<size=60%>Uh… I'm really sorry… but it's not my parcel… sorry… </size>
+ClientDialogues2/RequestWrongParcel_6,RequestWrongParcel,,Any,Anxious,"Oh, that's not my package. I hope mine didn't get lost…"
+ClientDialogues2/RequestWrongParcel_7,RequestWrongParcel,,Any,Friendly,"Oops, I'm sorry but this is not my parcel."
+ClientDialogues2/Size_0,Size,Flat,Any,Neutral,It's a small box.
+ClientDialogues2/Size_1,Size,FlatLetter,Any,Neutral,It's just a letter.
+ClientDialogues2/Size_2,Size,Giant,Any,Neutral,My package is supposed to be huge.
+ClientDialogues2/Size_3,Size,GiantPlus,Any,Neutral,"You can't miss it, it's an enormous box."
+ClientDialogues2/Size_4,Size,LongFlat,Any,Neutral,It's a mid-sized package… with a cord all around.
+ClientDialogues2/Size_5,Size,MediumSize,Any,Neutral,"It's a box with handles, easier to carry."
+ClientDialogues2/Size_6,Size,OddCube,Any,Neutral,It's a big box… I'm building a cardboard castle.
+ClientDialogues2/Size_7,Size,Small,Any,Neutral,"Just a small box, nothing special."
+ClientDialogues2/Size_8,Size,Standard,Any,Neutral,My parcel is cube shaped.
+ClientDialogues2/Size_9,Size,StandardLong,Any,Neutral,My package has a rope around it… That's the only thing I know.
+ClientDialogues2/Size_10,Size,Tall,Any,Neutral,I was told that it is almost my height.
+ClientDialogues2/Size_11,Size,VeryLong,Any,Neutral,I hope this parcel will fit on my bike.
+ClientDialogues2/StorageConstraint_0,StorageConstraint,None,Any,Neutral,"I ordered a box. No, there's nothing in it, I just need the box. For me."
+ClientDialogues2/StorageConstraint_1,StorageConstraint,None,Any,Neutral,"My package is full of balls of yarn, I can't wait to play with them!"
+ClientDialogues2/StorageConstraint_2,StorageConstraint,None,Any,Excited,Please tell me that you received my fishing rod!
+ClientDialogues2/StorageConstraint_3,StorageConstraint,None,Any,Neutral,I think you have a package for me.
+ClientDialogues2/StorageConstraint_4,StorageConstraint,None,Any,Neutral,I believe you have a box for me.
+ClientDialogues2/StorageConstraint_5,StorageConstraint,None,Any,Anxious,"Do you have my package? It's, hmm, nothing special."
+ClientDialogues2/StorageConstraint_6,StorageConstraint,None,Any,Neutral,I'm here to get my package.
+ClientDialogues2/StorageConstraint_7,StorageConstraint,None,Any,Grumpy,My package is supposed to be here and it better not be damaged.
+ClientDialogues2/StorageConstraint_8,StorageConstraint,None,Any,Neutral,"I have a shipment on its way from $REGION$, do you have it?"
+ClientDialogues2/StorageConstraint_9,StorageConstraint,None,Any,Grumpy,I am waiting for a package. I hope The Captain didn't lose it at sea.
+ClientDialogues2/StorageConstraint_10,StorageConstraint,None,Any,Neutral,"My package is a cuckoo clock. Not the whole clock, just the little bird that comes out. Someone… ate the last one."
+ClientDialogues2/StorageConstraint_11,StorageConstraint,None,Any,Excited,My delivery? Do you have it?
+ClientDialogues2/StorageConstraint_12,StorageConstraint,None,Any,Neutral,"I ordered a fancy laptop to nap—I mean, to work. Do you have my work laptop?"
+ClientDialogues2/StorageConstraint_13,StorageConstraint,None,Any,Neutral,"You should have received my package, it's been a while since I ordered it."
+ClientDialogues2/StorageConstraint_14,StorageConstraint,None,Any,Neutral,I'm expecting a delivery.
+ClientDialogues2/StorageConstraint_15,StorageConstraint,None,Any,Neutral,"I have a precious package on its way, do you have it?"
+ClientDialogues2/StorageConstraint_16,StorageConstraint,Hot,Any,Neutral,My package is supposed to stay warm for a better preservation.
+ClientDialogues2/StorageConstraint_17,StorageConstraint,Hot,Any,Grumpy,"I ordered some lasagna, I hope you kept them warm!"
+ClientDialogues2/StorageConstraint_18,StorageConstraint,Hot,Any,Grumpy,"You don't need to know what's in my package, just that it has to stay warm!!"
+ClientDialogues2/StorageConstraint_19,StorageConstraint,Hot,Any,Neutral,My package contains special hot sauces that have to stay warm.
+ClientDialogues2/StorageConstraint_20,StorageConstraint,Hot,Any,Neutral,My package is a bunch of special fire dragon scales.
+ClientDialogues2/StorageConstraint_21,StorageConstraint,Hot,Any,Anxious,Please tell me that you stored my hot package properly.
+ClientDialogues2/StorageConstraint_22,StorageConstraint,Hot,Any,Neutral,"My package is from $REGION$, I hope the trip didn't let it cool down."
+ClientDialogues2/StorageConstraint_23,StorageConstraint,Hot,Any,Friendly,"Be careful, my package may be very hot."
+ClientDialogues2/StorageConstraint_24,StorageConstraint,Hot,Any,Neutral,"I am waiting for my delivery from $REGION$, it needs to be stored in a hot room."
+ClientDialogues2/StorageConstraint_25,StorageConstraint,Cold,Any,Neutral,My package is supposed to stay cold otherwise it will rot.
+ClientDialogues2/StorageConstraint_26,StorageConstraint,Cold,Any,Neutral,"I am waiting for my delivery from $REGION$, I hope you kept it cold enough."
+ClientDialogues2/StorageConstraint_27,StorageConstraint,Cold,Any,Neutral,"I ordered special catnip seeds, they need to be refrigerated so they don't sprout."
+ClientDialogues2/StorageConstraint_28,StorageConstraint,Cold,Any,Neutral,My package is a special fish delivery.
+ClientDialogues2/StorageConstraint_29,StorageConstraint,Cold,Any,Neutral,My package is a box of ice creams.
+ClientDialogues2/StorageConstraint_30,StorageConstraint,Cold,Any,Grumpy,"I won't tell you what's in my package, just that it has to stay cold!!"
+ClientDialogues2/StorageConstraint_31,StorageConstraint,Cold,Any,Neutral,Have you stored my cold package properly?
+ClientDialogues2/StorageConstraint_32,StorageConstraint,Cold,Any,Neutral,My package is supposed to be refrigerated.
+ClientDialogues2/StorageConstraint_33,StorageConstraint,Cold,Any,Anxious,Please tell me that you stored my cold package properly.
+ClientDialogues2/StorageConstraint_34,StorageConstraint,Cold,Any,Grumpy,My package contains ice cubes. Don't ask me why I ordered that.
+ClientDialogues2/StorageConstraint_35,StorageConstraint,Bright,Any,Neutral,My package is supposed to stay in a bright room.
+ClientDialogues2/StorageConstraint_36,StorageConstraint,Bright,Any,Neutral,"I ordered sunflowers, they need a lot of light."
+ClientDialogues2/StorageConstraint_37,StorageConstraint,Bright,Any,Neutral,"My package contains very special crystals, they have to stay in a bright environment."
+ClientDialogues2/StorageConstraint_38,StorageConstraint,Bright,Any,Neutral,"My package is from $REGION$, it should be stored in a room with a large amount of light."
+ClientDialogues2/StorageConstraint_39,StorageConstraint,Bright,Any,Neutral,"My package is very special, it needs to stay in a bright environment."
+ClientDialogues2/StorageConstraint_40,StorageConstraint,Bright,Any,Anxious,"My package contains very rare plants from $REGION$, they absolutely need to stay in a bright room!"
+ClientDialogues2/StorageConstraint_41,StorageConstraint,Bright,Any,Neutral,Have you stored my bright package properly?
+ClientDialogues2/StorageConstraint_42,StorageConstraint,Bright,Any,Neutral,My package contains flowers that always need some light.
+ClientDialogues2/StorageConstraint_43,StorageConstraint,Bright,Any,Grumpy,"You don't need to know what's in my package, just that it has to stay in a bright room!!"
+ClientDialogues2/StorageConstraint_44,StorageConstraint,Dark,Any,Neutral,My package is supposed to stay in a dark room.
+ClientDialogues2/StorageConstraint_45,StorageConstraint,Dark,Any,Neutral,"I ordered midnight spores, they need to stay away from the light."
+ClientDialogues2/StorageConstraint_46,StorageConstraint,Dark,Any,Neutral,"My package contains photographic films, they have to stay in a dark room."
+ClientDialogues2/StorageConstraint_47,StorageConstraint,Dark,Any,Anxious,"My package is from $REGION$, it should be stored in a room without a single ray of light."
+ClientDialogues2/StorageConstraint_48,StorageConstraint,Dark,Any,Neutral,"My package is very special, it needs to stay in a dark environment."
+ClientDialogues2/StorageConstraint_49,StorageConstraint,Dark,Any,Anxious,"My package contains very rare seeds from $REGION$, they absolutely need to stay in the dark!"
+ClientDialogues2/StorageConstraint_50,StorageConstraint,Dark,Any,Neutral,Have you stored my dark package properly?
+ClientDialogues2/StorageConstraint_51,StorageConstraint,Dark,Any,Grumpy,"My package contains photographic films, I hope you know it needs to be stored in the dark."
+ClientDialogues2/StorageConstraint_52,StorageConstraint,Dark,Any,Grumpy,"You don't need to know what's in my package, just that it has to stay in a dark room!!"
+ClientDialogues2/VisualElement_0,VisualElement,StickerFrog,Any,Neutral,It has this very cute sticker with a frog.
+ClientDialogues2/VisualElement_1,VisualElement,RibbonBlue,Any,Neutral,It is supposed to have a blue ribbon.
+ClientDialogues2/VisualElement_2,VisualElement,StickerCrocodileBiteMark,Any,Neutral,My aunt told me her pet crocodile tried to eat the parcel.
+ClientDialogues2/VisualElement_3,VisualElement,RibbonYellow,Any,Neutral,I believe the parcel is wrapped with a yellow ribbon.
+ClientDialogues2/VisualElement_4,VisualElement,StickerCatClawMark,Any,Neutral,"My gran has very long claws, they might have scratched the parcel."
+ClientDialogues2/VisualElement_5,VisualElement,StickerDuck,Any,Neutral,It has a special sticker with a duck.
+ClientDialogues2/VisualElement_6,VisualElement,StickerLemon,Any,Neutral,I believe there is a lemon sticker on it.
+ClientDialogues2/VisualElement_7,VisualElement,StickerCrocodileClawMark,Any,Neutral,There are a lot of crocodiles where my parcel comes from.
+ClientDialogues2/VisualElement_8,VisualElement,StickerEagleClawMark,Any,Neutral,My grandpa told me the package was attacked by an eagle.
+ClientDialogues2/VisualElement_9,VisualElement,StickerSlothClawMark,Any,Neutral,I was told a sloth tried to steal my package.
+ClientDialogues2/VisualElement_10,VisualElement,RibbonRed,Any,Neutral,My package has a red ribbon.
+ClientDialogues2/VisualElement_11,VisualElement,RibbonAny,Any,Neutral,My cousin loves to put ribbons on my packages.
+ClientDialogues2/VisualElement_12,VisualElement,StickerLavender,Any,Neutral,It has a sprig of lavender sticker.
+ClientDialogues2/VisualElement_13,VisualElement,RibbonAny,Any,Neutral,It is supposed to have a ribbon on it.
+ClientDialogues2/VisualElement_14,VisualElement,RibbonAny,Any,Neutral,I asked my sister to put a ribbon on it.
+ClientDialogues2/VisualElement_15,VisualElement,StickerClover,Any,Neutral,It has this very cute sticker with a clover.
+ClientDialogues2/Weight_0,Weight,Light,Any,Neutral,My parcel may not be heavy at all.
+ClientDialogues2/Weight_1,Weight,Medium,Any,Neutral,It will not be a challenge for you to carry it.
+ClientDialogues2/Weight_2,Weight,Heavy,Any,Neutral,"I warn you, it's a heavy package."
+ClientDialogues2/Weight_3,Weight,VeryHeavy,Any,Neutral,"Do you have someone to help you carry it? No? Well, good luck."

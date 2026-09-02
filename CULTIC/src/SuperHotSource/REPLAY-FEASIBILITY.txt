@@ -1,0 +1,123 @@
+CULTIC SuperHot - Replay System Feasibility
+============================================
+Investigation date: 2026-08-22 (game build v2026.01.10, Assembly-CSharp inspected via Mono.Cecil)
+
+THE IDEA
+--------
+Play with SuperHot (world frozen while you're still), then watch the replay at
+normal speed. In playback your dodges happen at full human speed while bullets
+that crawled toward you barely move -> you look like an action hero. This is
+exactly how SUPERHOT's own trailer shots are staged, just watched after the fact.
+
+VERDICT: FEASIBLE, and cheaper than expected. No new engine tech is needed.
+Recommended as a companion plugin ("SuperHotReplay") recording in-session,
+playing back ghost actors in the same scene.
+
+WHY IT IS FEASIBLE - THE KEY DISCOVERY
+--------------------------------------
+CULTIC renders all characters as Doom-style 2D billboards, not skinned 3D models:
+
+  scrEnemy (base of ~40 enemy types) renders through:
+    GameObject        sprite          <- billboard child object
+    SpriteRenderer    spriteRenderer
+    Sprite[]          currentSprite   <- current animation set (idle/run/attack/...)
+    Int32             currentFrame
+    Boolean           flipX
+    Int32             orientation     <- 8-dir facing
+
+  scrPlayerControl likewise:
+    SpriteRenderer legSprite / torsoSprite
+    playerSprite[] playerSprites      <- named sets w/ frames, offsets, loop mode
+    RectTransform  playerWeapon / armCanvas  (first-person arms are sprites too)
+    GameObject     thirdPersonRig     <- SEE BELOW
+
+Consequence: the full VISUAL state of any actor is just
+    position + yaw + which sprite set + frame index + flip flag
+- roughly 24 bytes per actor per frame. There are no bones, no skeletal
+retargeting, no animation graphs to reverse-engineer. A recorder that snapshots
+these fields reproduces the game's visuals essentially pixel-perfect.
+
+MORE LUCKY BREAKS
+-----------------
+1. The game already has a third-person presentation of the player sprite.
+   scrPlayerControl.Update enables thirdPersonRig under spectatorMode (the
+   multiplayer death-cam). We can reuse that path so the replay shows YOUR
+   billboard dodging instead of a first-person view.
+
+2. Co-op already proves transform-sync is enough: multiplayer replicates actors
+   via NetworkTransform-style sync, i.e. position+rotation (+sprite state) is
+   sufficient for correct visuals on a remote client. Our playback is the same
+   problem: apply recorded states to visual clones.
+
+3. The SuperHot plugin already Harmony-patches every enemy projectile class
+   (scrBullet, scrHeliRocket, scrInfectedSpit, ...). The same hooks double as
+   recording points for projectiles - the exact things that make dodges look
+   superhuman.
+
+4. Time flows through Unity timeScale. During SuperHot play everything
+   (AI, animations, projectiles) advances with scaled time. If we timestamp
+   samples in UNSCALED time, playing them back at 1x automatically reconstructs
+   the "world stood still while you moved" rhythm with no special casing.
+
+WHAT ALMOST CERTAINLY DOES NOT EXIST (checked)
+----------------------------------------------
+No built-in replay/killcam/demo system. String scan found no Replay/Killcam/
+Recorder machinery; "Replay"/"Ghost" hits are unrelated (menu field names,
+scrGhost enemy). netTrySpectate is live multiplayer spectating only.
+Deterministic input-log re-simulation is not viable: AI, RNG and physics would
+need to reproduce bit-exactly; do not attempt.
+
+DESIGN
+------
+Recorder (runs while playing):
+  - Fixed-rate sampler (60 Hz unscaled) into a ring buffer (~90 s).
+  - Per actor snapshot: instanceID, pos, yaw, sprite-set reference,
+    frame index, flipX, visible. Actors discovered once (spawn/death events).
+  - Projectiles: pos + type id each sample (reuse existing patch classes).
+  - Events (sparse): muzzle flash on/off, shot fired, sound cues, gib spawns.
+  - Player camera pose (for optional FP playback).
+  - Budget: 30 entities * 60 Hz * ~24 B = ~43 KB/s -> a 90-second ring buffer
+    is about 4 MB. Trivial.
+
+Playback (aftermath theater, MVP):
+  - Trigger: on player death, or hotkey ("watch last run"), or level end.
+  - Live sim is already stopped there (gameState != 0), so we never fight
+    running AI - this sidesteps the hardest problem entirely.
+  - Spawn visual-only clones: Instantiate the actor's `sprite` child, strip
+    scripts/colliders/rigidbody/audio, keep SpriteRenderer.
+  - Each frame, seek buffer at playbackTime = real elapsed * 1.0, interpolate
+    between samples, assign sprite/frame/flip to clones.
+  - Camera: orbit / rail cam following the player clone (or reuse the
+    spectator third-person rig for a "broadcast" feel).
+  - Playback speed configurable: 1.0x default, 0.5x "director mode".
+
+MVP SCOPE vs V2
+---------------
+MVP (in-session instant replay, no persistence):
+  - record last N seconds, playback after death/hotkey, ghost clones,
+    orbit camera, no audio. ~600-1000 lines. Very achievable.
+V2:
+  - save/load replays to disk (needs sprite-name -> asset lookup instead of
+    direct references), free camera, audio event re-triggering, viewmodel
+    (first-person arms) playback, projectile tracers/muzzle lights.
+Out of scope (hard, low value):
+  - full world-state rewind (doors/props/gibs reset), deterministic re-sim.
+
+RISKS / KNOWN GAPS
+------------------
+- Scene state during playback is post-run (corpses, broken props stay as they
+  ended). Ghosts render on top; acceptable for MVP, noted in UI.
+- Sprite-set identity: within one session we can hold direct Sprite[]
+  references (safe). Disk persistence requires resolving sprites by name -
+  doable but is the main V2 unknown.
+- Particle FX (muzzle smoke, blood spray) are not captured in MVP; gibs can be
+  re-triggered as events later.
+- Online play: recorder must refuse like the freeze already does.
+
+SUGGESTED BUILD ORDER
+---------------------
+1. Recorder core + ring buffer + dump-to-log sanity check.        (smallest risk)
+2. Death-triggered ghost playback of player clone only.           (visual payoff)
+3. Enemy clones + interpolation.                                  (bulk of code)
+4. Projectiles via existing patch points.                         (the money shot)
+5. Camera work + polish, config entries (buffer length, speeds).
