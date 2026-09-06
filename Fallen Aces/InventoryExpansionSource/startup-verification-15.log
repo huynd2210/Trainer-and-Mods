@@ -1,0 +1,25 @@
+[Message:   BepInEx] BepInEx 5.4.23.5 - Fallen Aces (7/29/2026 4:41:03 AM)
+[Info   :   BepInEx] Running under Unity v6000.3.10.14901004
+[Info   :   BepInEx] CLR runtime version: 4.0.30319.42000
+[Info   :   BepInEx] Supports SRE: True
+[Info   :   BepInEx] System platform: Bits64, Windows
+[Message:   BepInEx] Preloader started
+[Info   :   BepInEx] Loaded 1 patcher method from [BepInEx.Preloader 5.4.23.5]
+[Info   :   BepInEx] 1 patcher plugin loaded
+[Info   :   BepInEx] Patching [UnityEngine.CoreModule] with [BepInEx.Chainloader]
+[Message:   BepInEx] Preloader finished
+[Message:   BepInEx] Chainloader ready
+[Message:   BepInEx] Chainloader started
+[Info   :   BepInEx] 5 plugins to load
+[Info   :   BepInEx] Loading [Fallen Aces Expanded Inventory 1.1.0]
+[Info   :Fallen Aces Expanded Inventory] Loaded: 15 general slots; mouse wheel cycles all slots; 6-0 select slots 6-10.
+[Info   :Fallen Aces Expanded Inventory] SMOKE PASS: native slot addition, gadget preservation, repeated expansion, non-shrinking capacity, empty-slot save round trip and Harmony startup.
+[Info   :   BepInEx] Loading [Fallen Aces Maximum Gun Accuracy 1.0.0]
+[Info   :Fallen Aces Maximum Gun Accuracy] Loaded: zero player gun spread, including shotgun pellets.
+[Info   :   BepInEx] Loading [Fallen Aces Kill Tracker 1.1.0]
+[Info   :Fallen Aces Kill Tracker] Loaded. F8 toggles the tracker; cumulative counts persist across levels and restarts.
+[Info   :   BepInEx] Loading [Fallen Aces SuperHot 1.2.0]
+[Info   :Fallen Aces SuperHot] Loaded. ] toggles continuous SuperHot time; movement and committed actions drive world speed, while looking is free.
+[Info   :   BepInEx] Loading [Fallen Aces Enhanced Throwing 1.0.0]
+[Info   :Fallen Aces Enhanced Throwing] Loaded: 3x throw speed, 9x distance limit; matching preview; damage unchanged.
+[Message:   BepInEx] Chainloader startup complete

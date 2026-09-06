@@ -1,0 +1,11 @@
+Bundled third-party components retain their upstream licenses.
+License texts retrieved from upstream repositories on 2026-09-04.
+BepInEx runtime: 5.4.23.5; Unity Doorstop: 4.5.0.
+
+BepInEx/BepInEx : https://raw.githubusercontent.com/BepInEx/BepInEx/master/LICENSE
+BepInEx/HarmonyX : https://raw.githubusercontent.com/BepInEx/HarmonyX/master/LICENSE
+BepInEx/HarmonyX : https://raw.githubusercontent.com/BepInEx/HarmonyX/master/LICENSE.Harmony
+pardeike/Harmony : https://raw.githubusercontent.com/pardeike/Harmony/master/LICENSE
+MonoMod/MonoMod : https://raw.githubusercontent.com/MonoMod/MonoMod/reorganize/LICENSE
+jbevain/cecil : https://raw.githubusercontent.com/jbevain/cecil/master/LICENSE.txt
+NeighTools/UnityDoorstop : https://raw.githubusercontent.com/NeighTools/UnityDoorstop/master/LICENSE

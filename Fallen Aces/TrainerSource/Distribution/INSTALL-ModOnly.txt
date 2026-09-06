@@ -1,0 +1,12 @@
+Fallen Aces Trainer - Mod Only
+==============================
+Requires an existing Windows x64 BepInEx 5 installation for this game.
+
+1. Close Fallen Aces.
+2. Extract this ZIP into the folder containing Fallen Aces.exe.
+3. Confirm BepInEx\plugins\FallenAces.Trainer.dll is present.
+4. Launch normally. Press Insert in a level to open the trainer.
+
+Use FallenAces.Trainer-Pack.zip for a game folder without BepInEx installed.
+Only one copy of FallenAces.Trainer.dll should be in the plugins folder.
+See README.txt for the full cheat list, hotkeys and verification limitations.

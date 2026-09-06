@@ -1,0 +1,20 @@
+Fallen Aces Trainer - Pack (includes BepInEx)
+=============================================
+Self-contained. Includes BepInEx 5.4.23.5 x64, Doorstop 4.5.0 and
+Fallen Aces Trainer 1.0.0. This pack contains the Trainer and nothing else.
+
+1. Close Fallen Aces.
+2. Extract this ZIP into the folder containing Fallen Aces.exe.
+3. BepInEx, winhttp.dll and doorstop_config.ini must sit beside the EXE.
+4. Launch normally. Press Insert in a level to open the trainer.
+
+If BepInEx is already installed, use FallenAces.Trainer.zip instead, to
+preserve your existing loader and settings. This pack ships a minimal loader
+config with its console window disabled; the mod writes its own defaults on
+first launch.
+
+Once this pack is installed you can drop other mod-only ZIPs for this game
+straight into BepInEx\plugins.
+
+See README.txt for the full cheat list, hotkeys and verification limitations.
+Bundled dependencies retain their licenses in licenses/.
