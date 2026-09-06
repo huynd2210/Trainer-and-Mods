@@ -1,0 +1,11 @@
+<FTL>
+
+<!-- Register the kill tracker into whatever <scripts> block is already present,
+     so this works on top of Multiverse's hyperspace.xml.
+     roster.lua must come first: it defines mods.killtracker.knownShips. -->
+<mod:findLike type="scripts">
+	<mod-append:script>data/killtracker_scripts/roster.lua</mod-append:script>
+	<mod-append:script>data/killtracker_scripts/killtracker.lua</mod-append:script>
+</mod:findLike>
+
+</FTL>

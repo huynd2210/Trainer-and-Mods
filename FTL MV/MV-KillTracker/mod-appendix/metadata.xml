@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+
+	<title><![CDATA[ MV Kill Tracker ]]></title>
+
+	<threadUrl><![CDATA[ ]]></threadUrl>
+
+	<author><![CDATA[ huynd2210 ]]></author>
+
+	<version><![CDATA[ 1.0 ]]></version>
+
+	<description>
+<![CDATA[
+
+Counts enemy ships killed, broken down by ship type and by cause.
+
+	F2    show/hide the kill panel
+	F3    dump the full breakdown to FTL.log
+
+Two causes are tracked separately:
+
+	hull    the ship was blown apart
+	crew    every crew member aboard died, ship left intact
+
+Counts persist across runs and restarts in Hyperspace's metaVariables.
+Automated (crewless) ships can only ever score a hull kill.
+
+Requires Hyperspace. Patch this BELOW the Multiverse files, since it adds its
+scripts to the <scripts> block that Multiverse's hyperspace.xml provides.
+
+]]>
+	</description>
+
+</metadata>

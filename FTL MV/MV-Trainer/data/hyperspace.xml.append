@@ -1,0 +1,9 @@
+<FTL>
+
+<!-- Register the trainer script into whatever <scripts> block is already
+     present, so this works on top of Multiverse's hyperspace.xml. -->
+<mod:findLike type="scripts">
+	<mod-append:script>data/trainer_scripts/trainer.lua</mod-append:script>
+</mod:findLike>
+
+</FTL>
