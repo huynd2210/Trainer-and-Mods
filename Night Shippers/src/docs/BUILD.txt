@@ -1,0 +1,86 @@
+Night Shippers Trainer - source
+===============================
+
+This is the source release. If you just want to play, you want
+NightShippersTrainer-Pack.zip (UE4SS + the mod) or NightShippersTrainer.zip
+(the mod alone, for an existing UE4SS install) instead.
+
+The mod is plain Lua running on UE4SS. There is nothing to compile - packaging
+only copies files and zips them.
+
+
+Layout
+------
+
+  src\NightShippersTrainer\     the mod itself, exactly as it is installed
+    enabled.txt                 empty marker; its presence is what makes UE4SS
+                                load the mod without an entry in mods.txt
+    README.txt                  user documentation, shipped in every zip
+    Scripts\main.lua            the mod
+    Scripts\config.lua          user-editable settings
+
+  docs\                         the INSTALL.txt written into each zip, and this
+                                file
+
+  reference\                    notes gathered while working the game out:
+    NightShippers_classes_and_properties.txt   reflected class/property dump
+    NightShippers_pak_filelist.txt             asset paths inside the .pak
+    diridx.py                                  helper that produced the filelist
+
+  package.ps1                   builds the three zips into dist\
+  dist\                         build output, not source
+
+
+Working on it
+-------------
+
+UE4SS loads Lua from disk at startup, so the edit loop is: edit the file in
+src\, copy it over the installed copy, restart the game. Or point the game at
+this checkout directly with a directory junction, so there is only one copy:
+
+    rmdir "<game>\ProjectSH\Binaries\Win64\ue4ss\Mods\NightShippersTrainer"
+    mklink /J "<game>\ProjectSH\Binaries\Win64\ue4ss\Mods\NightShippersTrainer" ^
+              "<this folder>\src\NightShippersTrainer"
+
+There is no on-screen output to debug with: UKismetSystemLibrary::PrintString
+is compiled out of Shipping builds. print() from Lua goes to
+
+    <game>\ProjectSH\Binaries\Win64\ue4ss\UE4SS.log
+
+and that is the only channel the mod has. Everything it does is tagged
+[NightShippersTrainer].
+
+
+Building the zips
+-----------------
+
+From this folder, in PowerShell:
+
+    .\package.ps1
+
+That writes to dist\:
+
+    NightShippersTrainer.zip        the mod alone
+    NightShippersTrainer-Pack.zip   UE4SS + the mod, self-contained
+    NightShippersTrainer-src.zip    this source tree
+
+The Pack copies UE4SS out of a real install rather than carrying a checked-in
+binary. It defaults to the Steam path; point it elsewhere if yours differs:
+
+    .\package.ps1 -GameDir "D:\Games\Night Shippers"
+
+Pass -SkipPack to build only the mod and source zips when no install is around.
+
+The version UE4SS reports is written in its log header, and docs\INSTALL-pack.txt
+names it. Re-check that line whenever you refresh the bundled UE4SS build.
+
+
+A note on the UE4SS build
+-------------------------
+
+Night Shippers is UE 5.5. The tagged UE4SS releases predate 5.5 and do not load
+in it - only the experimental/CI builds work. That is why the Pack bundles a
+specific build instead of telling people to fetch the latest release.
+
+UE4SS is MIT licensed (Copyright (c) 2022 Narknon). Its LICENSE travels with the
+binary inside the Pack, at ProjectSH\Binaries\Win64\ue4ss\LICENSE.

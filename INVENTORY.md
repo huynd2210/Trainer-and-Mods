@@ -21,6 +21,7 @@ Generated 2026-09-02.
 | MENACE | MenaceTrainer | 1 zip (built here) | yes | `C:\Games\MenaceTrainer` (standalone folder) |
 | Magical Princess | MagicalPrincessTrainer v1.1.0 | 2 zips | yes | `Magical Princess\MagicalPrincessTrainer` |
 | Nuclear Option | KillCostTracker | 1 zip (built here) | yes | `Nuclear.Option.v0.33.4\game\ModSource\KillCostTracker` |
+| Night Shippers | NightShippersTrainer (UE4SS, Lua) | 2 zips (built here) | yes | `C:\Users\Admin\Documents\NightShippersTrainer` (standalone folder) |
 | PEAK | JetpackInfiniteFuel | 1 zip (built here) | yes | `PEAK.v2.02.a_LinkNeverDie.Com\Mods\JetpackInfiniteFuel` |
 | Quasimorph | KillTracker, MapReveal, OperatorBoost, Spawner, WarpDrive | 11 zips | yes | `Quasimorph.v1.0\Quasimorph\ModSource` |
 | Rift Wizard 3 | 10 Python mods (already present) | source *is* the distribution | yes | `Rift.Wizard.3\game\mods` |
@@ -98,3 +99,9 @@ Judgment call:
   the reverse of every other CULTIC mod. The loader-free one is what is here.
 - Build output (`bin`, `obj`, `__pycache__`, `.venv`, `.git`) was excluded from every
   copied source tree, as were redistributed Unity/BepInEx assemblies.
+- **Night Shippers** is UE4SS, not BepInEx, and the same no-bundled-loader rule was
+  applied: `NightShippersTrainer-Pack.zip` (8.7 MB, almost all of it `UE4SS.dll`) is
+  not here. `Night Shippers\dist\LOADER-NOT-BUNDLED.md` says how to rebuild it.
+  Worth knowing for this one: the game is UE 5.5 and the *tagged* UE4SS releases
+  predate 5.5 and silently fail to load - only experimental/CI builds work, so
+  "go download UE4SS" is not sufficient advice here.

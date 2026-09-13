@@ -1,0 +1,69 @@
+Night Shippers Trainer - Pack
+=============================
+
+Everything in one file: UE4SS (the mod loader) plus the trainer itself.
+Nothing else to download.
+
+Contains
+--------
+
+  UE4SS v3.0.1 Beta (Git SHA 2bfa839f) - experimental build; the release
+                        builds predate UE5.5 and will not load in this game
+  NightShippersTrainer        - press F10 during a shift for +1000 gold
+
+
+Install
+-------
+
+1. Fully quit Night Shippers.
+
+2. Extract this zip into your Night Shippers folder - the one holding
+   ProjectSH.exe. For a Steam install that is usually:
+
+       C:\Program Files (x86)\Steam\steamapps\common\Night Shippers
+
+   Say yes to merging folders. When it is done you should have:
+
+       Night Shippers\ProjectSH\Binaries\Win64\dwmapi.dll
+       Night Shippers\ProjectSH\Binaries\Win64\ue4ss\UE4SS.dll
+       Night Shippers\ProjectSH\Binaries\Win64\ue4ss\Mods\NightShippersTrainer\
+
+   If dwmapi.dll landed next to ProjectSH.exe instead of inside
+   ProjectSH\Binaries\Win64, you extracted one folder too high. Move the
+   ProjectSH folder from the zip so its Binaries\Win64 merges with the game's.
+
+3. Start the game. Load into a shift and press F10.
+
+   The gold counter on the HUD goes up by 1000. See README.txt for the details,
+   for changing the amount or the key, and for how it behaves in multiplayer.
+
+
+Did it load?
+------------
+
+UE4SS writes ProjectSH\Binaries\Win64\ue4ss\UE4SS.log on every launch. If the
+file is missing, UE4SS itself did not start - check dwmapi.dll is in
+ProjectSH\Binaries\Win64 and that your antivirus has not quarantined it.
+
+If the log exists, search it for [NightShippersTrainer]. You should see:
+
+    [NightShippersTrainer] ready - press F10 for +1000 gold
+
+
+Adding more mods later
+----------------------
+
+This pack is a normal UE4SS install. Any other UE4SS mod for this game drops
+into ProjectSH\Binaries\Win64\ue4ss\Mods\ alongside this one.
+
+
+Uninstall
+---------
+
+Delete from ProjectSH\Binaries\Win64:
+
+    dwmapi.dll
+    ue4ss\
+
+No game file is patched or replaced by any of this, so the game goes back to
+stock as soon as those two are gone.

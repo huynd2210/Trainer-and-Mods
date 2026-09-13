@@ -1,0 +1,12 @@
+Night Shippers Trainer - mod only
+=================================
+
+This zip is the trainer on its own. It needs UE4SS already installed.
+
+  Already have UE4SS?  Extract this into your Night Shippers folder (the one
+                       holding ProjectSH.exe) and start the game.
+
+  Do not have UE4SS?   Use NightShippersTrainer-Pack.zip instead. It contains
+                       UE4SS and this mod together, and needs nothing else.
+
+Full notes are in README.txt.
