@@ -1,0 +1,46 @@
+Ace Aviators v1.0.0 - Self-Contained Pack
+=========================================
+This pack bundles BepInEx 5.4.23.2 (x64) plus the WoTSAceAviators plugin, so no
+separate BepInEx install is needed. It targets the x64 Mono build of
+War on the Sea v1.09a.
+
+INSTALL
+-------
+1. Extract this zip INTO the game folder (the folder that contains
+   WarOnTheSea.exe). It drops winhttp.dll, doorstop_config.ini and a
+   BepInEx\ folder next to the executable.
+2. Launch WarOnTheSea.exe.
+3. Start a battle with a carrier or land-based strike aircraft and attack
+   something. Your dive bombers, torpedo bombers and level bombers will aim true.
+
+     F5 = toggle Ace Aviators on/off
+     F6 = switch mode
+
+   An "ACE AVIATORS" line in the top-left corner shows when it is on, which mode
+   is active, and how many rounds are currently under guidance.
+
+   Two modes, both of which remove the game's random aim error:
+
+     AimOnly         (default) stops there - the ordnance then flies on the
+                     game's own physics, so a ship that alters course after the
+                     release can still get out from under it.
+     AimAndGuidance  also steers released ordnance onto the target and
+                     suppresses duds. Nothing gets away.
+
+REMOVE
+------
+Delete the three items you just added: winhttp.dll, doorstop_config.ini,
+and the BepInEx\ folder. Nothing existing is touched.
+
+NOTES
+-----
+- First launch of BepInEx may take a few seconds longer (it builds its config
+  folder). The plugin log is at game\BepInEx\LogOutput.log.
+- Player-side only. Enemy aircraft are unaffected.
+- Naval gunnery is NOT touched - see README.txt for why.
+- Settings live in BepInEx\config\com.wots.aceaviators.cfg after first run,
+  including the mode, the hotkeys, and how hard the guidance is allowed to steer.
+  Switching mode with F6 writes the choice back, so it persists.
+- This pack contains only Ace Aviators. If you also want the War on the Sea
+  Trainer, install either pack first and then drop the other mod's plugin DLL
+  into BepInEx\plugins - they run together.

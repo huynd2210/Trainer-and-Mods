@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <AssemblyName>GuidanceSim</AssemblyName>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+  <!--
+    The shipped guidance source is compiled in directly rather than copied, so this harness
+    can only ever test what actually ships. Shims.cs supplies the Unity and game types those
+    files need.
+  -->
+  <ItemGroup>
+    <Compile Include="Shims.cs" />
+    <Compile Include="Sim.cs" />
+    <Compile Include="..\src\GuidedRound.cs" />
+    <Compile Include="..\src\OrdnanceGuidance.cs" />
+    <Compile Include="..\src\BombGuidance.cs" />
+    <Compile Include="..\src\AerialTorpedoGuidance.cs" />
+  </ItemGroup>
+
+</Project>

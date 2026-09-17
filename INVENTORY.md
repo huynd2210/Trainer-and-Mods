@@ -29,7 +29,7 @@ Generated 2026-09-02.
 | Skull Horde | Skull Horde Trainer (external save editor) | 1 zip (built here) | yes | `Skull Horde\SkullHordeTrainer` |
 | Starless Abyss | StarlessCheats, StarlessBestiary, StarlessShips, StarlessSpeed | 4 zips (built here) | **source missing** | `Starless.Abyss.v1.011\...\BepInEx\plugins` |
 | The Last Spell | TLSTrainer, TLSKillTracker | 2 zips (built here) | yes | `The.Last.Spell.v1.3.32.10\_trainer_dev` |
-| War on the Sea | WoTSTrainer | 2 zips | yes (added) | `War.on.the.Sea.v1.09a\wots-trainer` |
+| War on the Sea | Cheat Pack: WoTSTrainer, WoTSAceAviators, WoTSMoreTargets, WoTSFireControl | 2 zips (mod + source) | yes | `War.on.the.Sea.v1.09a\wots-{trainer,aceaviators,moretargets,firecontrol}` |
 
 ## Already in this repo, game not on this machine
 
@@ -73,6 +73,11 @@ Judgment call:
   exist nowhere else on this machine. Repo went from ~448 MB to ~82 MB.
   Every mod still has a distribution: the `BepInEx\plugins\<mod>.dll` layout in the
   remaining zips is just the install path, not a bundled loader.
+- **War on the Sea was expanded from one trainer to a four-mod Cheat Pack** and its `dist/`
+  now holds one combined `WoTSCheatPack.zip` plus `WoTSCheatPack-Source.zip`, replacing the
+  old `WoTSTrainer.zip`. Its `src/` holds all four workspaces, each with a signature harness
+  and a behaviour harness that gate the build. No `-Pack` here, per the loader rule above;
+  `dist/LOADER-NOT-BUNDLED.md` says how to rebuild it.
 - `QuasimorphMods-Bundle.zip` was rebuilt from the five mod-only zips — all five DLLs
   and READMEs, no loader. `CULTIC\Minimap-Plugin-Only.zip` was renamed `Minimap.zip`
   to match its siblings.

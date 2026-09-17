@@ -1,0 +1,43 @@
+More Targets v1.0.0 - Self-Contained Pack
+=========================================
+This pack bundles BepInEx 5.4.23.2 (x64) plus the WoTSMoreTargets plugin, so no
+separate BepInEx install is needed. It targets the x64 Mono build of
+War on the Sea v1.09a.
+
+INSTALL
+-------
+1. Extract this zip INTO the game folder (the folder that contains
+   WarOnTheSea.exe). It drops winhttp.dll, doorstop_config.ini and a
+   BepInEx\ folder next to the executable.
+2. Launch WarOnTheSea.exe.
+3. Start or load a CAMPAIGN. The enemy AI now always has command points, so it
+   never sits out a strategic decision for lack of funds and always raises the
+   largest force tier it knows.
+
+     F7 = toggle More Targets on/off
+
+   A "MORE TARGETS" line in the top-left corner shows when it is on.
+
+REMOVE
+------
+Delete the three items you just added: winhttp.dll, doorstop_config.ini,
+and the BepInEx\ folder. Nothing existing is touched.
+
+NOTES
+-----
+- Campaign only. Skirmish does not use command points.
+- Your own command points are untouched. The mod changes one enemy-side reading
+  of the budget, not the shared pool the campaign UI shows you.
+- The mod never writes to a save. Toggling it off, or deleting the DLL, restores
+  stock behaviour immediately.
+- Bigger enemy forces come free. A HIGHER SORTIE RATE DOES NOT - that is set by
+  two separate throttles left at stock values on purpose. See the Pacing section
+  of README.txt if the enemy still feels too quiet.
+- The enemy has a finite order of battle and sunk hulls never return, so command
+  points stop being the limit once you have sunk enough of its navy. README.txt
+  explains the Supply option for that; it is off by default.
+- Settings live in BepInEx\config\com.wots.moretargets.cfg after first run.
+- This pack contains only More Targets. If you also want the War on the Sea
+  Trainer or Ace Aviators, install any one pack and then drop the other mods'
+  plugin DLLs into BepInEx\plugins - they run together and their status lines do
+  not overlap.

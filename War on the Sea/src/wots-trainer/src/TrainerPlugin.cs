@@ -1,5 +1,6 @@
 using System;
 using BepInEx;
+using BepInEx.Configuration;
 using HarmonyLib;
 using UnityEngine;
 using WorldMapStrategyKit;
@@ -17,10 +18,14 @@ namespace WoTSTrainer
     ///                                    * tactical battles: all enemy units detected and
     ///                                      identified (map icons, targeting, 3D camera).
     ///
+    /// Both keys are defaults only; they are bound from BepInEx\config\com.wots.trainer.cfg
+    /// so they can be moved off F1/F2 if something else wants them.
+    ///
     /// New cheats slot in behind this same hotkey/status-line pattern: add a static bool
-    /// here, a hotkey in Update(), a line in OnGUI(), and a patch class in Patches.cs.
+    /// here, a ConfigEntry and a hotkey in Update(), a line in OnGUI(), and a patch class in
+    /// Patches.cs.
     /// </summary>
-    [BepInPlugin("com.wots.trainer", "War on the Sea Trainer", "1.3.0")]
+    [BepInPlugin("com.wots.trainer", "War on the Sea Trainer", "1.4.0")]
     public class TrainerPlugin : BaseUnityPlugin
     {
         /// <summary>Infinite Command Points: purchases never fail and the pool never depletes.</summary>
@@ -29,8 +34,9 @@ namespace WoTSTrainer
         /// <summary>Reveal All: campaign map fog of war removed and all battle enemies detected.</summary>
         public static bool Reveal;
 
-        private static readonly KeyCode InfiniteCommandPointsKey = KeyCode.F1;
-        private static readonly KeyCode RevealKey = KeyCode.F2;
+        private ConfigEntry<KeyCode> infiniteCommandPointsKey;
+        private ConfigEntry<KeyCode> revealKey;
+        private ConfigEntry<bool> showStatus;
 
         private GUIStyle statusStyle;
         private bool styleInitialised;
@@ -45,19 +51,27 @@ namespace WoTSTrainer
 
         private void Awake()
         {
+            infiniteCommandPointsKey = base.Config.Bind("Controls", "InfiniteCommandPointsKey", KeyCode.F1,
+                "Key that toggles Infinite Command Points.");
+            revealKey = base.Config.Bind("Controls", "RevealKey", KeyCode.F2,
+                "Key that toggles Reveal All.");
+            showStatus = base.Config.Bind("General", "ShowStatusLine", true,
+                "Draw a status line in the top-left corner while a cheat is active.");
+
             var harmony = new Harmony("com.wots.trainer");
             harmony.PatchAll();
-            Logger.LogInfo("[WoTSTrainer] Trainer loaded. F1 = Infinite Command Points, F2 = Reveal All.");
+            Logger.LogInfo("[WoTSTrainer] Trainer loaded. " + infiniteCommandPointsKey.Value +
+                           " = Infinite Command Points, " + revealKey.Value + " = Reveal All.");
         }
 
         private void Update()
         {
-            if (Input.GetKeyDown(InfiniteCommandPointsKey))
+            if (Input.GetKeyDown(infiniteCommandPointsKey.Value))
             {
                 InfiniteCommandPoints = !InfiniteCommandPoints;
                 Logger.LogInfo("[WoTSTrainer] Infinite Command Points " + (InfiniteCommandPoints ? "ON" : "OFF"));
             }
-            if (Input.GetKeyDown(RevealKey))
+            if (Input.GetKeyDown(revealKey.Value))
             {
                 ToggleReveal();
             }
@@ -194,14 +208,14 @@ namespace WoTSTrainer
                 statusStyle.fontStyle = FontStyle.Bold;
                 styleInitialised = true;
             }
-            if (!InfiniteCommandPoints && !Reveal)
+            if (!showStatus.Value || (!InfiniteCommandPoints && !Reveal))
             {
                 return; // nothing active - keep the screen clean
             }
             statusStyle.normal.textColor = Color.yellow;
             string text = "TRAINER";
-            if (InfiniteCommandPoints) text += "   Infinite Command Points [F1]";
-            if (Reveal) text += "   Reveal All [F2]";
+            if (InfiniteCommandPoints) text += "   Infinite Command Points [" + infiniteCommandPointsKey.Value + "]";
+            if (Reveal) text += "   Reveal All [" + revealKey.Value + "]";
             GUI.Label(new Rect(10f, 8f, Screen.width - 20f, 22f), text, statusStyle);
         }
     }

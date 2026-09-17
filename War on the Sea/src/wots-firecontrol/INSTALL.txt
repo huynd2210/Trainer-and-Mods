@@ -1,0 +1,43 @@
+Fire Control v1.0.0 - Self-Contained Pack
+=========================================
+This pack bundles BepInEx 5.4.23.2 (x64) plus the WoTSFireControl plugin, so no
+separate BepInEx install is needed. It targets the x64 Mono build of
+War on the Sea v1.09a.
+
+INSTALL
+-------
+1. Extract this zip INTO the game folder (the folder that contains
+   WarOnTheSea.exe). It drops winhttp.dll, doorstop_config.ini and a
+   BepInEx\ folder next to the executable.
+2. Launch WarOnTheSea.exe.
+3. Start a battle. Your close-in AA stops spraying, and your guns have a full
+   fire-control solution from the first director tick instead of walking it up
+   over a minute of shooting.
+
+     F8 = toggle Fire Control on/off
+
+   A "FIRE CONTROL" line in the top-left corner shows when it is on.
+
+REMOVE
+------
+Delete the three items you just added: winhttp.dll, doorstop_config.ini,
+and the BepInEx\ folder. Nothing existing is touched.
+
+NOTES
+-----
+- Player ships only. Enemy AA and enemy directors are untouched.
+- NOTHING HOMES. No guided munitions are added anywhere in this mod. Rounds go
+  exactly where the mount points them; the point is that it now points correctly.
+- Naval shell dispersion is NOT removed - see README.txt. Your guns still
+  scatter, they just stop aiming at a guess.
+- The two halves have separate Enabled switches in the config, so you can try
+  the AA change and the gunnery change one at a time.
+- The two AntiAir settings only work together. Tightening the cone without also
+  lowering the aim interval makes AA WORSE. README.txt has the measurements.
+- Throwing F8 mid-battle updates every player ship afloat, and restores each
+  mount's stock settings exactly when switched back off.
+- Settings live in BepInEx\config\com.wots.firecontrol.cfg after first run.
+- This pack contains only Fire Control. If you also want the War on the Sea
+  Trainer, Ace Aviators or More Targets, install any one pack and then drop the
+  other mods' plugin DLLs into BepInEx\plugins - they run together and their
+  status lines do not overlap.

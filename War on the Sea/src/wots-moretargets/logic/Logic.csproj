@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <AssemblyName>DecisionLogic</AssemblyName>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+  <!--
+    The shipped decision logic is compiled in directly rather than copied, so this harness can
+    only ever test what actually ships.
+  -->
+  <ItemGroup>
+    <Compile Include="Logic.cs" />
+    <Compile Include="..\src\DecisionState.cs" />
+  </ItemGroup>
+
+</Project>

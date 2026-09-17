@@ -1,0 +1,114 @@
+BUILDING THE WAR ON THE SEA CHEAT PACK
+======================================
+
+WHAT YOU NEED
+-------------
+
+  * War on the Sea v1.09a, x64 Mono build. The mods reference the game's own
+    Assembly-CSharp.dll and UnityEngine.dll directly, so a copy of the game has
+    to be on disk to build against.
+  * .NET SDK 8 or newer. The plugins target net35 (Unity 5.6 Mono, mscorlib
+    2.0.0.0); the net35 reference assemblies come from a NuGet package that the
+    build restores on its own, so no old SDK is needed.
+  * BepInEx 5.4.23.2 x64. NOT included in this source zip - see below.
+
+
+LAYOUT
+------
+
+Unzip so the workspaces sit NEXT TO the game folder:
+
+    War.on.the.Sea.v1.09a\
+        game\                 <- the game itself, with WarOnTheSea_Data\Managed
+        wots-trainer\
+        wots-aceaviators\
+        wots-moretargets\
+        wots-firecontrol\
+        wots-cheatpack\       <- package.ps1 for the combined pack
+        package.ps1           <- (this zip's copy, move it into wots-cheatpack)
+
+Every project finds the game through a relative path of the form
+..\..\game\WarOnTheSea_Data\Managed, so that layout matters.
+
+Each mod workspace holds:
+
+    src\        the plugin
+    verify\     signature harness - loads the real game assembly and asserts
+                every patched member exists with the expected signature
+    logic\      behaviour harness (More Targets, Fire Control)
+    sim\        behaviour harness (Ace Aviators)
+    package.ps1 build, run the harnesses, install, zip
+
+
+BEPINEX IS NOT IN THIS ZIP
+--------------------------
+
+Each mod's package.ps1 expects an extracted BepInEx 5.4.23.2 x64 at
+
+    wots-trainer\tools\bepinex\
+
+containing winhttp.dll, doorstop_config.ini and a BepInEx\ folder. All four
+workspaces read the loader from that one location. Download BepInEx 5.4.23.2
+x64 from the BepInEx releases page and extract it there.
+
+Get the version right. BepInEx 6 and the IL2CPP builds will not load this game,
+and an x86 build will not load an x64 process.
+
+
+BUILDING
+--------
+
+Everything at once, from wots-cheatpack:
+
+    .\package.ps1
+
+That runs each mod's own package.ps1 in turn - build, harnesses, install - then
+collects the four DLLs into release\WoTSCheatPack.zip, -Pack.zip and
+-Source.zip. Any harness failure stops the whole thing.
+
+    .\package.ps1 -SkipMods
+
+reuses whatever each mod last built, for a docs-only repackage.
+
+One mod on its own, from its own folder:
+
+    .\package.ps1
+
+Just the code, no packaging:
+
+    cd wots-firecontrol\src
+    dotnet build -c Release
+
+
+THE HARNESSES ARE THE POINT
+---------------------------
+
+Harmony resolves patch targets by name at runtime. A typo or a signature that
+has drifted compiles perfectly and fails only once the game is running, usually
+as a silent no-op rather than an error. The verify harness exists to catch that
+before anything ships, and it checks more than existence - Fire Control's
+gunnery patch binds two parameters BY NAME, and the harness asserts those names,
+because a rename would leave the patch attached and doing nothing.
+
+The behaviour harnesses compile each mod's REAL source, not a copy, and measure
+what it does:
+
+    wots-aceaviators\sim     flies the actual guidance code at a manoeuvring
+                             ship and scores hits against real hull rectangles,
+                             reproducing the game's own release logic
+    wots-moretargets\logic   replays the campaign AI's decision sequence
+    wots-firecontrol\logic   models the AA geometry from the game's own
+                             constants; this is where its defaults came from
+
+Compiling the shipped source rather than a copy is deliberate: a harness that
+tests a copy stops testing anything the moment the two drift.
+
+
+INSTALLING WHILE THE GAME IS RUNNING
+------------------------------------
+
+It skips. A running game holds winhttp.dll and the loaded plugin DLLs open, and
+robocopy's default is to retry a locked file a million times at 30-second
+intervals, which hangs the build for days rather than failing. The scripts detect
+the process, skip the install step, and still build the zips. Close the game and
+re-run to install.
