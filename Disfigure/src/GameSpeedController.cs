@@ -1,114 +1,108 @@
+using System;
+using System.Reflection;
+using System.Runtime.InteropServices;
+using BepInEx.Unity.IL2CPP.Hook;
 using UnityEngine;
 
 namespace DisfigureTrainer;
 
-/// <summary>
-/// Scales gameplay speed through Unity's own timestep.
-///
-/// This replaces the previous ProcessClockSpeedController, which detoured
-/// kernel32!QueryPerformanceCounter with a *managed* callback. That is not
-/// survivable inside a CoreCLR-hosted process: the runtime itself calls QPC
-/// while JITting and while building interop stubs, so the detour re-entered
-/// managed code before its own constructor had finished wiring the trampoline
-/// up, and the process died with a stack overflow before the window appeared.
-/// </summary>
-internal sealed class GameSpeedController
+// Disfigure treats timeScale == 1 as a gameplay/input gate. Hook only the
+// IL2CPP script accessors: scripts retain their original scale, while Unity's
+// engine clock receives that scale multiplied by the user's speed. No OS
+// clock hooks, frame-order races, or patches to individual weapons are needed.
+internal sealed class GameSpeedController : IDisposable
 {
     public const float MinSpeed = 0.2f;
     public const float MaxSpeed = 3f;
 
-    private float _speed = 1f;
-    private float _baseFixedDeltaTime;
-    private bool _baseCaptured;
-    private bool _active;
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    internal delegate float GetScale(IntPtr methodInfo);
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    internal delegate void SetScale(float value, IntPtr methodInfo);
 
-    // The timeScale we last wrote, so Tick can tell our own value apart from one
-    // the game set. Starts at the vanilla scale, which we are happy to take over.
-    private float _applied = 1f;
+    private readonly INativeDetour _getHook;
+    private readonly INativeDetour _setHook;
+    private readonly GetScale _originalGet;
+    private readonly SetScale _originalSet;
+    private float _gameScale;
+    private float _speed = 1f;
+    private bool _disposed;
 
     public float Speed => _speed;
 
+    public GameSpeedController()
+    {
+        // Initialize Unity's wrappers before installing either hook.
+        _gameScale = Time.timeScale;
+        IntPtr get = AccessorPointer("get_timeScale");
+        IntPtr set = AccessorPointer("set_timeScale");
+        try
+        {
+            _getHook = INativeDetour.Create<GetScale>(get, ReadGameScale);
+            _originalGet = _getHook.GenerateTrampoline<GetScale>();
+            _setHook = INativeDetour.Create<SetScale>(set, WriteGameScale);
+            _originalSet = _setHook.GenerateTrampoline<SetScale>();
+            // All callbacks and trampolines are wired before enabling hooks.
+            _getHook.Apply();
+            _setHook.Apply();
+        }
+        catch
+        {
+            _setHook?.Dispose();
+            _getHook?.Dispose();
+            throw;
+        }
+    }
+
+    internal static IntPtr AccessorPointer(string accessor)
+    {
+        // Resolve through generated interop metadata, not version-specific RVAs.
+        var field = typeof(Time).GetField(
+            accessor == "get_timeScale"
+                ? "NativeMethodInfoPtr_get_timeScale_Public_Static_get_Single_0"
+                : "NativeMethodInfoPtr_set_timeScale_Public_Static_set_Void_Single_0",
+            BindingFlags.Static | BindingFlags.NonPublic);
+        if (field == null)
+            throw new MissingFieldException(typeof(Time).FullName, accessor);
+        var info = (IntPtr)field.GetValue(null);
+        if (info == IntPtr.Zero || Marshal.ReadIntPtr(info) == IntPtr.Zero)
+            throw new InvalidOperationException($"Unity {accessor} has no native method pointer.");
+        return Marshal.ReadIntPtr(info);
+    }
+
+    private float ReadGameScale(IntPtr methodInfo) => _gameScale;
+
+    private void WriteGameScale(float value, IntPtr methodInfo)
+    {
+        // Keep pause (0), resume (1), and the game's slow-motion effects intact.
+        // Ignore invalid values just as we reject them in the speed control.
+        if (!float.IsFinite(value) || value < 0f)
+            return;
+        _originalSet(value * _speed, methodInfo);
+        _gameScale = value;
+    }
+
     public void SetSpeed(float speed)
     {
-        speed = Mathf.Clamp(speed, MinSpeed, MaxSpeed);
-
-        if (Mathf.Approximately(speed, 1f))
-        {
-            Restore();
+        if (_disposed || !float.IsFinite(speed))
             return;
-        }
-
-        _speed = speed;
-        _active = true;
-        Apply();
+        _speed = Math.Clamp(MathF.Round(speed, 2), MinSpeed, MaxSpeed);
+        _originalSet(_gameScale * _speed, IntPtr.Zero);
     }
 
-    /// <summary>
-    /// Re-asserts the speed every frame while it is non-default. The game drives
-    /// its own pause by zeroing timeScale and restoring it to 1, which would
-    /// otherwise silently drop the trainer's setting on every unpause.
-    /// </summary>
-    public void Tick()
-    {
-        if (_active)
-            Apply();
-    }
+    // Keep the original fixed step: physics, cooldowns and coroutines advance
+    // together in game time. The bounded 3x maximum limits extra physics work.
+    public void Restore() => SetSpeed(1f);
 
-    /// <summary>Returns Unity's timing to vanilla and stops re-asserting.</summary>
-    public void Restore()
+    internal float EngineScale => _originalGet(IntPtr.Zero);
+
+    public void Dispose()
     {
-        _speed = 1f;
-        if (!_active)
+        if (_disposed)
             return;
-
-        _active = false;
-        _applied = 1f;
-
-        // Never write timeScale while the game has it at 0 - that would unpause it.
-        if (Time.timeScale != 0f)
-            Time.timeScale = 1f;
-        if (_baseCaptured)
-            Time.fixedDeltaTime = _baseFixedDeltaTime;
-    }
-
-    private void Apply()
-    {
-        CaptureBaseFixedDeltaTime();
-
-        float current = Time.timeScale;
-
-        // 0 is the game's pause. Any other scale it set itself (the boss
-        // slow-motion effect) is its effect to own - stand down and pick the
-        // speed back up when it returns the clock to normal.
-        if (current == 0f || (current != 1f && current != _applied))
-        {
-            StandDown();
-            return;
-        }
-
-        _applied = _speed;
-        Time.timeScale = _speed;
-
-        // Scale the physics step with the clock so FixedUpdate keeps its vanilla
-        // *real-time* rate: without this, 0.2x speed drops physics to 10 Hz and
-        // 3x speed triples its CPU cost.
-        Time.fixedDeltaTime = _baseFixedDeltaTime * _speed;
-    }
-
-    private void StandDown()
-    {
-        if (_baseCaptured && Time.fixedDeltaTime != _baseFixedDeltaTime)
-            Time.fixedDeltaTime = _baseFixedDeltaTime;
-    }
-
-    private void CaptureBaseFixedDeltaTime()
-    {
-        if (_baseCaptured)
-            return;
-
-        // Capture the project's configured timestep rather than assuming Unity's
-        // 0.02 default.
-        _baseFixedDeltaTime = Time.fixedDeltaTime;
-        _baseCaptured = true;
+        Restore();
+        _setHook.Dispose();
+        _getHook.Dispose();
+        _disposed = true;
     }
 }

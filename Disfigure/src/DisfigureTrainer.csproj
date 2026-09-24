@@ -17,6 +17,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Reference Include="MonoMod.RuntimeDetour">
+      <HintPath>$(BepInExCore)\MonoMod.RuntimeDetour.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
     <Reference Include="BepInEx.Core">
       <HintPath>$(BepInExCore)\BepInEx.Core.dll</HintPath>
       <Private>false</Private>

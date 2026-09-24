@@ -1,5 +1,4 @@
 using System;
-using System.Runtime.InteropServices;
 using BepInEx;
 using BepInEx.Logging;
 using BepInEx.Unity.IL2CPP;
@@ -13,15 +12,18 @@ public class TrainerPlugin : BasePlugin
 {
     public const string PluginGuid = "com.local.disfigure.trainer";
     public const string PluginName = "Disfigure Trainer";
-    public const string PluginVersion = "1.2.0";
+    public const string PluginVersion = "1.3.0";
 
     internal static ManualLogSource TrainerLog { get; private set; }
     internal static GameSpeedController SpeedController { get; private set; }
+    internal static Hotkey[] Keys { get; private set; }
 
     public override void Load()
     {
         TrainerLog = Log;
-        SpeedController = new GameSpeedController();
+        Keys = TrainerBindings.Load(Config);
+        try { SpeedController = new GameSpeedController(); }
+        catch (Exception ex) { Log.LogError($"Game speed unavailable; trainer remains usable: {ex}"); }
 
         // Nothing in Load may take the game down with it: a plugin that throws
         // here is logged and skipped, but the game still has to reach its menu.
@@ -32,34 +34,17 @@ public class TrainerPlugin : BasePlugin
         }
         catch (Exception ex)
         {
+            SpeedController?.Dispose();
             Log.LogError($"{PluginName} failed to attach; game continues without it: {ex}");
             return;
         }
 
-        Log.LogInfo($"{PluginName} {PluginVersion} loaded. Hotkeys: F1 god | F2 one-shot | F3 +100k credits | F4 level up | F5 kill all | F6 XP x10 | F7 XP magnet | 1/2 game speed, 0 reset");
+        Log.LogInfo($"{PluginName} {PluginVersion} loaded. Keybindings: {Config.ConfigFilePath}");
     }
 }
 
 public class TrainerBehaviour : MonoBehaviour
 {
-    // The game uses the new Input System only, so hotkeys are polled through WinAPI.
-    [DllImport("user32.dll")]
-    private static extern short GetAsyncKeyState(int vKey);
-
-    private const int VK_F1 = 0x70; // god mode
-    private const int VK_F2 = 0x71; // one-shot kills
-    private const int VK_F3 = 0x72; // +1000 credits
-    private const int VK_F4 = 0x73; // trigger level up
-    private const int VK_F5 = 0x74; // kill all enemies
-    private const int VK_F6 = 0x75; // XP x10
-    private const int VK_F7 = 0x76; // infinite XP magnetism
-    private const int VK_1 = 0x31; // game speed +20%
-    private const int VK_2 = 0x32; // game speed -20%
-    private const int VK_0 = 0x30; // game speed reset to 1x
-
-    private static readonly int[] WatchedKeys = { VK_F1, VK_F2, VK_F3, VK_F4, VK_F5, VK_F6, VK_F7, VK_1, VK_2, VK_0 };
-    private readonly bool[] _keyWasDown = new bool[WatchedKeys.Length];
-
     public bool GodMode;
     public bool OneShot;
     public bool XpBoost;
@@ -82,12 +67,11 @@ public class TrainerBehaviour : MonoBehaviour
     {
         try
         {
-            for (int i = 0; i < WatchedKeys.Length; i++)
+            WatchSceneForSpeedReset();
+            for (int i = 0; i < TrainerPlugin.Keys.Length; i++)
             {
-                bool down = (GetAsyncKeyState(WatchedKeys[i]) & 0x8000) != 0;
-                if (down && !_keyWasDown[i])
+                if (TrainerPlugin.Keys[i].Pressed(Application.isFocused))
                     HandleKey(i);
-                _keyWasDown[i] = down;
             }
 
             if (GodMode)
@@ -96,11 +80,7 @@ public class TrainerBehaviour : MonoBehaviour
             if (XpMagnet)
                 ApplyXpMagnet();
 
-            // The game rewrites timeScale around its own pause, so a chosen speed
-            // has to be re-asserted rather than set once.
-            TrainerPlugin.SpeedController.Tick();
 
-            WatchSceneForSpeedReset();
         }
         catch (Exception ex)
         {
@@ -144,13 +124,13 @@ public class TrainerBehaviour : MonoBehaviour
                 ToggleXpMagnet();
                 break;
             case 7:
-                speed.SetSpeed(speed.Speed + GameSpeedStep);
+                if (speed != null) speed.SetSpeed(speed.Speed + GameSpeedStep);
                 break;
             case 8:
-                speed.SetSpeed(speed.Speed - GameSpeedStep);
+                if (speed != null) speed.SetSpeed(speed.Speed - GameSpeedStep);
                 break;
             case 9:
-                speed.Restore();
+                speed?.Restore();
                 break;
         }
     }
@@ -231,8 +211,8 @@ public class TrainerBehaviour : MonoBehaviour
 
             // A level transition happened: restore normal speed so the wave/spawn
             // directors of the next scene start from clean, vanilla timing.
-            if (!firstTick && !Mathf.Approximately(TrainerPlugin.SpeedController.Speed, 1f))
-                TrainerPlugin.SpeedController.Restore();
+            if (!firstTick && TrainerPlugin.SpeedController != null)
+                TrainerPlugin.SpeedController?.Restore();
         }
         catch (Exception)
         {
@@ -243,7 +223,7 @@ public class TrainerBehaviour : MonoBehaviour
     {
         // Do not leave global Unity timing modified if the trainer component is
         // unloaded or destroyed while a run is active.
-        TrainerPlugin.SpeedController.Restore();
+        TrainerPlugin.SpeedController?.Dispose();
         GodMode = false;
         ApplyGodMode();
     }
@@ -287,15 +267,17 @@ public class TrainerBehaviour : MonoBehaviour
         {
             string text =
                 "DISFIGURE TRAINER\n" +
-                $"[F1] God mode: {(GodMode ? "ON" : "off")}\n" +
-                $"[F2] One-shot: {(OneShot ? "ON" : "off")}\n" +
-                "[F3] +100k credits\n" +
-                "[F4] Level up\n" +
-                "[F5] Kill all enemies\n" +
-                $"[F6] XP x10: {(XpBoost ? "ON" : "off")}\n" +
-                $"[F7] XP magnet: {(XpMagnet ? "ON" : "off")}\n" +
-                $"[1]/[2] Game speed: x{TrainerPlugin.SpeedController.Speed:0.0}  ([0] reset)";
-            GUI.Label(new Rect(12f, 12f, 260f, 140f), text);
+                $"[{TrainerPlugin.Keys[0].Label}] God mode: {(GodMode ? "ON" : "off")}\n" +
+                $"[{TrainerPlugin.Keys[1].Label}] One-shot: {(OneShot ? "ON" : "off")}\n" +
+                $"[{TrainerPlugin.Keys[2].Label}] +100k credits\n" +
+                $"[{TrainerPlugin.Keys[3].Label}] Level up\n" +
+                $"[{TrainerPlugin.Keys[4].Label}] Kill all enemies\n" +
+                $"[{TrainerPlugin.Keys[5].Label}] XP x10: {(XpBoost ? "ON" : "off")}\n" +
+                $"[{TrainerPlugin.Keys[6].Label}] XP magnet: {(XpMagnet ? "ON" : "off")}\n" +
+                $"[{TrainerPlugin.Keys[7].Label}]/[{TrainerPlugin.Keys[8].Label}] Game speed: " +
+                (TrainerPlugin.SpeedController == null ? "unavailable" : $"x{TrainerPlugin.SpeedController.Speed:0.0}") +
+                $"  ([{TrainerPlugin.Keys[9].Label}] reset)";
+            GUI.Label(new Rect(12f, 12f, 580f, 180f), text);
         }
         catch (Exception)
         {
