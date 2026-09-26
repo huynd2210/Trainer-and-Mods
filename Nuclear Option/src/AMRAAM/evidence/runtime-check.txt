@@ -1,0 +1,52 @@
+Registered AIM-120 AMRAAM
+Cost $1.00m
+Mass 161.5
+Max engagement range 140000
+Vanilla range estimate (capped) 140000
+No escape estimate (capped) 140000
+Mount AIM-120 AMRAAM x2; rounds 2; loaded mass 373; rack cost 0.02
+Mount AIM-120 AMRAAM x2; rounds 2; loaded mass 323; rack cost 0
+Mount AIM-120 AMRAAM; rounds 1; loaded mass 186.5; rack cost 0.01
+Mount AIM-120 AMRAAM; rounds 1; loaded mass 161.5; rack cost 0
+Mount AIM-120 AMRAAM x3; rounds 3; loaded mass 559.5; rack cost 0.03
+Mount AIM-120 AMRAAM x3; rounds 3; loaded mass 484.5; rack cost 0
+Mount AIM-120 AMRAAM x8; rounds 8; loaded mass 1292; rack cost 0
+Mount AIM-120 AMRAAM x2; rounds 2; loaded mass 403; rack cost 0.04
+Mount AIM-120 AMRAAM x2; rounds 2; loaded mass 323; rack cost 0
+Mount AIM-120 AMRAAM x2; rounds 2; loaded mass 323; rack cost 0
+Mount AIM-120 AMRAAM; rounds 1; loaded mass 201.5; rack cost 0.02
+Mount AIM-120 AMRAAM; rounds 1; loaded mass 161.5; rack cost 0
+Mount AIM-120 AMRAAM x3; rounds 3; loaded mass 484.5; rack cost 0
+Mount AIM-120 AMRAAM x8; rounds 8; loaded mass 1292; rack cost 0
+Compatible aircraft: T/A-30 Compass
+Chooser T/A-30 Compass / Inner Wing Pylons: AIM-120 AMRAAM
+Compatible aircraft: FS-12 Revoker
+Chooser FS-12 Revoker / Internal Weapon Bays: AIM-120 AMRAAM x2
+Chooser FS-12 Revoker / Wing Pylons: AIM-120 AMRAAM, AIM-120 AMRAAM x2, AIM-120 AMRAAM x3
+Chooser FS-12 Revoker / Wingtip Pylons: AIM-120 AMRAAM
+Compatible aircraft: FS-20 Vortex
+Chooser FS-20 Vortex / Weapon Bays (inner): AIM-120 AMRAAM
+Chooser FS-20 Vortex / Weapon Bays (outer): AIM-120 AMRAAM
+Chooser FS-20 Vortex / Inner wing pylons: AIM-120 AMRAAM, AIM-120 AMRAAM x2
+Chooser FS-20 Vortex / Outer wing pylons: AIM-120 AMRAAM
+Compatible aircraft: KR-67 Ifrit
+Chooser KR-67 Ifrit / Forward Weapon Bay: AIM-120 AMRAAM x3
+Chooser KR-67 Ifrit / Rear Weapon Bay: AIM-120 AMRAAM x3
+Chooser KR-67 Ifrit / Inner Wing Pylons: AIM-120 AMRAAM, AIM-120 AMRAAM x2
+Chooser KR-67 Ifrit / Outer Wing Pylons: AIM-120 AMRAAM, AIM-120 AMRAAM x2
+Compatible aircraft: Alkyon AB-4
+Chooser Alkyon AB-4 / Forward Weapon Bay: AIM-120 AMRAAM x8
+Chooser Alkyon AB-4 / Rear Weapon Bay: AIM-120 AMRAAM x8
+Native WeaponSelector prefabs available: 1
+Rendered chooser options: Empty | AAM-29 Scythe | AAM-29 Scythe x2 | AAM-29 Scythe x3 | AAM-36 Scimitar | AAM-36 Scimitar x2 | AGM-68 | AGM-68 x2 | AGM-99 | AGM-99 x2 | AGR-24 Kingpin x4 | AIM-120 AMRAAM | AIM-120 AMRAAM x2 | AIM-120 AMRAAM x3 | ARAD-116 | GBM-500LR | GPO-2P Auger | GPO-500 | GPO-500 x2 | MMR-S3 | MMR-S3 x2 | MMR-S3 x3 | PAB-250 x3 | PAB-250LR x2 | PAB-80LR x3 | Tusko-B (HE)
+Blind search native seeker: max range 15000m, half-angle 60 degrees
+PASS: 17 in-game search assertions (controlled radar echoes; native cone/range/LOS).
+Motor {"activated":false,"delayTimer":0.0,"thrustVectoring":0.0,"thrust":26000.0,"burnTime":8.0,"fuelMass":27.5,"topSpeed":1372.0,"IR_intensity":1.0,"particleSystems":[{"instanceID":-390},{"instanceID":-370}],"trailEmitters":[{"instanceID":-384}],"audioSources":[{"instanceID":-350}],"startupSource":{"instanceID":0},"lights":[{"instanceID":-394}],"destructEffects":[]}
+Trail nozzle (0.00, 0.00, -1.84); duration 8
+Motor {"activated":false,"delayTimer":0.0,"thrustVectoring":0.0,"thrust":6500.0,"burnTime":155.0,"fuelMass":27.5,"topSpeed":1372.0,"IR_intensity":1.0,"particleSystems":[{"instanceID":-402},{"instanceID":-380}],"trailEmitters":[{"instanceID":-414}],"audioSources":[],"startupSource":{"instanceID":0},"lights":[],"destructEffects":[]}
+Trail nozzle (0.00, 0.00, -1.84); duration 155
+Donor effects local position: (0.00, 0.00, -1.84)
+Collider: CapsuleCollider at (0.00, 0.00, 0.00)
+Capsule center (0.00, 0.00, 0.00), height 3.65, radius 0.089, direction 2
+Effect smokeTrailBooster at missile-local (0.00, 0.00, -1.84)
+Effect smokeTrailSustainer at missile-local (0.00, 0.00, -2.20)

@@ -1,0 +1,23 @@
+CSD2 AUTOPLAY - QUICK INSTALL
+=============================
+
+1. Close Cook, Serve, Delicious! 2.
+
+2. Right-click install.ps1 -> "Run with PowerShell".
+   (Or in a terminal:  .\install.ps1  )
+
+   If PowerShell blocks the script, run instead:
+       powershell -ExecutionPolicy Bypass -File .\install.ps1
+
+3. Start the game, begin a shift, press F8.
+
+   F9 on the main menu runs campaign mode: it plays unlocked shifts back to
+   back on its own. Press F9 again to stop.
+
+To uninstall:  .\uninstall.ps1
+
+Your original data.win is backed up to backup\data.win.vanilla and verified
+before anything is changed. Keep that folder if you want a one-second revert;
+Steam's "Verify integrity of game files" also restores it.
+
+Full details in README.md

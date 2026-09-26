@@ -1,0 +1,7 @@
+{
+  "modID": "lonestar_tracker",
+  "displayName": "LONESTAR Tracker",
+  "description": "Logs every battle with the enemy's name, ship and tier (minion / elite / boss), plus voyage outcomes, kill streaks and who keeps destroying you. Press F10 for the panel; the same data is written to battles.csv and runs.csv.",
+  "version": "1.0.0",
+  "author": "huynd2210"
+}

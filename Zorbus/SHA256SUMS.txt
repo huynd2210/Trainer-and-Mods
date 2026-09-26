@@ -1,0 +1,2 @@
+e46657558da86d5cd9ad8e3a4acecd89de0d7368003a6a1de5893d72dd7da388  ZorbusTrainer-0.1.0-r61p16-windows-x64.zip
+8f1b865672bb555cbadffec0fd39479deabb482d37441b3c961c219c584610b2  ZorbusTrainer-0.1.0-r61p16-source.zip

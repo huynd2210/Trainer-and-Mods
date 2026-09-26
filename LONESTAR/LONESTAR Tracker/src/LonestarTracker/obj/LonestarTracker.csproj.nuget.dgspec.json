@@ -1,0 +1,66 @@
+{
+  "format": 1,
+  "restore": {
+    "C:\\Games\\Trainers and Mods\\LONESTAR Tracker\\src\\LonestarTracker\\LonestarTracker.csproj": {}
+  },
+  "projects": {
+    "C:\\Games\\Trainers and Mods\\LONESTAR Tracker\\src\\LonestarTracker\\LonestarTracker.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Games\\Trainers and Mods\\LONESTAR Tracker\\src\\LonestarTracker\\LonestarTracker.csproj",
+        "projectName": "LonestarTracker",
+        "projectPath": "C:\\Games\\Trainers and Mods\\LONESTAR Tracker\\src\\LonestarTracker\\LonestarTracker.csproj",
+        "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
+        "outputPath": "C:\\Games\\Trainers and Mods\\LONESTAR Tracker\\src\\LonestarTracker\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\Admin\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "netstandard2.1"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "netstandard2.1": {
+            "targetAlias": "netstandard2.1",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        }
+      },
+      "frameworks": {
+        "netstandard2.1": {
+          "targetAlias": "netstandard2.1",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "NETStandard.Library": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Users\\Admin\\scoop\\apps\\dotnet8-sdk\\current\\sdk\\8.0.423\\RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}

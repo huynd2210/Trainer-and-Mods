@@ -1,0 +1,38 @@
+AIM-120 AMRAAM for Nuclear Option 0.33.4 - self-contained pack
+==============================================================
+
+This zip has BepInEx 5.4.23.5 (x64, Mono) plus the AMRAAM mod. No separate
+BepInEx install is needed.
+
+Install
+-------
+1. Close the game.
+2. Open the Nuclear Option install folder: the one that has NuclearOption.exe
+   in it. Steam: right-click the game > Manage > Browse local files.
+3. Extract this zip into that folder, so that winhttp.dll sits next to
+   NuclearOption.exe and the mod is at
+   BepInEx\plugins\AMRAAM\NuclearOption.AMRAAM.dll
+4. Start the game. The first start after installing BepInEx takes longer.
+
+To check it worked, open BepInEx\LogOutput.log and look for
+"AMRAAM registered". Pick AIM-120 AMRAAM on any hardpoint that offers an ARH
+missile.
+
+Settings: BepInEx\config\nuclearoption.amraam.cfg is created on the first run.
+Edit it while the game is closed. What each setting does is in
+BepInEx\plugins\AMRAAM\README.md.
+
+Already have BepInEx?
+---------------------
+Use AMRAAM.zip (the mod alone) instead, and extract it the same way.
+
+Uninstall
+---------
+Switch saved loadouts back to stock weapons first. Then, with the game
+closed, delete BepInEx\plugins\AMRAAM. To remove BepInEx entirely, also delete
+winhttp.dll, doorstop_config.ini and the BepInEx folder.
+
+Multiplayer: every player needs the same mod version and trajectory settings.
+Multiplayer has not been tested.
+
+BepInEx is LGPL-2.1, Copyright (c) 2018 Bepis.

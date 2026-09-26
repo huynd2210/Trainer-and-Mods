@@ -13,6 +13,7 @@ Generated 2026-09-02.
 | Breachway | BreachwayTrainer v1.4.5 | 1 zip (built here) | **trainer source missing** — only `save_editor.py` | `Breachway\BepInEx\plugins` |
 | CULTIC | GodMode, KillTracker, LighterBrighter, Minimap, Replay, SuperHot, Hotkey Trainer | 14 zips | yes | `CULTIC.v2026.01.10\CULTIC\*Source` |
 | Cat Mail Co | BoatHeightUnlocker, BreakRoomKey, PackageCounter, SpeedBoost, WhosItFor, FriendsModPack | 15 zips | yes | `Cat.Mail.Co\game\mods` + `game\dist` |
+| Cook Serve Delicious 2 | CSD2 Autoplay v1.7 — shift bot + campaign mode (GameMaker `data.win` patch) | 2 zips (mod + source) | yes | `C:\Users\Admin\CSD2-Autoplay-Mod` |
 | Cursed Words | CursedAI (autonomous player) | 1 zip (built here) | yes | `Cursed.Words.CursedAI` |
 | Dead Weight | Dead Weight Trainer 1.1 | launcher + note; 902 MB patched exe excluded | **source missing** | `Trainers and Mods\Dead Weight Trainer` |
 | Die For The Lich | Meta-Progression mod (Godot) | source zip + BUILD-NOTE | yes | `Die.For.The.Lich\game\forward_plus\meta_progression_mod` |
@@ -20,10 +21,11 @@ Generated 2026-09-02.
 | He is Coming | HicDraft | 2 zips | yes | `He.is.Coming.v0.9.22\moddev` |
 | MENACE | MenaceTrainer | 1 zip (built here) | yes | `C:\Games\MenaceTrainer` (standalone folder) |
 | Magical Princess | MagicalPrincessTrainer v1.1.0 | 2 zips | yes | `Magical Princess\MagicalPrincessTrainer` |
-| Nuclear Option | KillCostTracker | 1 zip (built here) | yes | `Nuclear.Option.v0.33.4\game\ModSource\KillCostTracker` |
+| Nuclear Option | KillCostTracker, AMRAAM (AIM-120 missile, lofted ARH) | 3 zips (KillCostTracker; AMRAAM mod + source) | yes | `Nuclear.Option.v0.33.4\game\ModSource\{KillCostTracker,AMRAAM}` |
 | Night Shippers | NightShippersTrainer (UE4SS, Lua) | 2 zips (built here) | yes | `C:\Users\Admin\Documents\NightShippersTrainer` (standalone folder) |
 | PEAK | JetpackInfiniteFuel | 1 zip (built here) | yes | `PEAK.v2.02.a_LinkNeverDie.Com\Mods\JetpackInfiniteFuel` |
 | Quasimorph | KillTracker, MapReveal, OperatorBoost, Spawner, WarpDrive | 11 zips | yes | `Quasimorph.v1.0\Quasimorph\ModSource` |
+| ReStory: Chill Electronics Repairs | MoreMoney (F8 adds yen to wallet) | 2 zips (mod + source) | yes | `ReStory.Chill.Electronics.Repairs\MoreMoney` |
 | Rift Wizard 3 | 10 Python mods (already present) | source *is* the distribution | yes | `Rift.Wizard.3\game\mods` |
 | Sir We Have an Orc Problem | Godot trainer (`trainer.gd` + pck inject tooling) | 1 zip (built here) | yes | `Sir.We.Have.an.Orc.Problem\mod` |
 | Skull Horde | Skull Horde Trainer (external save editor) | 1 zip (built here) | yes | `Skull Horde\SkullHordeTrainer` |
@@ -102,6 +104,24 @@ Judgment call:
 - **CULTIC** — `MOD-RELEASE-MANIFEST.txt` refers to a `Minimap-Pack.zip`; on disk that
   file is named `Minimap.zip` and the loader-free build was `Minimap-Plugin-Only.zip`,
   the reverse of every other CULTIC mod. The loader-free one is what is here.
+- **Cook Serve Delicious 2** is GameMaker, not Unity or Unreal, so **no mod loader is
+  involved at all** — no BepInEx, no UE4SS, and therefore no `-Pack` variant and no
+  `dist\LOADER-NOT-BUNDLED.md`; there is nothing to rebuild. The mod is GML appended to six
+  events in `data.win`, and `install.ps1` patches the copy already on the user's disk, backing
+  up the original first and fetching UndertaleModTool itself (pinned by SHA256).
+  **No `data.win` is published** — it is 834 MB of the developer's game. `src\` likewise
+  excludes the decompiled game code the mod was written against (`decomp*\` in the
+  workspace): that is Vertigo Gaming's source, not ours. The two flat `CSD2-Autoplay-*-1.6.zip`
+  files that were here before are replaced by the `dist\`/`src\` layout — they were named
+  `-src.zip` against the naming rule, and 1.6 stalls on the post-shift reward screens.
+- **Nuclear Option AMRAAM** (added 2026-09-25): `dist\` has `AMRAAM.zip` and
+  `AMRAAM-Source.zip`, and `dist\LOADER-NOT-BUNDLED.md` says how to rebuild the Pack.
+  The source leaves out `assets\` (7 MB mesh + 3 MB texture, already in `AMRAAM.zip`)
+  and the decompiled game/Mirage/TextMeshPro classes the mod was written against
+  (`evidence\Missile.decompiled.txt`, `Unit.txt`, etc.). The original `.blend` model is
+  outside `C:\Games` and is not here. Not flown in a live mission yet; see its README.
+  The Kill and Cost Tracker zip here is **1.4.0**. 1.5.0 is installed in the game but
+  was never repackaged.
 - Build output (`bin`, `obj`, `__pycache__`, `.venv`, `.git`) was excluded from every
   copied source tree, as were redistributed Unity/BepInEx assemblies.
 - **Night Shippers** is UE4SS, not BepInEx, and the same no-bundled-loader rule was
