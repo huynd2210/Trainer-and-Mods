@@ -1,0 +1,18 @@
+Deadzoned Morgue - install
+==========================
+
+1. Close Deadzoned.
+2. Extract this zip anywhere (not into the game folder).
+3. Right-click install.ps1 -> Run with PowerShell.
+   (If Windows blocks it: open PowerShell in this folder and run
+    powershell -ExecutionPolicy Bypass -File .\install.ps1)
+4. Play. When a run ends, its morgue file is in %LOCALAPPDATA%\Deadzoned\morgue
+
+The installer finds the game through Steam, backs up your current data.win,
+downloads UndertaleModTool 0.9.2.0 once (checksum-pinned) and patches your own
+copy. It stacks with other Deadzoned mods such as the Dice Mod. No game files
+ship in this zip.
+
+Uninstall: run uninstall.ps1, or use Steam's "Verify integrity of game files"
+(which removes all mods). A game update also reverts the patch; run
+install.ps1 again afterwards.

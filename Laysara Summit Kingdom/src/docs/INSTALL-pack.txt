@@ -1,0 +1,69 @@
+Extra Income - Pack
+===================
+
+Everything in one file: UE4SS (the mod loader) plus the Extra Income mod.
+There is nothing else to download.
+
+Contents
+--------
+
+  UE4SS v3.0.1 Beta (Git SHA 2bfa839f)  - the mod loader; this is the build the
+                                          mod was tested with on this game
+  ExtraIncome                           - adds extra monthly income to the
+                                          current map, set in game
+
+
+Install
+-------
+
+1. Quit Laysara completely.
+
+2. Extract this zip into your Laysara folder, the one holding Laysara.exe.
+   For a Steam install that is usually:
+
+       C:\Program Files (x86)\Steam\steamapps\common\Laysara Summit Kingdom
+
+   Say yes to merging folders. When it is done you should have:
+
+       AS\Binaries\Win64\dwmapi.dll
+       AS\Binaries\Win64\ue4ss\UE4SS.dll
+       AS\Binaries\Win64\ue4ss\Mods\ExtraIncome\
+
+   If dwmapi.dll ended up next to Laysara.exe instead of inside
+   AS\Binaries\Win64, you extracted one folder too high.
+
+3. Start the game and load a map. Hover the treasury on the top bar: the income
+   breakdown now has an "Extra income (+/-)" row. Press + or - while it is open
+   (hold Shift to step by 100). README.txt has the full details.
+
+
+Did it load?
+------------
+
+UE4SS writes AS\Binaries\Win64\ue4ss\UE4SS.log every time the game starts. If
+the log is missing, UE4SS itself did not start. Check that dwmapi.dll is in
+AS\Binaries\Win64 and that your antivirus has not quarantined it.
+
+If the log exists, search it for [ExtraIncome]. You should see:
+
+    [ExtraIncome] loaded
+    [ExtraIncome] hooked income breakdown       (once a map is open)
+
+
+Adding more mods later
+----------------------
+
+This pack is a normal UE4SS install. Any other UE4SS mod for this game goes into
+AS\Binaries\Win64\ue4ss\Mods\, next to this one.
+
+
+Uninstall
+---------
+
+Delete these from AS\Binaries\Win64:
+
+    dwmapi.dll
+    ue4ss\
+
+None of this patches or replaces a game file, so once those two are gone the
+game is back to stock.

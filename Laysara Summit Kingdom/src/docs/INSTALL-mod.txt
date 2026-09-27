@@ -1,0 +1,12 @@
+Extra Income - mod only
+=======================
+
+This zip contains only the mod. It needs UE4SS already installed.
+
+  Already have UE4SS?  Extract this into your Laysara folder (the one holding
+                       Laysara.exe) and start the game.
+
+  Don't have UE4SS?    Use ExtraIncome-Pack.zip instead. It contains UE4SS
+                       and this mod together, and needs nothing else.
+
+Full notes are in README.txt.

@@ -1,0 +1,97 @@
+Extra Income - source
+=====================
+
+This is the source release. To play, use ExtraIncome-Pack.zip (UE4SS + the mod)
+or ExtraIncome.zip (the mod alone, for an existing UE4SS install).
+
+The mod is plain Lua running on UE4SS, so there is nothing to compile.
+Packaging just copies files and zips them.
+
+
+Layout
+------
+
+  src\ExtraIncome\          the mod itself, exactly as installed
+    enabled.txt             empty marker; if it exists, UE4SS loads the mod
+                            without a mods.txt entry
+    README.txt              user documentation, shipped in every zip
+    Scripts\main.lua        the mod
+    Scripts\config.lua      user-editable settings
+    amounts.txt             (created at runtime, never packaged) per-map amounts
+
+  docs\                     the INSTALL.txt written into each zip, and this file
+
+  reference\                tools used to work the game out:
+    pakx.py                 lists / extracts files in AS-WindowsNoEditor.pak
+                            (index is unencrypted, entries are zlib)
+    IncomeProbe\            UE4SS probe mod that dumped the money manager,
+                            game mode and the breakdown tooltip's widget grid
+
+  package.ps1               builds the three zips into dist\
+
+
+How it works
+------------
+
+Money lives on ASMoneyManager (GameMode.MoneyManager): Money, Capacity, Balance,
+TotalRevenue, BaseIncome ("Assistance from The Capital") and so on. A "month" is
+the game mode's base time unit, and GetBaseTimeUnitCounterInt() counts them.
+
+  Payout      A 250 ms game-thread poll watches that counter. When it goes up,
+              the mod adds amount x months to MoneyManager.Money, capped at
+              Capacity, then calls UpdateBalance() so the HUD refreshes. When
+              the manager object changes (new map or a loaded save), the poll
+              starts counting again and pays nothing for the months before.
+              BaseIncome is left alone on purpose. It is saved into the save
+              file, so raising it would bake the extra into every save and
+              could not be undone cleanly.
+
+  Breakdown   The breakdown is BP_ASMoneyTooltip_C. The mod post-hooks its
+              FillData. Its "Revenues" GridPanel does not use row 5 (it sits
+              between "Exporting goods" at row 4 and "Donations" at row 6), so
+              the mod places two AS_Text_C widgets there. They copy their look
+              and slot settings from the "Assistance from The Capital" row.
+              Total Revenue and Balance are then rewritten with the extra
+              added. The game makes a new tooltip for each hover, so rows are
+              tracked per tooltip instance.
+
+  Keys        + and - (main keyboard and numpad, Shift for BigStep) only act
+              while ObjectiveManager.bShowingMoneyTooltip is true, which means
+              while the breakdown is on screen. None of these keys is bound in
+              the game's DefaultInput.ini.
+
+
+Working on it
+-------------
+
+Keep a single copy by pointing the game at this checkout with a directory
+junction:
+
+    mklink /J "<game>\AS\Binaries\Win64\ue4ss\Mods\ExtraIncome" "<this folder>\src\ExtraIncome"
+
+UE4SS loads the Lua at startup, so restart the game after edits. print() output
+goes to <game>\AS\Binaries\Win64\ue4ss\UE4SS.log, tagged [ExtraIncome].
+
+
+Building the zips
+-----------------
+
+From this folder, in PowerShell:
+
+    .\package.ps1
+
+This writes three zips to dist\:
+
+    ExtraIncome.zip          the mod alone
+    ExtraIncome-Pack.zip     UE4SS + the mod, self-contained
+    ExtraIncome-Source.zip   this source tree
+
+The Pack copies UE4SS from a real install instead of a checked-in binary. By
+default it looks at the Steam path. Point it somewhere else if needed:
+
+    .\package.ps1 -GameDir "D:\Games\Laysara Summit Kingdom"
+
+Pass -SkipPack to build only the mod and source zips.
+
+UE4SS is MIT licensed (Copyright (c) 2022 Narknon). Its LICENSE ships next to
+the binary inside the Pack, at AS\Binaries\Win64\ue4ss\LICENSE.

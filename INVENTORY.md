@@ -16,9 +16,11 @@ Generated 2026-09-02.
 | Cook Serve Delicious 2 | CSD2 Autoplay v1.7 — shift bot + campaign mode (GameMaker `data.win` patch) | 2 zips (mod + source) | yes | `C:\Users\Admin\CSD2-Autoplay-Mod` |
 | Cursed Words | CursedAI (autonomous player) | 1 zip (built here) | yes | `Cursed.Words.CursedAI` |
 | Dead Weight | Dead Weight Trainer 1.1 | launcher + note; 902 MB patched exe excluded | **source missing** | `Trainers and Mods\Dead Weight Trainer` |
+| Deadzoned | Dice Mod — normal/always/never for hits, crits, dodges (yours and enemies'), talent procs, hacking; Morgue — trad-roguelike character dump .txt at every run end (GameMaker `data.win` patches, stackable) | 4 zips (mod + source each) | yes | `C:\Users\Admin\Deadzoned-DiceMod`, `C:\Users\Admin\Deadzoned-MorgueMod` |
 | Die For The Lich | Meta-Progression mod (Godot) | source zip + BUILD-NOTE | yes | `Die.For.The.Lich\game\forward_plus\meta_progression_mod` |
 | Disfigure | DisfigureTrainer | 1 zip (built here) | yes | `Disfigure\DisfigureTrainer` |
 | He is Coming | HicDraft | 2 zips | yes | `He.is.Coming.v0.9.22\moddev` |
+| Laysara: Summit Kingdom | Extra Income — configurable monthly income per map, shown as its own row in the income breakdown (UE4SS, Lua) | 2 zips (mod + source) | yes | `C:\Games\Trainers and Mods\Laysara Extra Income` |
 | MENACE | MenaceTrainer | 1 zip (built here) | yes | `C:\Games\MenaceTrainer` (standalone folder) |
 | Magical Princess | MagicalPrincessTrainer v1.1.0 | 2 zips | yes | `Magical Princess\MagicalPrincessTrainer` |
 | Nuclear Option | KillCostTracker, AMRAAM (AIM-120 missile, lofted ARH) | 3 zips (KillCostTracker; AMRAAM mod + source) | yes | `Nuclear.Option.v0.33.4\game\ModSource\{KillCostTracker,AMRAAM}` |
@@ -114,6 +116,13 @@ Judgment call:
   workspace): that is Vertigo Gaming's source, not ours. The two flat `CSD2-Autoplay-*-1.6.zip`
   files that were here before are replaced by the `dist\`/`src\` layout — they were named
   `-src.zip` against the naming rule, and 1.6 stalls on the post-shift reward screens.
+- **Deadzoned Dice Mod and Morgue** (added 2026-09-27) follow the CSD2 pattern: GameMaker, so
+  no mod loader, no `-Pack` and no `LOADER-NOT-BUNDLED.md`. Each `install.ps1` patches the
+  user's own `data.win` with a pinned UndertaleModTool. Unlike CSD2's installer, these patch
+  the *current* file rather than a vanilla backup, so the two stack in either order; each
+  uninstall restores its own pre-install copy and refuses if another mod was installed on
+  top since. `src\` is per mod (`src\DeadzonedDiceMod`, `src\DeadzonedMorgue`). Neither
+  `data.win` nor the decompiled game code (`decomp\` in the workspace) is published.
 - **Nuclear Option AMRAAM** (added 2026-09-25): `dist\` has `AMRAAM.zip` and
   `AMRAAM-Source.zip`, and `dist\LOADER-NOT-BUNDLED.md` says how to rebuild the Pack.
   The source leaves out `assets\` (7 MB mesh + 3 MB texture, already in `AMRAAM.zip`)
@@ -124,6 +133,11 @@ Judgment call:
   was never repackaged.
 - Build output (`bin`, `obj`, `__pycache__`, `.venv`, `.git`) was excluded from every
   copied source tree, as were redistributed Unity/BepInEx assemblies.
+- **Laysara Extra Income** (added 2026-09-27) is UE4SS on UE 4.27, published in the
+  `dist\`/`src\` layout. `ExtraIncome-Pack.zip` (8.7 MB, bundling UE4SS v3.0.1 Beta
+  2bfa839f) is not published here; `dist\LOADER-NOT-BUNDLED.md` says how to rebuild
+  it. The breakdown row and the in-game +/- were tested live. The monthly payout
+  was not seen with a non-zero amount during testing.
 - **Night Shippers** is UE4SS, not BepInEx, and the same no-bundled-loader rule was
   applied: `NightShippersTrainer-Pack.zip` (8.7 MB, almost all of it `UE4SS.dll`) is
   not here. `Night Shippers\dist\LOADER-NOT-BUNDLED.md` says how to rebuild it.
