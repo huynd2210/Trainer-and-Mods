@@ -1,0 +1,258 @@
+-- ADOM Bot: core (harness, perception, actions). Reloadable.
+
+local B = adombot
+local C = adombot_config
+
+B.enabled = B.enabled or false
+B.msgs = B.msgs or {}          -- recent message lines {t=ticks, line=, question=}
+B.events = B.events or {}      -- recent game events (for debugging)
+B.last_cmd_check = 0
+B.last_status = 0
+B.last_action = B.last_action or 0
+
+-- ---------------------------------------------------------------- IPC
+
+local function readfile(name)
+  local f = io.open(B.dir..name, "r")
+  if not f then return nil end
+  local s = f:read("*a")
+  f:close()
+  return s
+  end
+
+local function writefile(name, s)
+  local f = io.open(B.dir..name, "w")
+  if f then f:write(s) f:close() end
+  end
+
+local function ser(v, depth)
+  depth = depth or 0
+  if type(v) == "table" then
+    if depth > 2 then return "{...}" end
+    local parts = {}
+    for k, x in pairs(v) do parts[#parts+1] = tostring(k).."="..ser(x, depth+1) end
+    table.sort(parts)
+    return "{"..table.concat(parts, ", ").."}"
+    end
+  return tostring(v)
+  end
+B.ser = ser
+
+-- ---------------------------------------------------------------- perception
+
+function B.screen_lines()
+  local lines = {}
+  local scr = S or IMG
+  if not scr then return lines end
+  for y = 0, 24 do
+    local row = {}
+    for x = 0, 79 do
+      local ch = gch(scrget(scr, x, y))
+      row[#row+1] = (ch == nil or ch == "") and " " or ch
+      end
+    lines[#lines+1] = table.concat(row)
+    end
+  return lines
+  end
+
+function B.screen_text()
+  return table.concat(B.screen_lines(), "\n")
+  end
+
+-- per-game memory (kills, known dangers, shops, loot...) must not leak into the next game
+B.game_resets = B.game_resets or {}
+
+function B.on_event(ev)
+  local id = ev.game_event_id
+  if id == gameeventids.GE_NEW_GAME_STARTED or id == gameeventids.GE_SAVE_GAME_RESTORED then
+    B.enabled = false
+    for _, f in pairs(B.game_resets) do pcall(f) end
+    B.log("new game / game loaded: bot memory cleared")
+    end
+  if B.on_game_event then pcall(B.on_game_event, ev) end
+  if id == gameeventids.GE_MESSAGE_LINE_UPDATED then
+    local m = {t = getticks(), line = ev.line or "", question = ev.question, updated = ev.updated}
+    table.insert(B.msgs, m)
+    if #B.msgs > 60 then table.remove(B.msgs, 1) end
+    if C.log_messages then B.log("msg"..(ev.question and "?" or "").." "..m.line) end
+    if B.on_message then B.on_message(m) end
+    end
+  if C.log_events then
+    for k, v in pairs(gameeventids) do
+      if v == id then B.log("event "..k.." "..ser(ev)) break end
+      end
+    end
+  end
+
+-- ---------------------------------------------------------------- actions
+
+local specialkeys = {
+  ESC = "ESCAPE", ENTER = "RETURN", SPACE = "SPACE", BS = "BACKSPACE",
+  UP = "UP", DOWN = "DOWN", LEFT = "LEFT", RIGHT = "RIGHT",
+  }
+
+function B.sendchar(c)
+  local code = string.byte(c)
+  local mod = 0
+  if c >= "A" and c <= "Z" then
+    code = code + 32
+    mod = KMOD.LSHIFT
+    end
+  nsendkey2({keycode = code, scancode = SDL_GetScancodeFromKey(code), mod = mod}, evKeyBothText)
+  end
+
+function B.sendspecial(name)
+  local k = KEYS[specialkeys[name] or name]
+  nsendkey2(k, evKeyBothText)
+  end
+
+-- "abc{ESC}d{ENTER}" -> keystrokes
+function B.sendkeys(s)
+  local i = 1
+  while i <= #s do
+    local c = s:sub(i, i)
+    if c == "{" then
+      local j = s:find("}", i, true)
+      if j then
+        B.sendspecial(s:sub(i+1, j-1))
+        i = j + 1
+      else
+        B.sendchar(c)
+        i = i + 1
+        end
+    else
+      B.sendchar(c)
+      i = i + 1
+      end
+    end
+  B.last_action = getticks()
+  end
+
+function B.command(name, x, y)
+  local id = gamecommandids[name]
+  if not id then error("unknown game command "..tostring(name)) end
+  post_game_command(id, x or -1, y or -1)
+  B.last_action = getticks()
+  end
+
+-- ---------------------------------------------------------------- status
+
+function B.status_text()
+  local out = {}
+  local function add(s) out[#out+1] = s end
+  add("enabled="..tostring(B.enabled).." ticks="..getticks())
+  if Global then
+    add("global: running="..tostring(Global.is_game_running)
+      .." waiting="..tostring(Global.is_waiting_for_next_command)
+      .." ask_cmd="..tostring(Global.asked_for_command)
+      .." ask_dir="..tostring(Global.asked_for_direction)
+      .." ask_complicated="..tostring(Global.asked_complicated_question)
+      .." map_visible="..tostring(Global.is_map_visible)
+      .." inv_visible="..tostring(Global.is_inventory_visible)
+      .." itemlist_visible="..tostring(Global.is_item_list_visible)
+      .." cursor_active="..tostring(Global.is_cursor_active)
+      .." lvl="..tostring(Global.dungeon_level_shortcut)
+      .." above="..tostring(Global.lines_above_map).." below="..tostring(Global.lines_below_map))
+    end
+  if PCData and PCData.hp then
+    add("pc: hp="..PCData.hp.."/"..PCData.max_hp.." pp="..tostring(PCData.pp)
+      .." lvl="..tostring(PCData.level).." pos="..tostring(PCData.x)..","..tostring(PCData.y)
+      .." sat="..tostring(PCData.satiation_level).." burden="..tostring(PCData.burden_level)
+      .." explore="..tostring(PCData.can_auto_explore)
+      .." up="..tostring(PCData.can_walk_ascend).." down="..tostring(PCData.can_walk_descend))
+    end
+  if B.state_line then add("bot: "..B.state_line) end
+  if B.extra_status then add(B.extra_status()) end
+  add("--- messages")
+  for i = math.max(1, #B.msgs - 12), #B.msgs do
+    local m = B.msgs[i]
+    add((m.question and "? " or "  ")..m.line)
+    end
+  add("--- screen")
+  add(B.screen_text())
+  return table.concat(out, "\n")
+  end
+
+-- ---------------------------------------------------------------- commands from adombot/cmd.txt
+
+local handlers = {}
+B.cmd_handlers = handlers
+
+function B.start(how)
+  if B.reset then B.reset() end
+  B.enabled = true
+  B.log("started"..(how or ""))
+  end
+
+handlers.start = function() B.start() end
+handlers.stop = function() B.enabled = false B.log("stopped") end
+handlers.reload = function() B.reload() end
+handlers.keys = function(arg) B.sendkeys(arg) end
+handlers.cmd = function(arg)
+  local name, x, y = arg:match("^(%S+)%s*(%-?%d*)%s*(%-?%d*)")
+  B.command(name, tonumber(x), tonumber(y))
+  end
+handlers.dump = function() writefile("status.txt", B.status_text()) end
+handlers.lua = function(arg)
+  local fn, err = loadstring(arg)
+  if not fn then B.log("lua compile error: "..err) return end
+  local ok, res = pcall(fn)
+  B.log("lua -> "..tostring(ok).." "..ser(res))
+  end
+
+local function check_commands()
+  local s = readfile("cmd.txt")
+  if not s or s == "" then return end
+  writefile("cmd.txt", "")
+  for line in s:gmatch("[^\r\n]+") do
+    local verb, arg = line:match("^(%S+)%s?(.*)$")
+    local h = verb and B.cmd_handlers[verb]  -- looked up per line: "reload" swaps the table
+    if h then
+      local ok, err = pcall(h, arg or "")
+      if not ok then B.log("command '"..line.."' failed: "..tostring(err)) end
+    else
+      B.log("unknown command: "..line)
+      end
+    end
+  end
+
+-- ---------------------------------------------------------------- in-game hotkeys
+
+function B.on_key(ev)
+  if ev.type ~= evKeyDown then return false end
+  if iskey(ev, KEYS.F12) then
+    if modshiftpressed(ev.mod) then
+      B.reload()
+    else
+      if B.enabled then
+        B.enabled = false
+        B.log("stopped (F12)")
+      else
+        B.start(" (F12)")
+        end
+      end
+    return true
+    end
+  return false
+  end
+
+-- ---------------------------------------------------------------- tick
+
+function B.tick()
+  local t = getticks()
+  if t - B.last_cmd_check >= 100 or t < B.last_cmd_check then
+    B.last_cmd_check = t
+    check_commands()
+    end
+  if t - B.last_status >= (C.status_interval_ms or 1000) or t < B.last_status then
+    B.last_status = t
+    writefile("status.txt", B.status_text())
+    end
+  if B.enabled and B.think then B.think(t) end
+  end
+
+-- behaviour (rules, danger model, pathing), then add-ons that plug into it
+for _, file in ipairs({"games/adom-bot-brain.noe", "games/adom-bot-sell.noe"}) do
+  local ok, err = pcall(dofile, file)
+  if not ok then B.log("load error in "..file..": "..tostring(err)) end
+  end

@@ -1,0 +1,1196 @@
+-- ADOM Bot: behaviour.
+--
+-- Every time ADOM waits for a command the bot builds a snapshot of the world and walks an
+-- ordered list of rules; the first rule whose `when` matches acts. When ADOM is showing a
+-- prompt/menu instead, an ordered list of prompt handlers is tried. Anything the bot does not
+-- understand pauses it (ADOM is turn-based, so a paused bot is a safe bot).
+
+local B = adombot
+local C = adombot_config
+
+-- ---------------------------------------------------------------- helpers
+
+local function set(list)
+  local s = {}
+  for _, v in ipairs(list) do if v then s[v] = true end end
+  return s
+  end
+
+local function lower(s) return string.lower(s or "") end
+local function strip(s) return ((s or ""):gsub("[\128-\255]", "")) end
+local function key(x, y) return y * 256 + x end
+
+-- patterns are anchored to the start of a word: "rat" matches "giant rat", not "pirate"
+local function match_any(text, list)
+  for _, p in ipairs(list or {}) do
+    if text:find("%f[%w]"..p) then return p end
+    end
+  return nil
+  end
+
+local DIRS = {
+  {dx =  0, dy = -1, gc = "GC_N",  key = "8"},
+  {dx =  1, dy = -1, gc = "GC_NE", key = "9"},
+  {dx =  1, dy =  0, gc = "GC_E",  key = "6"},
+  {dx =  1, dy =  1, gc = "GC_SE", key = "3"},
+  {dx =  0, dy =  1, gc = "GC_S",  key = "2"},
+  {dx = -1, dy =  1, gc = "GC_SW", key = "1"},
+  {dx = -1, dy =  0, gc = "GC_W",  key = "4"},
+  {dx = -1, dy = -1, gc = "GC_NW", key = "7"},
+  }
+
+local function dir_to(dx, dy)
+  for _, d in ipairs(DIRS) do if d.dx == dx and d.dy == dy then return d end end
+  end
+
+local T, F, A = tileids, featureids, attitudeids
+
+local BLOCKED = set{T.U_TILE, T.ROCK, T.SOLID_ROCK, T.WALL, T.SOLID_WALL, T.LOCKED_DOOR,
+  T.SECRET_DOOR, T.TRAPPED_DOOR, T.OBVIOUSLY_TRAPPED_DOOR, T.WATER_SQUARE, T.MOUNTAIN,
+  T.HIGH_MOUNTAIN, T.VOLCANO, T.MAGMA, T.VOID, T.NO_TILE, T.ILLUSION_WALL, T.THORNBUSHES}
+local DOORS = set{T.OPEN_DOOR, T.CLOSED_DOOR, T.TRAPPED_DOOR, T.OBVIOUSLY_TRAPPED_DOOR, T.LOCKED_DOOR}
+local BAD_FEATURES = set{F.OPEN_TRAP, F.PIT, F.WEB, F.CHAOS_GATE, F.ENTROPY_GATE, F.CRUMPLED_HOLE}
+local HOSTILE = set{A.AGGRAVATED, A.STANDARD, A.SLIGHTLY_AGGRAVATED, A.AMBUSHING}
+local STAIRS_UP = set{F.STAIR_UP1, F.STAIR_UP2}
+local STAIRS_DOWN = set{F.STAIR_DOWN1, F.STAIR_DOWN2}
+
+local ENTRY_TILES = {}
+for name, id in pairs(tileids) do
+  if name:find("ENTRY") then ENTRY_TILES[id] = true end  -- villages are not dungeons to grind
+  end
+
+-- ---------------------------------------------------------------- perception
+
+function B.classify(mon)
+  if mon.companion or not HOSTILE[mon.attitude] then return "ignore", "not hostile" end
+  if mon.being_type == beingtypes.SHOP_KEEPER then return "ignore", "shopkeeper" end
+  if B.unbeatable and B.unbeatable[mon.uid] then return "flee", "can't hurt it" end
+  local t = lower(mon.type)
+  if C.flee_bosses and mon.is_boss then return "flee", "boss" end
+  if C.flee_named and mon.name and mon.name ~= "" then return "flee", "named" end
+  local p = match_any(t, C.flee)
+  if p then return "flee", p end
+  p = match_any(t, C.ignore)
+  if p then return "ignore", p end
+  p = match_any(t, C.fight)
+  if p then return "fight", p end
+  if (mon.estimate or 99) <= (C.max_unknown_estimate or 0) then return "fight", "weak (estimate "..tostring(mon.estimate)..")" end
+  return "flee", "unknown, estimate "..tostring(mon.estimate)
+  end
+
+local function cell(w, x, y)
+  local row = w.map[y]
+  return row and row[x]
+  end
+
+function B.snapshot()
+  local pc, g = PCData, Global
+  local w = {pc = pc, g = g, map = mapcache or {}, mons = {}, mon_at = {}}
+  w.hp_pct = math.floor(100 * pc.hp / math.max(1, pc.max_hp))
+  -- some dungeons (the Infinite Dungeon) report -1; their level names carry the depth ("I3")
+  w.depth = g.dungeon_level or 0
+  if w.depth < 1 then w.depth = tonumber(tostring(g.dungeon_level_shortcut):match("(%d+)$")) or w.depth end
+  -- a level visit, not just a level: the Infinite Dungeon makes a new "I1" every time, so
+  -- anything remembered per level (visited cells, kills, exits) is keyed by visit
+  local raw = tostring(g.dungeon_level_shortcut)..":"..tostring(g.dungeon_level)
+  if raw ~= B.raw_level then B.raw_level, B.visit_n = raw, (B.visit_n or 0) + 1 end
+  w.level = raw.."#"..B.visit_n
+  local here = cell(w, pc.x, pc.y) or {}
+  w.here = here
+  -- the overworld; note some caves also report level_type SURFACE, so don't use that
+  w.surface = g.special_level == speciallevelids.WILDERNESS
+  w.stairs = {}
+  for y, row in pairs(w.map) do
+    for x, m in pairs(row) do
+      if m.monster and m.monster.type and m.being_type ~= beingtypes.PC then
+        local mm = m.monster
+        local mon = {
+          x = x, y = y, type = mm.type, name = mm.name, uid = mm.uid,
+          attitude = mm.attitude, estimate = mm.experience_estimate, health = mm.health,
+          is_boss = mm.is_boss, companion = mm.is_companion, sleeping = mm.is_sleeping,
+          being_type = m.being_type,
+          dist = math.max(math.abs(x - pc.x), math.abs(y - pc.y)),
+          }
+        mon.kind, mon.why = B.classify(mon)
+        w.mons[#w.mons+1] = mon
+        w.mon_at[key(x, y)] = mon
+        end
+      if m.feature and STAIRS_UP[m.feature] then w.stairs[#w.stairs+1] = {x = x, y = y, dir = "up"} end
+      if m.feature and STAIRS_DOWN[m.feature] then w.stairs[#w.stairs+1] = {x = x, y = y, dir = "down"} end
+      -- area exits count as a way up, except on the overworld: there the exit out of the
+      -- Drakalor Chain ends the whole game ("...not stopped the forces of chaos??")
+      if m.tile == T.SPECIAL_EXIT and not w.surface then w.stairs[#w.stairs+1] = {x = x, y = y, dir = "up"} end
+      end
+    end
+  table.sort(w.mons, function(a, b) return a.dist < b.dist end)
+  -- dangerous monsters are remembered for the rest of the visit, since lurking ones drop in
+  -- and out of sight; w.danger holds both the seen and the remembered ones
+  if B.dangers_level ~= w.level then B.dangers_level, B.dangers = w.level, {} end
+  for _, m in ipairs(w.mons) do
+    if m.kind == "flee" then
+      m.active = not m.sleeping and m.attitude ~= A.AMBUSHING
+      B.dangers[m.uid or key(m.x, m.y)] = m
+      end
+    end
+  w.danger, w.targets, w.adjacent, w.hostiles = {}, {}, {}, 0
+  for _, d in pairs(B.dangers) do
+    d.dist = math.max(math.abs(d.x - pc.x), math.abs(d.y - pc.y))
+    w.danger[#w.danger+1] = d
+    end
+  table.sort(w.danger, function(a, b) return a.dist < b.dist end)
+  for _, m in ipairs(w.mons) do
+    if m.kind == "fight" then
+      w.targets[#w.targets+1] = m
+      if m.dist == 1 then w.adjacent[#w.adjacent+1] = m end
+      end
+    if m.kind ~= "ignore" then w.hostiles = w.hostiles + 1 end
+    end
+  -- impaired: worth resting off when it's quiet. disabled: too impaired to go looking for
+  -- fights (poison and bleeding are left to the HP thresholds)
+  w.disabled = pc.is_blind or pc.is_confused or pc.is_stunned or pc.is_drunk
+  w.impaired = w.disabled or pc.is_poisoned or pc.is_bleeding or pc.is_sick or pc.is_slowed
+  -- under attack by something unseen: the messages say so, or the game reports HP lost to an
+  -- attack while nothing hostile is in sight
+  if w.hostiles == 0 and B.turns - (B.pc_attacked or -1e9) <= 2 then B.unseen_attack = B.turns end
+  w.under_attack = B.turns - (B.unseen_attack or -1e9) <= 5
+  return w
+  end
+
+-- ---------------------------------------------------------------- movement
+
+local no_go
+
+-- leaving = the walk is meant to leave the area, so cells known to be exits are fine
+local function passable(w, x, y, leaving)
+  local m = cell(w, x, y)
+  if not m or not m.tile or BLOCKED[m.tile] then return false end
+  if m.feature and BAD_FEATURES[m.feature] then return false end
+  if not leaving and no_go(w, x, y) then return false end
+  return true
+  end
+
+-- Breadth-first search from the PC. is_goal(x, y) may accept an occupied cell (to attack it);
+-- other monsters block. opts.keep_away: cells within this distance of a danger monster are
+-- not entered. Returns the first step cell and the path length.
+function B.path(w, is_goal, opts)
+  opts = opts or {}
+  local sx, sy = w.pc.x, w.pc.y
+  -- inside the keep-away zone only steps that increase the distance are allowed, so a PC
+  -- that is already too close can still walk out of it
+  local function near_danger(x, y)
+    if not opts.keep_away then return false end
+    for _, d in ipairs(w.danger) do
+      local dn = math.max(math.abs(d.x - x), math.abs(d.y - y))
+      if dn <= math.min(opts.keep_away, d.dist) then return true end
+      end
+    return false
+    end
+  local parent = {[key(sx, sy)] = -1}
+  local qx, qy, dist = {sx}, {sy}, {0}
+  local head = 1
+  while head <= #qx do
+    local x, y, dd = qx[head], qy[head], dist[head]
+    head = head + 1
+    for _, d in ipairs(DIRS) do
+      local nx, ny = x + d.dx, y + d.dy
+      local k = key(nx, ny)
+      if parent[k] == nil then
+        local diagonal = d.dx ~= 0 and d.dy ~= 0
+        local here, there = cell(w, x, y), cell(w, nx, ny)
+        local door_diag = diagonal and ((here and DOORS[here.tile]) or (there and DOORS[there.tile]))
+        if not door_diag and passable(w, nx, ny, opts.leaving) then
+          if is_goal(nx, ny) then
+            parent[k] = key(x, y)
+            -- walk back to the first step
+            local ck = k
+            while parent[ck] ~= key(sx, sy) do ck = parent[ck] end
+            return ck % 256, math.floor(ck / 256), dd + 1
+            end
+          local mon = w.mon_at[k]
+          local through = mon and (opts.ignore_monsters or (opts.through_fights and mon.kind == "fight"))
+          local avoided = opts.avoid and opts.avoid[k]  -- e.g. where an unseen shopkeeper stands
+          if (not mon or through) and not avoided and not near_danger(nx, ny) then
+            parent[k] = key(x, y)
+            qx[#qx+1], qy[#qy+1], dist[#dist+1] = nx, ny, dd + 1
+            end
+          end
+        end
+      end
+    end
+  return nil
+  end
+
+-- step (or attack) into an adjacent cell. leaving = the move is meant to leave the level:
+-- walking onto an exit or the map edge asks "leave the area?", answered yes only then.
+function B.step_to(w, x, y, leaving)
+  local d = dir_to(x - w.pc.x, y - w.pc.y)
+  if not d then return false end
+  local m = cell(w, x, y)
+  B.last_step = {x = x, y = y, level = w.level}
+  if m and m.tile == T.CLOSED_DOOR then
+    B.progress = (B.progress or 0) + 1  -- stuck doors take several tries: not a stall
+    B.expect = {kind = "direction", key = d.key, t = getticks()}
+    B.command("GC_OPEN")
+  else
+    if leaving then B.expect = {kind = "leave", t = getticks()} end
+    B.command(d.gc)
+    end
+  return true
+  end
+
+-- cells that turned out to leave the area when we only meant to walk there
+B.no_go = B.no_go or {}
+function no_go(w, x, y) return B.no_go[w.level..":"..key(x, y)] end
+
+-- ---------------------------------------------------------------- pausing
+
+function B.pause(reason)
+  B.enabled = false
+  B.state_line = "PAUSED: "..reason
+  B.log("PAUSED: "..reason)
+  local f = io.open(B.dir.."ALERT.txt", "w")
+  if f then f:write(os.date("%Y-%m-%d %H:%M:%S ")..reason.."\n\n"..B.screen_text()) f:close() end
+  if C.alert_sound and playsoundfromfile then pcall(playsoundfromfile, C.alert_sound, 100) end
+  end
+
+local function say(rule, detail)
+  local line = rule..(detail and (": "..detail) or "")
+  B.state_line = line
+  if C.log_decisions and line ~= B.last_decision then B.log(line) end
+  B.last_decision = line
+  end
+
+-- ---------------------------------------------------------------- leaving a level
+
+local function stairs_goal(w, dirs)
+  local goals = {}
+  for _, s in ipairs(w.stairs) do
+    if dirs[s.dir] then goals[key(s.x, s.y)] = s end
+    end
+  return goals
+  end
+
+local function on_stairs(w)
+  if STAIRS_UP[w.here.feature] or w.here.tile == T.SPECIAL_EXIT then return "up" end
+  if STAIRS_DOWN[w.here.feature] then return "down" end
+  return nil
+  end
+
+local function take_stairs(dir, why)
+  say("stairs", dir.." ("..why..")")
+  B.expect = {kind = "leave", t = getticks()}
+  B.command(dir == "up" and "GC_ASCEND" or "GC_DESCEND")
+  end
+
+-- leave the level by whatever stairs are safest to reach
+function B.leave_level(w, why)
+  if (B.flights or 0) >= C.max_flights then
+    B.pause("fled "..B.flights.." times in a row ("..why..")")
+    return
+    end
+  local here = on_stairs(w)
+  if here and (here == "up" or w.depth < C.max_depth + 1) then
+    take_stairs(here, "flee: "..why)
+    return
+    end
+  local goals = stairs_goal(w, {up = true, down = true})
+  local function is_goal(x, y) return goals[key(x, y)] ~= nil end
+  local x, y = B.path(w, is_goal, {keep_away = C.avoid_radius})
+  if not x then x, y = B.path(w, is_goal, {keep_away = 1}) end
+  if not x then x, y = B.path(w, is_goal) end
+  if not x then x, y = B.path(w, is_goal, {through_fights = true}) end
+  if x then
+    say("flee", why)
+    B.step_to(w, x, y, true)
+    return
+    end
+  if w.adjacent[1] then
+    say("cornered, fighting", w.adjacent[1].type)
+    B.step_to(w, w.adjacent[1].x, w.adjacent[1].y)
+    return
+    end
+  -- cornered by something on the flee list: fight back if the game rates it weak and the PC
+  -- is healthy; anything rated stronger pauses for the human
+  for _, d in ipairs(w.danger) do
+    if d.dist == 1 and w.mon_at[key(d.x, d.y)] and (d.estimate or 99) <= C.cornered_max_estimate
+      and w.hp_pct >= C.cornered_fight_hp then
+      say("cornered, fighting", d.type)
+      B.step_to(w, d.x, d.y)
+      return
+      end
+    end
+  B.pause("needs to flee ("..why..") but no reachable stairs")
+  end
+
+-- ---------------------------------------------------------------- rules
+
+local rules = {}
+B.rules = rules
+local function rule(name, when, act) rules[#rules+1] = {name = name, when = when, act = act} end
+
+-- for add-on modules: insert into an ordered list before the entry called `before`
+local function insert_before(list, entry, before)
+  for i, x in ipairs(list) do
+    if x.name == entry.name then table.remove(list, i) break end
+    end
+  for i, x in ipairs(list) do
+    if x.name == before then table.insert(list, i, entry) return end
+    end
+  list[#list+1] = entry
+  end
+
+function B.add_rule(name, when, act, before)
+  insert_before(rules, {name = name, when = when, act = act}, before)
+  end
+
+-- Praying too often angers the god, so prayers are spaced far apart (the count is bot
+-- actions, which undercounts game time: auto-explore and resting take many turns per action)
+function B.can_pray()
+  return B.turns - (B.last_pray or -1e9) >= C.pray_every and B.turns >= (B.pray_banned_until or 0)
+  end
+
+function B.just_prayed()
+  return B.last_pray and B.turns - B.last_pray <= 3
+  end
+
+B.unbeatable = B.unbeatable or {}
+
+function B.pray(why)
+  B.last_pray = B.turns
+  B.expect = {kind = "pray", t = getticks()}
+  say("pray", why)
+  B.command("GC_PRAY")
+  end
+
+rule("pray",
+  function(w)
+    local pc = w.pc
+    local dying = w.hostiles > 0 or w.under_attack or pc.is_poisoned or pc.is_bleeding or pc.is_sick
+    return w.hp_pct < C.pray_hp and dying and not w.surface and B.can_pray()
+    end,
+  function(w) B.pray("HP "..w.hp_pct.."%") end)
+
+rule("flee",
+  function(w)
+    -- once a level has shown something to flee from, keep leaving it even when the monster
+    -- drops out of sight; otherwise flee and explore take turns walking back and forth
+    local why
+    for _, d in ipairs(w.danger) do
+      if d.active or d.dist <= C.flee_distance then
+        why = d.type.." ("..d.why..(d.active and ", hunting" or ", "..d.dist.." away")..")"
+        break
+        end
+      end
+    if not why and w.under_attack and w.hostiles == 0 then why = "attacked by something unseen" end
+    if why then
+      B.fleeing = {level = w.level, why = why}
+      return why
+      end
+    if B.fleeing and B.fleeing.level == w.level then return B.fleeing.why end
+    -- hurt, or crowded: retreat, but never by turning our back on something adjacent (it
+    -- follows and hits every step; a wolf pack killed a test character that way). With
+    -- enemies adjacent the pray and attack rules handle it, unless we stand on stairs.
+    local hurt = w.hp_pct < C.retreat_hp and w.hostiles > 0
+    local crowded = #w.adjacent >= C.max_adjacent and w.hp_pct < C.engage_hp
+    if (hurt or crowded) and (#w.adjacent == 0 or on_stairs(w)) then
+      return hurt and ("HP "..w.hp_pct.."%") or (#w.adjacent.." adjacent")
+      end
+    end,
+  function(w, why) B.leave_level(w, why) end)
+
+rule("attack",
+  function(w)
+    local best
+    for _, m in ipairs(w.adjacent) do
+      if not best or (m.health or 100) < (best.health or 100) then best = m end
+      end
+    return best
+    end,
+  function(w, m)
+    say("attack", m.type.." ("..tostring(m.health).."%)")
+    B.last_attack = {uid = m.uid, x = m.x, y = m.y, type = m.type, level = w.level}
+    B.step_to(w, m.x, m.y)
+    end)
+
+-- a corpse left by one of our own kills: fresh, of a known species, safe to eat
+local function edible_corpse(w, x, y)
+  local k = B.kills[w.level..":"..key(x, y)]
+  if not k or B.turns - k.turn > C.corpse_max_age then return nil end
+  local m = cell(w, x, y)
+  if not m or m.item == nil then return nil end
+  local t = lower(k.type)
+  if B.corpse_refused[t] or match_any(t, C.corpse_never) or not match_any(t, C.corpse_ok) then return nil end
+  return k
+  end
+
+rule("eat",
+  function(w)
+    local sat = w.pc.satiation_level or 0
+    if sat < C.eat_at or #w.targets > 0 then return nil end
+    if B.turns < (B.prayed_for_food_until or 0) then return nil end  -- give the prayer time
+    if B.trip and B.trip.unpaid then return nil end                  -- pay first, then eat
+    local rations = B.turns - (B.no_rations or -1e9) > 1000
+    if rations then return {ration = true} end
+    if edible_corpse(w, w.pc.x, w.pc.y) then return {here = true} end
+    local x, y = B.path(w, function(cx, cy) return edible_corpse(w, cx, cy) ~= nil end, {keep_away = C.avoid_radius})
+    if x then return {x = x, y = y} end
+    -- out of food. A food-buying trip first (prayers are better kept for HP emergencies),
+    -- then a prayer, then a pause. A running food trip is left alone unless it's dire.
+    local on_trip = B.trip and B.trip.want_food
+    if on_trip and sat < 6 then return nil end
+    if sat >= C.no_food_pause_at and not on_trip and B.start_food_trip then return {food_trip = true} end
+    if sat >= C.pray_for_food_at and not w.surface and B.can_pray() then return {pray = true} end
+    if on_trip then return nil end
+    if sat >= C.no_food_pause_at then return {starving = true} end
+    end,
+  function(w, e)
+    if e.food_trip then
+      if not B.start_food_trip(w) then B.pause("hungry and no food (no rations, no corpse, no food trip possible)") end
+      return
+      end
+    if e.pray then
+      B.prayed_for_food_until = B.turns + 5
+      B.pray("starving, no food")
+      return
+      end
+    if e.starving then B.pause("hungry and no food (no rations, no fresh corpse)") return end
+    if e.x then say("to corpse") B.step_to(w, e.x, e.y) return end
+    -- eating that doesn't change hunger is not working, whatever the reason
+    B.eat_tries = (B.eat_tries or 0) + 1  -- reset by the "done eating" messages
+    if B.eat_tries > 3 then
+      B.no_rations = B.turns
+      B.forget_corpse_here()
+      B.eat_tries = 0
+      B.log("eating does not help; no rations, and the corpse here is not edible")
+      return
+      end
+    say("eat", e.here and "corpse" or "ration")
+    B.expect = {kind = e.here and "eat corpse" or "eat", t = getticks()}
+    if e.here then
+      B.sendkeys("e")  -- the 'e' key eats from the ground first; GC_EAT only offers the pack
+    else
+      B.command("GC_EAT")
+      end
+    end)
+
+rule("rest",
+  function(w)
+    if w.hostiles > 0 or w.under_attack then return nil end
+    if w.hp_pct < C.rest_hp then return "HP "..w.hp_pct.."%" end
+    if w.impaired then return "status effect" end
+    end,
+  function(w, why)
+    B.rest_turns = (B.rest_turns or 0) + 1
+    if B.rest_turns > 3000 then B.pause("rested 3000 turns without recovering ("..why..")") return end
+    say("rest", why)
+    B.command("GC_SEARCH")
+    end)
+
+rule("engage",
+  function(w)
+    if w.hp_pct < C.engage_hp or w.disabled or not w.targets[1] then return nil end
+    if (w.pc.satiation_level or 0) >= 6 then return nil end  -- starving: no picking fights
+    for _, m in ipairs(w.targets) do
+      local x, y = B.path(w, function(tx, ty) return tx == m.x and ty == m.y end, {keep_away = C.avoid_radius})
+      if x then return {m = m, x = x, y = y} end
+      end
+    end,
+  function(w, t)
+    say("engage", t.m.type)
+    B.step_to(w, t.x, t.y)
+    end)
+
+-- what lies at a visible cell, by the game's own tooltip text ("An iron ration (100s)...")
+local function wanted_item(w, x, y)
+  local m = cell(w, x, y)
+  if not m or m.item == nil or not m.is_visible then return nil end
+  if B.picked[w.level..":"..key(x, y)] then return nil end
+  local ok, t = pcall(adom_nelib_tooltip_info, x, y)
+  if not ok or type(t) ~= "table" then return nil end
+  for _, tip in ipairs({t.item1_tip or "", t.item2_tip or ""}) do
+    local l = lower(tip)
+    if not match_any(l, C.pickup_never) then
+      if match_any(l, C.pickup) then return l end
+      -- loot to sell, while there is room. The tooltip has no weight; the "... (40s) is
+      -- lying here" message does, so too-heavy things are skipped once we stand on them.
+      if C.sell_enabled and match_any(l, C.loot) and (w.pc.burden_level or 0) < C.stop_at_burden then
+        local f = B.floor_here
+        local known = f and f.level == w.level and f.x == x and f.y == y
+        local on_it = x == w.pc.x and y == w.pc.y
+        -- standing on it: decide once the "(70s) is lying here" message has told the weight
+        if on_it and not known then return nil end
+        if not (known and f.weight and f.weight > C.loot_max_weight) then return l end
+        end
+      end
+    end
+  return nil
+  end
+
+B.picked = B.picked or {}
+
+rule("pickup",
+  function(w)
+    if w.hostiles > 0 or #w.danger > 0 and w.danger[1].dist <= C.avoid_radius then return nil end
+    -- never in a shop's level: picking up merchandise means owing the shopkeeper
+    for _, m in ipairs(w.mons) do
+      if m.being_type == beingtypes.SHOP_KEEPER then return nil end
+      end
+    local what = wanted_item(w, w.pc.x, w.pc.y)
+    if what then return {here = true, what = what} end
+    local x, y, n = B.path(w, function(cx, cy) return wanted_item(w, cx, cy) ~= nil end, {keep_away = C.avoid_radius})
+    if x and n <= C.pickup_range then return {x = x, y = y} end
+    end,
+  function(w, p)
+    if p.x then say("to item") B.step_to(w, p.x, p.y) return end
+    -- one try per spot, so an item the game won't let us take can't trap the bot
+    B.picked[w.level..":"..key(w.pc.x, w.pc.y)] = true
+    say("pick up", p.what)
+    B.expect = {kind = "pickup", t = getticks()}
+    B.command("GC_PICK")
+    end)
+
+rule("loot full",
+  function(w) return (w.pc.burden_level or 0) >= C.stop_at_burden end,
+  function(w)
+    B.pause(B.sell_blocked and "burdened - the shop in reach won't buy the loot"
+      or "burdened by the PC's own gear (no loot to sell)")
+    end)
+
+-- known, walkable cell next to an unknown one
+local function frontier(w, x, y)
+  for _, d in ipairs(DIRS) do
+    local m = cell(w, x + d.dx, y + d.dy)
+    if not m or not m.tile then return true end
+    end
+  return false
+  end
+
+B.visited = B.visited or {}
+
+-- How to explore on: the game's auto-explore when it works, else by hand towards the nearest
+-- unvisited cell next to the unknown. By hand is used near a lurking danger (auto-explore
+-- would walk right past it) and once auto-explore stops making progress (a locked door it
+-- keeps walking into). nil = nothing left to explore.
+function B.explore_plan(w, opts)
+  if w.surface then return nil end
+  if not w.danger[1] and B.explore_blocked ~= w.level and w.pc.can_auto_explore then return {auto = true} end
+  local function goal(fx, fy)
+    if B.visited[w.level..":"..key(fx, fy)] then return false end  -- stood there: the rest is rock
+    for _, d in ipairs(w.danger) do
+      if math.max(math.abs(d.x - fx), math.abs(d.y - fy)) <= C.avoid_radius then return false end
+      end
+    return frontier(w, fx, fy)
+    end
+  local x, y = B.path(w, goal, {keep_away = C.avoid_radius})
+  if x then return {x = x, y = y} end
+  -- last resort: a locked door with the unknown behind it gets kicked open (from straight in
+  -- front, a few times at most)
+  B.kicks = B.kicks or {}
+  local doors = {}
+  for dy, row in pairs(w.map) do
+    for dx, m in pairs(row) do
+      if m.tile == T.LOCKED_DOOR and frontier(w, dx, dy) and (B.kicks[w.level..":"..key(dx, dy)] or 0) < C.max_kicks then
+        doors[key(dx, dy)] = {x = dx, y = dy}
+        end
+      end
+    end
+  if not next(doors) then
+    local p = B.probe_plan(w)
+    if p then return p end
+    return opts and opts.secrets and B.secret_search_plan(w) or nil
+    end
+  for _, d in ipairs(DIRS) do
+    if d.dx == 0 or d.dy == 0 then
+      local door = doors[key(w.pc.x + d.dx, w.pc.y + d.dy)]
+      if door then return {kick = d, door = door} end
+      end
+    end
+  local function beside_door(fx, fy)
+    for _, d in ipairs(DIRS) do
+      if (d.dx == 0 or d.dy == 0) and doors[key(fx + d.dx, fy + d.dy)] then return true end
+      end
+    return false
+    end
+  x, y = B.path(w, beside_door)
+  if x then return {x = x, y = y} end
+  local p = B.probe_plan(w)
+  if p then return p end
+  -- secret doors only when the caller needs something not found yet: slow, hundreds of turns
+  if opts and opts.secrets then return B.secret_search_plan(w) end
+  return nil
+  end
+
+-- Dark levels don't show walls you haven't seen, even next to you, so "unknown" there may be
+-- floor or rock. Probe: from a known cell, try stepping into each unknown neighbour once;
+-- floor opens the way, rock just fails and is crossed off.
+B.probed = B.probed or {}
+local function unprobed_neighbour(w, x, y)
+  if not passable(w, x, y) then return nil end
+  for _, d in ipairs(DIRS) do
+    local nx, ny = x + d.dx, y + d.dy
+    local m = cell(w, nx, ny)
+    if (not m or not m.tile) and nx >= 0 and nx < 80 and ny >= 0 and ny < 20
+      and not B.probed[w.level..":"..key(nx, ny)] then
+      return d, nx, ny
+      end
+    end
+  return nil
+  end
+
+function B.probe_plan(w)
+  local d, nx, ny = unprobed_neighbour(w, w.pc.x, w.pc.y)
+  if d then return {probe = d, px = nx, py = ny} end
+  local x, y = B.path(w, function(fx, fy) return unprobed_neighbour(w, fx, fy) ~= nil end, {keep_away = C.avoid_radius})
+  if x then return {x = x, y = y} end
+  return nil
+  end
+
+-- Nothing left but secret doors: search, for a while, from spots next to walls that have the
+-- unknown behind them. Each spot is searched once.
+B.searched = B.searched or {}
+local function wall_spot(w, x, y)
+  if B.searched[w.level..":"..key(x, y)] then return false end
+  for _, d in ipairs(DIRS) do
+    local m = cell(w, x + d.dx, y + d.dy)
+    if m and (m.tile == T.WALL or m.tile == T.ROCK) and frontier(w, x + d.dx, y + d.dy) then return true end
+    end
+  return false
+  end
+
+function B.secret_search_plan(w)
+  if wall_spot(w, w.pc.x, w.pc.y) then return {search = true} end
+  local x, y = B.path(w, function(sx, sy) return wall_spot(w, sx, sy) end)
+  if x then return {x = x, y = y} end
+  return nil
+  end
+
+function B.explore_act(w, e, who)
+  if e.probe then
+    B.probed[w.level..":"..key(e.px, e.py)] = true
+    B.progress = (B.progress or 0) + 1
+    say(who or "probe the dark")
+    B.command(e.probe.gc)
+  elseif e.search then
+    local k = w.level..":"..key(w.pc.x, w.pc.y)
+    B.search_count = (B.search_count or 0) + 1
+    B.progress = (B.progress or 0) + 1
+    if B.search_count >= C.secret_search_turns then
+      B.searched[k] = true
+      B.search_count = 0
+      end
+    say(who or "search for secret doors")
+    B.command("GC_SEARCH")
+  elseif e.kick then
+    local k = w.level..":"..key(e.door.x, e.door.y)
+    B.kicks[k] = (B.kicks[k] or 0) + 1
+    B.progress = (B.progress or 0) + 1  -- repeated kicks are progress, not a stall
+    say(who or "kick door", "attempt "..B.kicks[k])
+    B.expect = {kind = "direction", key = e.kick.key, t = getticks()}
+    B.command("GC_KICK")
+  elseif e.auto then
+    say(who or "explore")
+    B.command("GC_WM_EXPLORE")
+  else
+    say(who or "explore by hand", w.danger[1] and ("avoiding "..w.danger[1].type) or nil)
+    B.step_to(w, e.x, e.y)
+    end
+  end
+
+rule("explore",
+  function(w) return B.explore_plan(w) end,
+  function(w, e) B.explore_act(w, e) end)
+
+rule("surface",
+  function(w) return w.surface end,
+  function(w)
+    if ENTRY_TILES[w.here.tile] then
+      B.goal = "down"
+      B.home = {tile = w.here.tile}  -- the dungeon we grind in; the sell trip comes back here
+      take_stairs("down", "re-enter dungeon")
+    else
+      B.pause("on the surface, not on a dungeon entrance")
+      end
+    end)
+
+rule("stairs",
+  function(w)
+    -- deeper only as the PC grows: one more level per levels_per_depth character levels
+    local max_depth = math.min(C.max_depth, 1 + math.floor(((w.pc.level or 1) - 1) / C.levels_per_depth))
+    if w.depth >= max_depth then B.goal = "up" end
+    if w.depth <= C.min_depth then B.goal = "down" end
+    B.goal = B.goal or "down"
+    return true
+    end,
+  function(w)
+    local order = B.goal == "down" and {"down", "up"} or {"up", "down"}
+    local here = on_stairs(w)
+    if here == order[1] then take_stairs(here, "level done, going "..B.goal) return end
+    for _, dir in ipairs(order) do
+      local goals = stairs_goal(w, {[dir] = true})
+      local function is_goal(gx, gy) return goals[key(gx, gy)] ~= nil end
+      local x, y, n = B.path(w, is_goal, {keep_away = C.avoid_radius})
+      if not x then x, y, n = B.path(w, is_goal) end
+      -- blocked only by monsters we'd fight anyway: fight our way through (the first step
+      -- then is the monster, and moving into it attacks)
+      if not x then x, y, n = B.path(w, is_goal, {through_fights = true}) end
+      if x then
+        B.block_wait = 0
+        say("to stairs", dir.." ("..n.." steps)")
+        B.step_to(w, x, y, true)
+        return
+        end
+      if here == dir then take_stairs(here, "level done, only way on") return end
+      end
+    -- only a monster we won't touch is in the way (a floating eye in a corridor): wait for it
+    -- to move, for a while
+    local goals = stairs_goal(w, {up = true, down = true})
+    if B.path(w, function(gx, gy) return goals[key(gx, gy)] ~= nil end, {ignore_monsters = true}) then
+      B.block_wait = (B.block_wait or 0) + 1
+      if B.block_wait <= C.block_wait then
+        say("waiting", "a monster blocks the way to the stairs")
+        B.command("GC_SEARCH")
+        return
+        end
+      end
+    B.block_wait = 0
+    local e = B.explore_plan(w, {secrets = true})
+    if e then B.explore_act(w, e, "looking for hidden stairs") return end
+    B.pause("level explored, no reachable stairs")
+    end)
+
+-- ---------------------------------------------------------------- prompts / menus
+
+local prompts = {}
+B.prompts = prompts
+local function prompt(name, when, act) prompts[#prompts+1] = {name = name, when = when, act = act} end
+
+function B.add_prompt(name, when, act, before)
+  insert_before(prompts, {name = name, when = when, act = act}, before)
+  end
+
+local function last_question()
+  local m = B.msgs[#B.msgs]
+  if m and m.question then return lower(strip(m.line)) end
+  end
+
+prompt("eat menu",
+  function(s) return s.text:find("select your next meal") or s.text:find("select an item to eat from the ground") end,
+  function(s)
+    local choices = {}
+    for _, line in ipairs(s.lines) do
+      local letter, name = line:match("^%s+(%a) %- (.-)%s*%[")
+      if not letter then letter, name = line:match("^%s+(%a) %- (.-)%s*$") end
+      -- never eat what isn't paid for yet
+      if letter and not lower(name):find("unpaid", 1, true) then
+        choices[#choices+1] = {letter = letter, name = lower(name)}
+        end
+      end
+    local wanted = {}
+    local corpse_mode = B.expect and B.expect.kind == "eat corpse"
+    if corpse_mode then
+      -- only the corpse we came for (the menu may list it with the pack's food)
+      local k = B.kills[B.cur_level..":"..key(PCData.x, PCData.y)]
+      if k then wanted = {lower(k.type).." corpse"} end
+    else
+      wanted = C.food_prefer
+      end
+    for _, want in ipairs(wanted) do
+      for _, c in ipairs(choices) do
+        if c.name:find(want, 1, true) and (corpse_mode or not match_any(c.name, C.food_never)) then
+          B.log("eating "..c.name)
+          B.sendkeys(c.letter)
+          B.expect = nil
+          return
+          end
+        end
+      end
+    B.log("nothing acceptable to eat in: "..table.concat((function()
+      local n = {} for _, c in ipairs(choices) do n[#n+1] = c.name end return n end)(), ", "))
+    B.sendkeys("Z")
+    if not corpse_mode then B.no_rations = B.turns end
+    B.expect = nil
+    end)
+
+-- level-up skill picks: lines like "     Hh - Healing ....  35  [Max.: 50, +3d5]"
+prompt("skill improvement",
+  function(s) return s.text:find("choose a skill to improve") end,
+  function(s)
+    local options = {}
+    for _, line in ipairs(s.lines) do
+      local letter, name = line:match("^%s+%u(%l) %- ([%a%s]-)%s*%.")
+      if letter then options[#options+1] = {letter = letter, name = lower(name)} end
+      end
+    for _, want in ipairs(C.skill_prefer) do
+      for _, o in ipairs(options) do
+        if o.name == want then B.log("improving skill "..o.name) B.sendkeys(o.letter) return end
+        end
+      end
+    if options[1] then
+      B.log("improving skill "..options[1].name.." (none preferred on offer)")
+      B.sendkeys(options[1].letter)
+    else
+      B.pause("skill improvement screen, could not read the options")
+      end
+    end)
+
+prompt("direction",
+  function(s) return s.g.asked_for_direction and B.expect and B.expect.kind == "direction" end,
+  function(s)
+    B.sendkeys(B.expect.key)
+    B.expect = nil
+    end)
+
+-- "You found a door. [o] open [k] kick [s] search for traps?": search once, then open
+B.door_searched = B.door_searched or {}
+prompt("door",
+  function(s) return s.text:find("you found a door") and s.text:find("%[o%] open") end,
+  function(s)
+    local k = tostring(B.cur_level)..":"..key(PCData.x, PCData.y)
+    if B.door_searched[k] then
+      B.sendkeys("o")
+    else
+      B.door_searched[k] = true
+      B.sendkeys("s")
+      end
+    end)
+
+-- wilderness encounters are never worth the risk
+prompt("wilderness encounter",
+  function(s) return s.text:find("wilderness encounter") and s.text:find("%[e%] evade") end,
+  function(s) B.sendkeys("E") end)
+
+-- "you find a well-hidden secret campsite... [E] enter or [L] leave it behind": not our business
+prompt("hidden spot",
+  function(s) return s.text:find("%[l%] leave it behind") end,
+  function(s) B.sendkeys("L") end)
+
+prompt("more",
+  function(s) return s.text:find("%(more%)") end,
+  function(s) B.sendkeys("{SPACE}") end)
+
+local function is_yes_no(line)
+  return line:find("[%[%(]y/n[%]%)]") or line:find("%[yn") or line:find("%(yn")
+  end
+
+prompt("yes/no",
+  function(s)
+    local q = last_question()
+    if q and is_yes_no(q) then return q end
+    for _, line in ipairs(s.lines) do
+      local l = lower(strip(line))
+      if is_yes_no(l) then
+        -- cut the window frame and whatever map shows beside it
+        local q = l:match("^[%s|]*(.-[%]%)])[^%]%)]*$") or l
+        return q
+        end
+      end
+    end,
+  function(s, q)
+    local expecting = B.expect and B.expect.kind
+    for _, a in ipairs(C.answers) do
+      if q:find(a[1], 1, true) and (not a.expect or a.expect == expecting) then
+        B.log("answer '"..a[2].."' to: "..q)
+        B.sendkeys(a[2])
+        if a[2] == "n" and (q:find("want to leave", 1, true) or q:find("want to flee this area", 1, true)) and B.last_step then
+          -- that cell is an exit; keep ordinary walking off it from now on
+          B.no_go[B.last_step.level..":"..key(B.last_step.x, B.last_step.y)] = true
+          end
+        B.expect = nil
+        return
+        end
+      end
+    B.pause("unrecognised question: "..q)
+    end)
+
+prompt("press space",
+  function(s) return s.text:find("press space") end,
+  function(s) B.sendkeys("{SPACE}") end)
+
+prompt("info window",
+  function(s) return s.text:find("%[z%] exit") or s.text:find("%[zz ?%] exit") end,
+  function(s) B.sendkeys("Z") end)
+
+function B.handle_screen(t)
+  local lines = B.screen_lines()
+  local s = {g = Global, lines = lines, text = lower(strip(table.concat(lines, "\n")))}
+  -- the screen we answered is still showing: the game hasn't taken the key yet. Answering
+  -- again would press the key twice, and the second press lands wherever the game is next
+  -- (a stray 'd' drops something). Wait for a change, or re-answer after a long silence.
+  if B.last_prompt_text == s.text and t - (B.last_prompt_t or 0) < 1500 then return end
+  B.last_prompt_text = nil
+  for _, p in ipairs(prompts) do
+    local ctx = p.when(s)
+    if ctx then
+      if C.log_decisions then B.log("prompt: "..p.name) end
+      p.act(s, ctx)
+      B.last_prompt_text, B.last_prompt_t = s.text, t
+      B.not_waiting_since = nil
+      return
+      end
+    end
+  -- nothing recognised: probably an animation (auto-explore, walking); give it time, and
+  -- restart the clock whenever the PC moves or the game prints something
+  local mark = tostring(PCData and PCData.x)..","..tostring(PCData and PCData.y)..":"..#B.msgs..":"
+    ..tostring(B.msgs[#B.msgs] and B.msgs[#B.msgs].line)
+  if mark ~= B.screen_mark then B.screen_mark, B.not_waiting_since = mark, nil end
+  B.not_waiting_since = B.not_waiting_since or t
+  if t - B.not_waiting_since > C.prompt_timeout_ms then
+    B.not_waiting_since = nil
+    B.pause("stuck on an unrecognised screen")
+    end
+  end
+
+-- ---------------------------------------------------------------- main decision
+
+B.turns = B.turns or 0
+B.kills = B.kills or {}
+
+-- ---------------------------------------------------------------- reacting to messages
+
+-- a corpse we tried and failed to eat is not food; don't walk back to it
+B.corpse_refused = B.corpse_refused or {}
+
+-- the PC refuses this kind of corpse (race taboos: "No self-respecting dwarf would do that!")
+local function refuse_corpse_here()
+  local k = PCData and B.cur_level and B.kills[B.cur_level..":"..key(PCData.x, PCData.y)]
+  if k then
+    B.corpse_refused[lower(k.type)] = true
+    B.log("won't eat "..k.type.." corpses")
+    end
+  B.forget_corpse_here()
+  end
+
+function B.forget_corpse_here()
+  if PCData and B.cur_level then B.kills[B.cur_level..":"..key(PCData.x, PCData.y)] = nil end
+  end
+
+local reactions = {
+  {"don't own anything edible", function()
+    if B.expect and B.expect.kind == "eat corpse" then B.forget_corpse_here() else B.no_rations = B.turns end
+    end},
+  {"you have nothing to eat", function() B.no_rations = B.turns end},
+  -- "A battle axe (70s) is lying here." -> weight of what the PC stands on
+  {"lying here", function(line)
+    local wt = tonumber(line:match("%((%d+)s%)") or "")
+    B.floor_here = PCData and {x = PCData.x, y = PCData.y, level = B.cur_level, weight = wt,
+      several = line:find("several items", 1, true) ~= nil}
+    end},
+  -- eating happened (even if hunger didn't change a level): not a failed attempt
+  {"done eating", function() B.eat_tries = 0 end},
+  {"start to consume", function() B.eat_tries = 0 end},
+  {"satiated by divine manna", function() B.eat_tries = 0 end},
+  {"would do that", function() if B.expect and B.expect.kind == "eat corpse" then refuse_corpse_here() end end},
+  {"you can't eat", function() if B.expect and B.expect.kind == "eat corpse" then refuse_corpse_here() end end},
+  {"you pick up", function(line)
+    if match_any(line, C.food_prefer) then B.no_rations = nil end
+    end},
+  -- the god is unhappy with the prayer: don't try again for a long time. Only right after a
+  -- prayer: "welcomed by a multitude of angry sounds" on entering a level once banned
+  -- prayers for good, and the PC died wanting one.
+  {"displeased", function() if B.just_prayed() then B.pray_banned_until = B.turns + 10000 end end},
+  {"angry", function() if B.just_prayed() then B.pray_banned_until = B.turns + 20000 end end},
+  {"ignores you", function() if B.just_prayed() then B.pray_banned_until = B.turns + 5000 end end},
+  -- punches that can't hurt it: this fight can't be won, treat the monster as dangerous
+  {"do not manage to harm", function()
+    B.noharm = (B.noharm or 0) + 1
+    if B.noharm >= C.noharm_limit and B.last_attack and B.last_attack.uid then
+      B.unbeatable[B.last_attack.uid] = true
+      B.log("can't hurt the "..tostring(B.last_attack.type).."; treating it as dangerous")
+      end
+    end},
+  {"you hit", function() B.noharm = 0 end},
+  -- attacks from something the PC can't see (the bot's map shows nothing either): resting
+  -- through them killed a test character
+  -- only attacks: "Something booms: 'Welcome to Munxip's...'" is a shopkeeper out of sight
+  {"something ", function(line)
+    for _, verb in ipairs({"hit", "miss", "fails to hurt", "punch", "bite", "claw", "sting", "touch",
+        "kick", "attack", "crush", "slash", "stab"}) do
+      if line:find("^something%s+"..verb) then B.unseen_attack = B.turns return end
+      end
+    end},
+  {"you feel something passing", function() B.unseen_attack = B.turns end},
+  {"someone shoots", function() B.unseen_attack = B.turns end},
+  {"someone throws", function() B.unseen_attack = B.turns end},
+  {"you die...", function() if B.enabled then B.pause("THE PC DIED - see bot.log for the last fight") end end},
+  }
+B.reactions = reactions
+
+function B.on_message(m)
+  local line = lower(strip(m.line))
+  for _, r in ipairs(reactions) do
+    if line:find(r[1], 1, true) then r[2](line) end
+    end
+  end
+
+-- the monster we last hit is gone: remember where it died (its corpse may be food)
+local function note_kill(w)
+  local a = B.last_attack
+  if not a or a.level ~= w.level then return end
+  for _, m in ipairs(w.mons) do if m.uid == a.uid then return end end
+  B.kills[a.level..":"..key(a.x, a.y)] = {turn = B.turns, type = a.type}
+  B.last_attack = nil
+  end
+
+-- GE_HITPOINTS_LOST for the PC (uid -1) with cause "attack": something hit us
+function B.on_game_event(ev)
+  if ev.game_event_id == gameeventids.GE_HITPOINTS_LOST and ev.uid == -1
+    and ev.cause == hitpointmodificationcauseids.HMC_ATTACK then
+    B.pc_attacked = B.turns
+    end
+  end
+
+B.game_resets.brain = function()
+  B.kills, B.visited, B.probed, B.searched, B.kicks, B.no_go = {}, {}, {}, {}, {}, {}
+  B.unseen_attack, B.pc_attacked = nil, nil
+  B.dangers, B.dangers_level, B.fleeing, B.unbeatable, B.corpse_refused = {}, nil, nil, {}, {}
+  B.picked, B.door_searched, B.raw_level, B.cur_level, B.explore_blocked = {}, {}, nil, nil, nil
+  B.last_pray, B.pray_banned_until, B.prayed_for_food_until, B.no_rations = nil, nil, nil, nil
+  B.turns, B.goal, B.home, B.flights, B.last_attack, B.floor_here = 0, nil, nil, 0, nil, nil
+  end
+
+-- called on every start: forget per-run stall counters (the human may have changed things)
+local function gear_now()
+  local g = {}
+  for slot, part in pairs(PCData and PCData.body_part or {}) do
+    -- missiles get used up; that's not a loss
+    if slot ~= bodypartids.MISSILES + 1 and type(part) == "table" and part.item and part.item >= 0 then
+      g[slot] = part.item
+      end
+    end
+  return g
+  end
+
+function B.reset()
+  B.same_count, B.last_sig, B.flights, B.rest_turns = 0, nil, 0, 0
+  B.expect, B.not_waiting_since, B.state_line = nil, nil, nil
+  B.last_prompt_text = nil
+  B.weapon_checked = false
+  B.gear = gear_now()  -- what the PC wears now; losing any of it pauses the bot
+  end
+
+-- equipment that vanished (destroyed, stolen, or dropped by a stray key): stop and tell
+local function gear_lost()
+  if not B.gear then return nil end
+  local now = gear_now()
+  for slot in pairs(B.gear) do
+    if not now[slot] then return slot end
+    end
+  B.gear = now  -- swaps and new items are fine; remember them
+  return nil
+  end
+
+-- How often a rule may fire in a row with nothing changing, and what to do when it has.
+-- Resting and fighting legitimately repeat for a long time; the default reaction is to pause.
+local stall = {
+  default = {limit = 12},
+  rest    = {limit = 3000},
+  attack  = {limit = 300},
+  stairs  = {limit = 80},   -- includes waiting for a blocker to move (block_wait turns)
+  -- auto-explore that doesn't move is broken at once; by hand it gets more slack
+  explore = {limit = function(w) return B.explore_blocked == w.level and 8 or 2 end, react = function(w)
+    if B.explore_blocked == w.level then
+      B.pause("exploring by hand makes no progress either")
+      return
+      end
+    B.explore_blocked = w.level
+    B.log("auto-explore makes no progress here; exploring by hand")
+    end},
+  eat     = {limit = 3, react = function(w)
+    B.no_rations = B.turns
+    B.forget_corpse_here()
+    B.log("eating does nothing; assuming no rations left and no corpse here")
+    end},
+  }
+B.stall = stall
+
+local function progress_check(w, rule_name)
+  local sig = table.concat({w.level, w.pc.x, w.pc.y, w.pc.hp, w.pc.satiation_level or 0, #w.mons,
+    B.progress or 0, rule_name}, ":")
+  if sig == B.last_sig then B.same_count = (B.same_count or 0) + 1 else B.same_count = 0 end
+  B.last_sig = sig
+  local s = stall[rule_name] or stall.default
+  local limit = type(s.limit) == "function" and s.limit(w) or s.limit
+  if B.same_count < limit then return true end
+  B.same_count = 0
+  if s.react then s.react(w) else B.pause("no progress: '"..rule_name.."' repeats without effect") end
+  return false
+  end
+
+function B.think(t)
+  if t - B.last_action < C.action_delay_ms then return end
+  if not Global or not Global.is_game_running then return end
+  if B.expect and t - B.expect.t > 5000 then B.expect = nil end
+  if not Global.is_waiting_for_next_command then
+    B.handle_screen(t)
+    return
+    end
+  B.not_waiting_since = nil
+  if not PCData or not PCData.hp then return end
+  local w = B.snapshot()
+  if w.level ~= B.cur_level then
+    B.cur_level = w.level
+    B.explore_blocked = nil
+    -- a "yes, leave" meant for the level we just left must not answer for this one
+    if B.expect and B.expect.kind == "leave" then B.expect = nil end
+    -- count flights that end in another flight soon after: the danger follows the PC, or
+    -- there is no safe level within reach (the wilderness bounce is not a flight of its own)
+    if B.fleeing then
+      if B.turns - (B.last_flight or -1e9) > 500 then B.flights = 0 end
+      B.flights = (B.flights or 0) + 1
+      B.last_flight = B.turns
+      end
+    B.fleeing = nil
+    B.log("level "..w.level.." (depth "..w.depth..")")
+    end
+  note_kill(w)
+  B.visited[w.level..":"..key(w.pc.x, w.pc.y)] = true
+  -- punching things is how the unarmed test character died: insist on a weapon (monks excepted)
+  if not B.weapon_checked then
+    B.weapon_checked = true
+    local hand = PCData.body_part and PCData.body_part[bodypartids.RIGHT_HAND + 1]
+    if C.require_weapon and PCData.class ~= pcclassids.MONK and not (hand and hand.item and hand.item >= 0) then
+      B.pause("no weapon wielded (set require_weapon = false to grind unarmed)")
+      return
+      end
+    end
+  local lost = gear_lost()
+  if lost then
+    local names = {}
+    for k, v in pairs(bodypartids) do names[v + 1] = k end
+    B.gear = nil
+    B.pause("equipment lost: "..tostring(names[lost] or lost).." slot is empty")
+    return
+    end
+  for _, r in ipairs(rules) do
+    local ctx = r.when(w)
+    if ctx then
+      if r.name ~= "rest" then B.rest_turns = 0 end
+      if progress_check(w, r.name) then
+        B.turns = B.turns + 1
+        r.act(w, ctx)
+        end
+      return
+      end
+    end
+  B.pause("no rule applies")
+  end
+
+-- shared helpers for add-on modules (adom-bot-sell.noe)
+B.util = {
+  cell = cell, key = key, lower = lower, strip = strip, match_any = match_any, say = say,
+  take_stairs = take_stairs, on_stairs = on_stairs, stairs_goal = stairs_goal,
+  frontier = frontier, passable = passable, DIRS = DIRS, ENTRY_TILES = ENTRY_TILES,
+  }
+
+function B.extra_status()
+  if not (Global and Global.is_game_running and PCData and PCData.hp and mapcache) then return nil end
+  local ok, w = pcall(B.snapshot)
+  if not ok then return "snapshot error: "..tostring(w) end
+  local out = {"depth="..w.depth.." level="..w.level.." goal="..tostring(B.goal).." turns="..B.turns
+    .." surface="..tostring(w.surface).." stairs="..#w.stairs}
+  for _, m in ipairs(w.mons) do
+    out[#out+1] = string.format("  mon %s @%d,%d d=%d %s (%s) att=%s est=%s hp=%s",
+      m.type, m.x, m.y, m.dist, m.kind, m.why, tostring(m.attitude), tostring(m.estimate), tostring(m.health))
+    end
+  return table.concat(out, "\n")
+  end

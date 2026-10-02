@@ -1,0 +1,149 @@
+-- ADOM Bot: settings. Edit freely; Shift+F12 in game reloads them.
+--
+-- Monster lists are Lua patterns matched against the lower-case monster type as the game
+-- reports it ("goblin rockthrower", "hill orc", "giant rat"). Lists are checked in the
+-- order flee -> ignore -> fight; the first match wins. A monster that matches none of them
+-- is fought only if the game rates it at most `max_unknown_estimate` experienced.
+
+adombot_config = {
+  -- ---------------------------------------------------------------- danger model
+  -- Leave the level (via the safest stairs) when one of these is in sight.
+  flee = {
+    "hydra", "golem", "demon", "devil", "dragon", "wyrm", "drake", "lich", "vampire",
+    -- "giant$" = ends in giant (hill giant), so "giant rat" is not a giant
+    "were", "gorgon", "basilisk", "cockatrice", "medusa", "moloch", "troll", "ogre", "giant$",
+    "minotaur", "ghost$", "wraith", "spectre", "specter", "banshee", "shadow$", "ghoul",
+    "carrion crawler", "quickling", "chaos", "mimic", "gelatinous", "beholder", "mind flayer",
+    "elemental", "titan", "unicorn", "balor", "nightmare", "steel horror", "gargoyle",
+  },
+  -- Never attack these, but don't run from them either (stationary / paralysing on touch,
+  -- or people you should not murder).
+  ignore = {
+    "floating eye", "jelly", "mold", "mould", "fungus", "lichen", "shopkeeper", "priest",
+    "guard", "elder", "farmer", "blacksmith", "bartender", "druid", "sage", "merchant",
+  },
+  -- Always fair game (still subject to the HP rules below).
+  fight = {
+    "goblin", "kobold", "orc", "jackal", "rat", "bat", "bandit", "raider", "gnoll",
+    "gnome", "hobgoblin", "wolf", "dog", "snake", "spider", "centipede", "ant", "bee",
+    "beetle", "newt", "lizard", "frog", "toad", "worm", "slug", "skeleton", "zombie",
+    "imp", "kobold", "cat", "boar", "bear", "ratling", "hurthling", "wasp", "fly",
+  },
+  -- Monster experience estimate (0 = inexperienced ... 7 = omnipotent) up to which an
+  -- unlisted monster is still fought.
+  max_unknown_estimate = 1,
+  -- Anything the game flags as a boss, or anything with a personal name, is treated as flee.
+  flee_bosses = true,
+  flee_named = true,
+  -- A flee-list monster that is asleep or lying in wait is not run from unless it is this
+  -- close; the bot keeps avoid_radius squares away from it while exploring and walking.
+  flee_distance = 3,    -- must stay below avoid_radius
+  avoid_radius = 5,
+  max_flights = 4,
+  -- Cornered (no way to the stairs) with a flee-list monster adjacent: fight back if the game
+  -- rates it at most this experienced and HP is at least cornered_fight_hp %; else pause.
+  cornered_max_estimate = 1,
+  cornered_fight_hp = 60,
+  noharm_limit = 6,     -- attacks in a row that "do not manage to harm" a monster -> treat it as flee
+  require_weapon = true,  -- pause on start when no weapon is wielded (monks excepted)      -- flights in quick succession before the bot gives up and pauses
+
+  -- ---------------------------------------------------------------- HP rules (percent of max)
+  engage_hp = 60,       -- only walk towards monsters when at least this healthy
+  rest_hp = 80,         -- rest when below this and nothing hostile is in sight
+  retreat_hp = 40,      -- below this with a hostile in sight: leave the level
+  pray_hp = 25,         -- below this with a hostile adjacent: pray (at most every pray_every turns)
+  pray_every = 1500,    -- minimum bot turns between prayers
+  max_adjacent = 3,     -- this many hostiles adjacent (and below engage_hp) counts as danger
+
+  -- ---------------------------------------------------------------- food
+  eat_at = 4,           -- satiation level to eat at (4 = Hungry, 5 = Very hungry)
+  food_prefer = { "iron ration", "ration", "bread", "apple", "cookie", "trail mix", "food" },
+  food_never = { "corpse", "egg", "rotten" },
+  -- Out of rations, the bot eats fresh corpses of its own kills, of these species only
+  -- (kobolds are poisonous; undead and anything odd are left alone).
+  corpse_ok = { "goblin", "orc", "rat", "jackal", "dog", "wolf", "bat", "boar", "bear",
+    "hobgoblin", "gnoll", "bandit", "cat", "lizard", "newt", "frog" },
+  corpse_never = { "kobold", "zombie", "skeleton", "undead", "poison", "were", "spider",
+    "centipede", "snake" },
+  corpse_max_age = 250,  -- bot turns after the kill a corpse still counts as fresh
+  pray_for_food_at = 5,  -- with no food at all, pray at this satiation (5 = Very hungry)...
+  no_food_pause_at = 5,  -- ...or pause there if a prayer is not due yet
+
+  -- ---------------------------------------------------------------- level-ups
+  -- Skills to improve on level-up, best first (names as the game lists them, lower case).
+  skill_prefer = { "healing", "dodge", "athletics", "first aid", "concentration",
+    "listening", "detect traps", "climbing", "swimming", "stealth", "alertness", "search" },
+
+  -- ---------------------------------------------------------------- levels
+  max_kicks = 8,
+  secret_search_turns = 15,  -- turns spent searching each wall spot for secret doors        -- kicks at one locked door before giving up on it
+  block_wait = 60,      -- turns to wait for a monster blocking the way to move off
+  max_depth = 4,
+  levels_per_depth = 3, -- character levels per extra dungeon level (level 1-3: depth 1, 4-6: 2, ...)        -- deepest dungeon level the bot will go to before turning back up
+  min_depth = 1,        -- shallowest level it turns back down at (1 = don't leave the dungeon)
+
+  -- ---------------------------------------------------------------- loot
+  -- Items to pick up when seen (matched against the game's description of the item).
+  pickup = { "ration", "bread", "apple", "cookie", "trail mix", "food", "gold piece" },
+  pickup_never = { "corpse", "rock", "stone", "boulder" },
+  pickup_range = 12,    -- how far (in steps) the bot walks for an item
+
+  -- Loot picked up to sell (only while sell_enabled), at most this heavy (stones).
+  loot = { "ring", "amulet", "wand", "potion", "scroll", "gem", "sword", "dagger", "axe",
+    "mace", "hammer", "spear", "club", "flail", "bow", "crossbow", "sling", "shield",
+    "helmet", "helm", "boots", "gauntlets", "gloves", "girdle", "belt", "cloak", "bracers",
+    "armour", "armor", "mail", "robe", "book", "tome", "arrow", "quarrel", "dart", "tool",
+    "pick", "lockpick", "blanket", "torch", "lamp" },
+  loot_max_weight = 60,
+
+  -- ---------------------------------------------------------------- selling
+  -- When Burdened the bot walks up out of the dungeon to the nearest town in view, sells in
+  -- its shop what it picked up itself, and walks back. Off -> it just pauses when Burdened.
+  sell_enabled = true,
+  sell_towns = { "BASE_VILLAGE" },   -- wilderness tile types to sell at (Terinyo)
+  -- Rations to buy per trip (0 = never buy). Running out of food also starts a trip.
+  buy_food = 4,
+  shop_radius = 4,           -- merchandise within this distance of a shopkeeper is "in the shop"
+  max_sell_attempts = 40,    -- drop-menu visits per shop before giving up
+  -- Loot no shop in reach buys (Terinyo's shop only deals in food):
+  --   "pause" = stop and tell you when Burdened;  "drop" = throw that loot away and keep going
+  unsold = "pause",
+  max_rerolls = 2,           -- no way up: go down and back up this often (new level) before searching
+
+  stop_at_burden = 1,   -- burden level that triggers the sell trip (or a pause): 1 = Burdened
+
+  -- ---------------------------------------------------------------- yes/no questions
+  -- {pattern, answer}: first match on the question text wins. Anything else pauses the bot.
+  -- expect = "..." limits an answer to when the bot itself asked for that kind of action.
+  answers = {
+    {"end the game", "n"},                     -- the quit confirmation: never
+    {"want to leave", "y", expect = "leave"},   -- "...leave the area/village?"
+    {"want to leave", "n"},
+    {"want to flee this area", "y", expect = "leave"},  -- walking out of an encounter
+    {"want to flee this area", "n"},
+    {"really attack", "n"},
+    {"really want to attack", "n"},
+    {"swap places", "n"},
+    {"really pray", "y"},
+    {"want to pray", "y"},
+    {"really eat", "y"},
+    {"continue eating", "y"},
+    {"continue to eat", "n"},   -- a meal interrupted, usually by a monster: deal with it first
+    {"stop eating", "n"},
+    {"really walk into", "n"},
+    {"really step", "n"},
+    {"really enter", "n"},
+    -- the shopkeeper's offer after dropping loot in a shop ("I'd offer 8 gold pieces...")
+    {"accept the offer", "y", expect = "sell"},
+    {"accept the offer", "n"},
+  },
+
+  -- ---------------------------------------------------------------- pacing / debugging
+  action_delay_ms = 60,      -- pause between bot actions (raise to watch it play)
+  prompt_timeout_ms = 6000,  -- unknown screen with nothing moving for this long -> pause
+  alert_sound = "sound/sfx/interface/thunder1.wav",
+  log_messages = true,       -- copy every game message line into adombot/bot.log
+  log_events = false,        -- log every raw game event (very noisy)
+  log_decisions = true,      -- log each rule the bot fires
+  status_interval_ms = 1000, -- how often adombot/status.txt is refreshed
+}

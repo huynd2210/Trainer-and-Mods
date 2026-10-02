@@ -20,7 +20,10 @@ Nuclear Option 0.33.4 is Unity 2022.3, **Mono, x64**:
 * BepInEx **6** and the IL2CPP builds will not load it.
 * An **x86** build will not load an x64 process.
 
-`NuclearOption.KillCostTracker.zip` needs the same BepInEx.
+`NuclearOption.KillCostTracker.zip` and `AutoMissileDefense.zip` need the same BepInEx.
+`AutoMissileDefense-Pack.zip` (BepInEx + that mod) is rebuilt the same way from the
+zip commands in `src\AutoMissileDefense\INSTALL.txt`'s workspace: copy `winhttp.dll`,
+`doorstop_config.ini` and `BepInEx\core` from a BepInEx 5 install next to the mod zip contents.
 
 ## Rebuilding the Pack
 

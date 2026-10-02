@@ -1,0 +1,559 @@
+-- ADOM Bot: sell trip. Loaded after the brain; plugs its rules and prompts into the brain's
+-- ordered lists.
+--
+-- When the PC is Burdened the trip starts and walks through phases:
+--   up      -> leave the dungeon by up stairs until on the wilderness map
+--   town    -> walk to the nearest town tile in view and enter it
+--   shop    -> walk into the shop (onto merchandise next to the shopkeeper)
+--   sell    -> drop each looted item; accept the shopkeeper's offers
+--   leave   -> walk out of the town
+--   home    -> walk back to the dungeon entrance we came from and go down
+-- Only items the bot picked up itself are sold; the player's own gear is never touched.
+
+local B = adombot
+local C = adombot_config
+local U = B.util
+local T, F = tileids, featureids
+local key, cell, lower, strip = U.key, U.cell, U.lower, U.strip
+
+B.loot = B.loot or {}               -- normalised name -> true, for things the bot picked up
+
+-- "3 arrows (6s)", "a long sword [+0,+0] (40s)" -> "arrows", "long sword"
+local function norm(s)
+  s = lower(strip(s or ""))
+  s = s:gsub("%b()", ""):gsub("%b[]", ""):gsub("%b{}", "")
+  s = s:gsub("^%s*an?%s+", ""):gsub("^%s*the%s+", ""):gsub("^%s*%d+%s+", "")
+  s = s:gsub("[%.!]+%s*$", ""):gsub("^%s+", ""):gsub("%s+$", ""):gsub("%s+", " ")
+  return s
+  end
+B.norm = norm
+
+-- plural/singular and article differences: accept either name containing the other
+local function same_item(a, b)
+  if #a < 3 or #b < 3 then return a == b end
+  return a:find(b, 1, true) or b:find(a, 1, true)
+  end
+
+local function is_loot(name)
+  if B.trip and B.trip.refused[name] then return false end
+  if U.match_any(name, C.food_prefer) then return false end  -- food is never sold
+  for n in pairs(B.loot) do if same_item(name, n) then return n end end
+  return false
+  end
+
+table.insert(B.reactions, {"you pick up", function(line)
+  local what = line:match("you pick up (.+)")
+  if not what then return end
+  local n = norm(what)
+  if n:find("gold piece") or U.match_any(n, C.food_prefer) then return end
+  B.loot[n] = true
+  B.log("loot: "..n)
+  end})
+
+-- a shopkeeper that won't buy ("Sorry, but I don't want yer ..."): the item stays in the
+-- pack; don't offer it to this shop again (another shop may take it)
+for _, p in ipairs({"don't want", "not interested", "does not buy", "doesn't buy", "no use for"}) do
+  table.insert(B.reactions, {p, function()
+    if B.selling and B.trip then B.trip.refused[B.selling] = true end
+    end})
+  end
+
+B.game_resets.sell = function()
+  B.loot, B.trip, B.shops, B.sell_blocked, B.selling = {}, nil, {}, nil, nil
+  end
+
+-- reason: "burdened" (sell loot), "food" (restock), "command". Every trip also restocks
+-- food when buy_food > 0, and sells loot if it has any.
+function B.new_trip(reason)
+  B.trip = {phase = "up", reason = reason, done_shops = {}, sell_tries = 0, refused = {},
+    want_food = C.buy_food > 0, bought = 0, food_tried = {}}
+  B.log("sell trip started ("..reason..")")
+  end
+
+-- out of food: go and buy some, if there's a town to go to
+function B.start_food_trip(w)
+  if not C.sell_enabled or C.buy_food <= 0 or B.trip then return false end
+  B.new_trip("food")
+  return true
+  end
+
+-- picking up shop goods makes a debt; paying clears it
+table.insert(B.reactions, {"(unpaid", function(line)
+  if B.trip and line:find("you pick up", 1, true) then
+    B.trip.unpaid = true
+    B.trip.bought = B.trip.bought + 1
+    end
+  end})
+for _, p in ipairs({"can't afford", "cannot afford", "not enough gold", "not enough money"}) do
+  table.insert(B.reactions, {p, function()
+    if B.trip then B.trip.bought = C.buy_food B.trip.cant_pay = true end
+    end})
+  end
+
+-- ---------------------------------------------------------------- geometry helpers
+
+-- walkable cell at the edge of an outdoor map (walking onto it leaves the area)
+local function edge_cell(w, x, y)
+  if not U.passable(w, x, y, true) then return false end
+  for _, d in ipairs(U.DIRS) do
+    if d.dx == 0 or d.dy == 0 then
+      local m = cell(w, x + d.dx, y + d.dy)
+      if not m or not m.tile then return true end
+      end
+    end
+  return false
+  end
+
+local function path_to_tile(w, tiles)
+  return B.path(w, function(x, y)
+    local m = cell(w, x, y)
+    return m and tiles[m.tile]
+    end)
+  end
+
+local function in_encounter()
+  local s = Global.special_level
+  return s == speciallevelids.ENCOUNTER_AREA or s == speciallevelids.PEACEFUL_ENCOUNTER_AREA
+  end
+
+local function town_tiles()
+  local t = {}
+  for _, name in ipairs(C.sell_towns) do if tileids[name] then t[tileids[name]] = true end end
+  return t
+  end
+
+local function shopkeepers(w)
+  local list = {}
+  for _, m in ipairs(w.mons) do
+    if m.being_type == beingtypes.SHOP_KEEPER and not B.trip.done_shops[m.uid] then list[#list+1] = m end
+    end
+  return list
+  end
+
+-- towns keep their layout: remember where each town's shopkeepers were seen, so a shop out of
+-- sight can still be walked to
+B.shops = B.shops or {}
+local function remember_shops(w)
+  for _, m in ipairs(w.mons) do
+    if m.being_type == beingtypes.SHOP_KEEPER then
+      B.shops[B.raw_level] = B.shops[B.raw_level] or {}
+      B.shops[B.raw_level][m.uid] = {x = m.x, y = m.y}
+      end
+    end
+  end
+B.remember_shops = remember_shops
+
+-- merchandise lies next to its shopkeeper; standing on it means we are in the shop
+local function shop_floor(w, sk, x, y)
+  local m = cell(w, x, y)
+  return m and m.item ~= nil and math.max(math.abs(x - sk.x), math.abs(y - sk.y)) <= C.shop_radius
+  end
+
+-- The way is blocked only by people (a villager in a doorway, the shopkeeper by his door):
+-- wait for them to step aside, for a while. Returns true if it waited.
+local function wait_for_way(w, is_goal, what, leaving)
+  if not B.path(w, is_goal, {ignore_monsters = true, leaving = leaving}) then return false end
+  B.trip.waited = (B.trip.waited or 0) + 1
+  if B.trip.waited > C.block_wait then return false end
+  B.progress = (B.progress or 0) + 1
+  U.say("sell trip", "waiting for the way "..what.." to clear")
+  B.command("GC_SEARCH")
+  return true
+  end
+
+-- ---------------------------------------------------------------- phases
+
+local phases = {}
+
+function phases.up(w)
+  if not w.surface and (B.shops[B.raw_level] or shopkeepers(w)[1]) then return "shop" end  -- already in town
+  if w.surface then
+    if U.ENTRY_TILES[w.here.tile] then B.home = {tile = w.here.tile} end
+    return "town"
+    end
+  local here = U.on_stairs(w)
+  if here == "up" then U.take_stairs("up", "sell trip") return end
+  local goals = U.stairs_goal(w, {up = true})
+  local function is_goal(x, y) return goals[key(x, y)] ~= nil end
+  local x, y, n = B.path(w, is_goal, {keep_away = C.avoid_radius})
+  if not x then x, y, n = B.path(w, is_goal, {through_fights = true}) end
+  if x then U.say("sell trip", "to up stairs ("..n..")") B.step_to(w, x, y, true) return end
+  -- outdoor maps (encounter areas, surface-type caves) are left over their edge
+  if w.here.level_type == leveltypeids.SURFACE then
+    x, y = B.path(w, function(ex, ey) return edge_cell(w, ex, ey) end, {leaving = true})
+    if x then U.say("sell trip", "to area edge") B.step_to(w, x, y, true) return end
+    end
+  local e = B.explore_plan(w)
+  if e then B.explore_act(w, e, "sell trip: looking for up stairs") return end
+  -- no up stairs in sight: in the Infinite Dungeon going down and back up makes a new level
+  -- (cheap); elsewhere search for secret doors (slow)
+  if here == "down" and (B.trip.rerolls or 0) < C.max_rerolls then
+    B.trip.rerolls = (B.trip.rerolls or 0) + 1
+    U.take_stairs("down", "sell trip: no way up here, trying a new level")
+    return
+    end
+  local x2, y2 = B.path(w, function(sx, sy) local s = U.stairs_goal(w, {down = true}) return s[key(sx, sy)] ~= nil end)
+  if x2 and (B.trip.rerolls or 0) < C.max_rerolls then
+    U.say("sell trip", "no way up here; to down stairs to try a new level")
+    B.step_to(w, x2, y2)
+    return
+    end
+  e = B.explore_plan(w, {secrets = true})
+  if e then B.explore_act(w, e, "sell trip: looking for hidden up stairs") return end
+  B.pause("sell trip: no way up found")
+  end
+
+function phases.town(w)
+  if not w.surface then
+    if in_encounter() then return "up" end  -- dragged into an encounter: get out again
+    return "shop"                           -- entered the town
+    end
+  local towns = town_tiles()
+  if towns[w.here.tile] then
+    U.say("sell trip", "entering town")
+    B.expect = {kind = "leave", t = getticks()}
+    B.command("GC_DESCEND")
+    return
+    end
+  local x, y, n = path_to_tile(w, towns)
+  if x then U.say("sell trip", "to town ("..n..")") B.step_to(w, x, y) return end
+  B.pause("sell trip: no town in view (walk closer to one and restart)")
+  end
+
+function phases.shop(w)
+  if w.surface then return "town" end
+  local sks = shopkeepers(w)
+  if not sks[1] then
+    -- out of sight (at night the village is dark), but we know where the shopkeeper stands:
+    -- go next to that spot (his doorway), never onto it - walking into an unseen shopkeeper
+    -- would be an attack. Once adjacent he is visible and the normal logic takes over.
+    for uid, pos in pairs(B.shops[B.raw_level] or {}) do
+      if not B.trip.done_shops[uid] then
+        local spot = key(pos.x, pos.y)
+        local function beside(fx, fy)
+          return math.max(math.abs(fx - pos.x), math.abs(fy - pos.y)) == 1
+          end
+        if beside(w.pc.x, w.pc.y) then
+          -- adjacent and still not visible: he's not there; wait a little for him to show up
+          if wait_for_way(w, function() return true end, "for the shopkeeper") then return end
+        else
+          local x, y, n = B.path(w, beside, {avoid = {[spot] = true}})
+          if x then U.say("sell trip", "to the shop ("..n..")") B.step_to(w, x, y) return end
+          end
+        end
+      end
+    local e = B.explore_plan(w)
+    if e then B.explore_act(w, e, "sell trip: looking for a shop") return end
+    B.pause("sell trip: no shopkeeper found in this town")
+    return
+    end
+  for _, sk in ipairs(sks) do
+    if shop_floor(w, sk, w.pc.x, w.pc.y) then
+      B.trip.shop = sk.uid
+      return C.buy_food > 0 and B.trip.want_food and "buy" or "sell"
+      end
+    local function is_goal(fx, fy) return shop_floor(w, sk, fx, fy) end
+    local x, y, n = B.path(w, is_goal)
+    if x then B.trip.waited = 0 U.say("sell trip", "into shop ("..n..")") B.step_to(w, x, y) return end
+    if wait_for_way(w, is_goal, "into the shop") then return end
+    end
+  B.pause("sell trip: can't reach a shop")
+  end
+
+-- food on this shop's floor we can afford, by tooltip ("A large ration (unpaid, 15gp).")
+local function shop_food(w, sk, x, y)
+  if not shop_floor(w, sk, x, y) or B.trip.food_tried[key(x, y)] then return nil end
+  local ok, t = pcall(adom_nelib_tooltip_info, x, y)
+  if not ok or type(t) ~= "table" then return nil end
+  local l = lower(t.item1_tip or "")
+  local price = tonumber(l:match("(%d+)%s*gp") or "")
+  if price and price > (B.trip.gold or 0) then return nil end
+  return U.match_any(l, C.food_prefer) and not U.match_any(l, C.food_never) and l or nil
+  end
+
+-- restock food: learn how much gold there is, pick up affordable food from the shop floor,
+-- then pay for it
+function phases.buy(w)
+  local sk
+  for _, m in ipairs(w.mons) do if m.uid == B.trip.shop then sk = m end end
+  if not sk or B.trip.bought >= C.buy_food then return "pay" end
+  if not B.trip.gold then
+    if (B.trip.gold_tries or 0) >= 3 then B.trip.gold = 0 return "pay" end
+    B.trip.gold_tries = (B.trip.gold_tries or 0) + 1
+    B.progress = (B.progress or 0) + 1
+    U.say("sell trip", "counting gold")
+    B.expect = {kind = "gold", t = getticks()}
+    B.command("GC_MONEY")
+    return
+    end
+  if B.trip.bought > 0 and (w.pc.burden_level or 0) >= math.max(1, C.stop_at_burden) then return "pay" end
+  if shop_food(w, sk, w.pc.x, w.pc.y) then
+    B.trip.food_tried[key(w.pc.x, w.pc.y)] = true
+    B.progress = (B.progress or 0) + 1
+    U.say("sell trip", "taking food to buy")
+    B.expect = {kind = "buy", t = getticks()}
+    B.command("GC_PICK")
+    return
+    end
+  local x, y, n = B.path(w, function(fx, fy) return shop_food(w, sk, fx, fy) ~= nil end)
+  if x then U.say("sell trip", "to food ("..n..")") B.step_to(w, x, y) return end
+  return "pay"
+  end
+
+-- never leave with unpaid goods: the shopkeeper would turn on the PC
+function phases.pay(w)
+  if not B.trip.unpaid then return "sell" end
+  if B.trip.cant_pay then return "return_goods" end
+  B.trip.pay_tries = (B.trip.pay_tries or 0) + 1
+  if B.trip.pay_tries > 12 then B.pause("sell trip: could not pay for picked-up goods - pay or drop them before leaving!") return end
+  B.progress = (B.progress or 0) + 1
+  U.say("sell trip", "paying")
+  B.expect = {kind = "pay", t = getticks()}
+  B.command("GC_MONEY")
+  end
+
+-- couldn't pay for everything: drop the unpaid goods back on the shop floor, one by one
+function phases.return_goods(w)
+  if not B.trip.unpaid then B.trip.cant_pay = nil return "sell" end
+  if not B.trip.cant_pay then return "pay" end  -- one went back: maybe the rest is affordable now
+  B.trip.return_tries = (B.trip.return_tries or 0) + 1
+  if B.trip.return_tries > 10 then B.pause("sell trip: holding unpaid goods it can't pay for - drop them before leaving!") return end
+  B.progress = (B.progress or 0) + 1
+  U.say("sell trip", "putting back unpaid goods")
+  B.expect = {kind = "return", t = getticks()}
+  B.command("GC_DROP")
+  end
+
+function phases.sell(w)
+  if B.trip.unpaid then return "pay" end
+  if not next(B.loot) or B.trip.nothing_left then return "leave" end
+  if B.trip.sell_tries > C.max_sell_attempts then return "leave" end
+  B.trip.sell_tries = B.trip.sell_tries + 1
+  B.progress = (B.progress or 0) + 1  -- each offer is progress even though nothing moves
+  U.say("sell trip", "offering loot")
+  B.expect = {kind = "sell drop", t = getticks()}
+  B.command("GC_DROP")
+  end
+
+function phases.leave(w)
+  if w.surface then return "home" end
+  if B.trip.unpaid then return "pay" end
+  if B.trip.shop then B.trip.done_shops[B.trip.shop] = true B.trip.shop = nil end
+  local function is_goal(ex, ey) return edge_cell(w, ex, ey) end
+  local x, y, n = B.path(w, is_goal, {leaving = true})
+  if x then B.trip.waited = 0 U.say("sell trip", "leaving town ("..n..")") B.step_to(w, x, y, true) return end
+  if wait_for_way(w, is_goal, "out", true) then return end
+  B.pause("sell trip: can't find the way out of town")
+  end
+
+function phases.home(w)
+  if not w.surface then
+    if in_encounter() then return "up_again" end
+    -- still burdened: the shop wouldn't take the loot. Either throw the unsold loot away
+    -- here (unsold = "drop"), or don't go straight back: the "loot full" rule pauses.
+    local burdened = (w.pc.burden_level or 0) >= C.stop_at_burden
+    if burdened and C.unsold == "drop" and next(B.loot) then return "discard" end
+    B.sell_blocked = burdened
+    B.log("sell trip done"..(burdened and " (still burdened: the shop didn't buy enough)" or ""))
+    B.trip = nil
+    return
+    end
+  if not B.home then B.pause("sell trip: don't know which dungeon to return to") return end
+  if w.here.tile == B.home.tile then
+    U.say("sell trip", "back to the dungeon")
+    B.command("GC_DESCEND")
+    return
+    end
+  local x, y, n = path_to_tile(w, {[B.home.tile] = true})
+  if x then U.say("sell trip", "to dungeon ("..n..")") B.step_to(w, x, y) return end
+  B.pause("sell trip: dungeon entrance not in view")
+  end
+
+-- unsold = "drop": back in the dungeon (no shopkeeper to object), drop the loot nobody
+-- bought until the PC is no longer burdened. Only things the bot picked up itself.
+function phases.discard(w)
+  if (w.pc.burden_level or 0) < C.stop_at_burden or not next(B.loot) or B.trip.nothing_left then
+    B.log("sell trip done (dropped unsold loot)")
+    B.trip = nil
+    return
+    end
+  B.trip.refused = {}  -- dropping, not selling: every piece of loot qualifies
+  B.progress = (B.progress or 0) + 1
+  U.say("sell trip", "dropping unsold loot")
+  B.expect = {kind = "discard", t = getticks()}
+  B.command("GC_DROP")
+  end
+
+-- an encounter on the way home: leave it like any outdoor map, then carry on home
+function phases.up_again(w)
+  if w.surface then return "home" end
+  local x, y = B.path(w, function(ex, ey) return edge_cell(w, ex, ey) end, {leaving = true})
+  if x then B.step_to(w, x, y, true) return end
+  B.pause("sell trip: stuck in an encounter area")
+  end
+
+-- ---------------------------------------------------------------- rule
+
+B.add_rule("sell trip",
+  function(w)
+    if not C.sell_enabled then return nil end
+    remember_shops(w)
+    local burdened = (w.pc.burden_level or 0) >= C.stop_at_burden
+    if not burdened then B.sell_blocked = nil end
+    if not B.trip and burdened then
+      -- burdened by own gear, or the last trip sold nothing: the "loot full" rule pauses
+      if not next(B.loot) or B.sell_blocked then return nil end
+      B.new_trip("burdened")
+      end
+    return B.trip
+    end,
+  function(w, trip)
+    -- a phase either acts (sends a command) or names the next phase; follow a few hand-offs
+    for _ = 1, 4 do
+      local nxt = phases[trip.phase](w)
+      if not nxt then return end
+      B.log("sell trip: "..trip.phase.." -> "..nxt)
+      trip.phase = nxt
+      if nxt == "sell" then trip.sell_tries = 0 end
+      if nxt == "discard" then trip.nothing_left = nil end
+      trip.waited = 0
+      end
+    end,
+  "pickup")
+
+-- a trip step that changes nothing: first stop trusting auto-explore here, then give up
+B.stall["sell trip"] = {limit = 6, react = function(w)
+  if B.explore_blocked ~= w.level then
+    B.explore_blocked = w.level
+    B.log("sell trip: no progress; exploring by hand")
+  else
+    B.pause("sell trip makes no progress (phase "..tostring(B.trip and B.trip.phase)..")")
+    end
+  end}
+
+-- "sell" in adombot/cmd.txt: start a trip now, burdened or not
+B.cmd_handlers.sell = function()
+  B.new_trip("command")
+  end
+
+-- ---------------------------------------------------------------- prompts
+
+-- the drop menu: pick the first looted item still in the pack
+-- the pickup menu ("  a - large ration (unpaid, 15gp)   200s"): when buying, take one food
+-- item from the shop floor; otherwise (a heap in the dungeon) take one wanted item and never
+-- anything unpaid
+B.add_prompt("pickup menu",
+  function(s)
+    return B.expect and (B.expect.kind == "buy" or B.expect.kind == "pickup")
+      and s.text:find("items that can be picked up")
+    end,
+  function(s)
+    local buying = B.expect.kind == "buy"
+    for _, line in ipairs(s.lines) do
+      local letter, name, wt = line:match("^%s+(%l) %- (.-)%s%s+(%d+)s%s*$")
+      if letter then
+        local l = lower(name)
+        local unpaid = l:find("unpaid", 1, true) ~= nil
+        local food = U.match_any(l, C.food_prefer) and not U.match_any(l, C.food_never)
+        local loot = C.sell_enabled and U.match_any(l, C.loot) and tonumber(wt) <= C.loot_max_weight
+        local wanted = food or U.match_any(l, C.pickup) or loot
+        if (buying and unpaid and food) or (not buying and not unpaid and wanted) then
+          B.log((buying and "buying " or "picking up ")..l)
+          B.expect = nil
+          B.sendkeys(letter)
+          return
+          end
+        end
+      end
+    B.expect = nil
+    B.sendkeys("Z")
+    end,
+  "more")
+
+-- "Wanna pay your debts? [s] Pay some items. [a] Pay all items at once." Only "pay some"
+-- offered means the gold doesn't cover everything: back out, the goods go back
+B.add_prompt("pay debts",
+  function(s) return B.expect and B.expect.kind == "pay" and s.text:find("wanna pay your debts") end,
+  function(s)
+    B.expect = nil
+    if s.text:find("pay all items") then
+      B.log("paying for everything")
+      B.sendkeys("a")
+      if B.trip then B.trip.unpaid = false end
+      B.no_rations, B.eat_tries = nil, 0  -- what was bought is ours to eat now
+    else
+      B.log("can't pay for everything; putting goods back")
+      B.sendkeys("Z")
+      if B.trip then B.trip.cant_pay = true end
+      end
+    end,
+  "more")
+
+-- the Wealth window when nothing is owed: "You are carrying 35 gold pieces."
+B.add_prompt("count gold",
+  function(s) return B.expect and B.expect.kind == "gold" and s.text:find("you are carrying %d+ gold") end,
+  function(s)
+    local gold = tonumber(s.text:match("you are carrying (%d+) gold"))
+    if B.trip then B.trip.gold = gold end
+    B.log("gold: "..tostring(gold))
+    B.expect = nil
+    B.sendkeys("Z")
+    end,
+  "more")
+
+-- buying spends gold (the price is in the pickup message)
+table.insert(B.reactions, {"you pick up", function(line)
+  local price = tonumber(line:match("unpaid, (%d+)%s*gp") or "")
+  if price and B.trip and B.trip.gold then B.trip.gold = B.trip.gold - price end
+  end})
+
+-- selling (in a shop), discarding (unsold = "drop") and returning unpaid goods all use the
+-- drop menu; they differ in which line they pick
+local function pick_loot(name) return is_loot(norm(name)) end
+local function pick_unpaid(name) return lower(name):find("unpaid", 1, true) and norm(name) or nil end
+local drop_modes = {
+  ["sell drop"] = {verb = "selling", after = "sell", pick = pick_loot},  -- the offer question follows
+  ["discard"]   = {verb = "dropping", after = nil, pick = pick_loot},
+  ["return"]    = {verb = "returning", after = nil, pick = pick_unpaid},
+  }
+
+B.add_prompt("sell drop menu",
+  function(s)
+    return B.expect and drop_modes[B.expect.kind] and s.text:find("items that can be dropped")
+    end,
+  function(s)
+    local kind = B.expect.kind
+    local mode = drop_modes[kind]
+    for _, line in ipairs(s.lines) do
+      local letter, name = line:match("^%s+(%l) %- (.-)%s%s+%d+s%s*$")
+      if letter then
+        local n = norm(name)
+        local l = mode.pick(name)
+        if l then
+          B.selling = n
+          if kind == "discard" then B.loot[l] = nil end
+          if kind == "return" then B.trip.cant_pay = nil end  -- one back; try paying again
+          B.log(mode.verb.." "..n)
+          B.expect = mode.after and {kind = mode.after, t = getticks()} or nil
+          B.sendkeys(letter)
+          return
+          end
+        end
+      end
+    -- more pages: look there too
+    local page, pages = s.text:match("page (%d+)/(%d+)")
+    if page and tonumber(page) < tonumber(pages) then
+      B.expect = {kind = kind, t = getticks()}
+      B.sendkeys("+")
+      return
+      end
+    B.log("nothing left for "..mode.verb.." here")
+    if kind == "return" then
+      B.trip.unpaid = false  -- every unpaid thing is back on the floor
+    else
+      B.trip.nothing_left = true
+      end
+    B.expect = nil
+    B.sendkeys("Z")
+    end,
+  "more")

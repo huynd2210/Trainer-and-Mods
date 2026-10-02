@@ -1,0 +1,59 @@
+-- ADOM Bot: loader.
+-- Hooks the NotEye frame loop, the game-event dispatcher and the special-key handler once,
+-- then (re)loads the config and the bot logic. The logic files can be reloaded while the
+-- game runs ("reload" in adombot/cmd.txt, or Shift+F12 in game).
+
+adombot = adombot or {}
+local B = adombot
+
+B.dir = "adombot/"
+
+function B.log(s)
+  local f = io.open(B.dir.."bot.log", "a")
+  if f then
+    f:write(os.date("%H:%M:%S ")..tostring(s).."\n")
+    f:close()
+    end
+  end
+
+function B.reload()
+  for _, file in ipairs({"games/adom-bot-config.noe", "games/adom-bot-core.noe"}) do
+    local ok, err = pcall(dofile, file)
+    if not ok then B.log("load error in "..file..": "..tostring(err)) end
+    end
+  B.log("bot loaded")
+  end
+
+if not B.hooked then
+  B.hooked = true
+
+  local frame = evhandlers[0]
+  evhandlers[0] = function(ev)
+    local r = frame(ev)
+    if B.tick then
+      local ok, err = pcall(B.tick)
+      if not ok then
+        B.enabled = false
+        B.log("tick error, bot stopped: "..tostring(err))
+        end
+      end
+    return r
+    end
+
+  local lhandle_game_event = handle_game_event
+  function handle_game_event(ev)
+    if B.on_event then pcall(B.on_event, ev) end
+    return lhandle_game_event(ev)
+    end
+
+  local lhandlespecialkeys = handlespecialkeys
+  function handlespecialkeys(ev)
+    if B.on_key then
+      local ok, used = pcall(B.on_key, ev)
+      if ok and used then return true end
+      end
+    return lhandlespecialkeys(ev)
+    end
+  end
+
+B.reload()

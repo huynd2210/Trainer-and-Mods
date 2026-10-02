@@ -1,0 +1,706 @@
+-- ADOM Trainer (ADOM Steam 3.3.4).
+-- Loaded from games/adom.noe by one hook line (see install.ps1). Runs in NotEye's LuaJIT and
+-- uses the FFI to patch and poke adom.exe memory.
+--
+--   Ctrl+F5   god mode on/off: a blow that would kill you leaves you at 1 HP instead
+--   Ctrl+F6   heal to full HP
+--   Ctrl+F7   +1000 experience (a level-up follows on your next turn)
+--   Ctrl+F8   remove all chaos corruption
+--   Ctrl+F9   always hit on/off: your melee and missile attacks never miss
+--   Ctrl+F10  enemies always miss on/off: monster melee and missile attacks on you never hit
+--   Ctrl+F11  remove all negative statuses (poison, sickness, blindness, stun, ...)
+--   Ctrl+F12  teleport to the surface: one jump from any dungeon level to the overworld, placed
+--             at the entrance of the dungeon you are in
+--
+-- Plain F1-F7 stay free for ADOM's tactics keys. Keys are set in adomtrainer_keys below as
+-- "ctrl+", "shift+", "alt+" prefixes and a KEYS name; modifiers must match exactly.
+-- Messages go to adomtrainer/trainer.log.
+
+adomtrainer = adomtrainer or {}
+local T = adomtrainer
+
+adomtrainer_keys = {
+  god    = "ctrl+F5",
+  heal   = "ctrl+F6",
+  xp     = "ctrl+F7",
+  cure   = "ctrl+F8",
+  hit    = "ctrl+F9",
+  miss   = "ctrl+F10",
+  status = "ctrl+F11",
+  surface = "ctrl+F12",
+  }
+
+-- Toggles that are on from the start (the keys above still switch them off and on).
+adomtrainer_defaults = {
+  god  = true,   -- fatal damage leaves you at 1 HP
+  hit  = true,   -- your attacks never miss
+  miss = false,  -- enemies always miss
+  }
+T.xp_amount = 1000
+T.dir = "adomtrainer/"
+
+function T.log(s)
+  local f = io.open(T.dir.."trainer.log", "a")
+  if f then
+    f:write(os.date("%Y-%m-%d %H:%M:%S ")..tostring(s).."\n")
+    f:close()
+    end
+  end
+
+-- ---------------------------------------------------------------- memory
+
+local ffi = require("ffi")
+pcall(ffi.cdef, [[
+void* GetModuleHandleA(const char* name);
+int VirtualProtect(void* addr, size_t size, unsigned long prot, unsigned long* old);
+void* VirtualAlloc(void* addr, size_t size, unsigned long type, unsigned long prot);
+int FlushInstructionCache(void* process, const void* addr, size_t size);
+void* GetCurrentProcess(void);
+]])
+local k32 = ffi.load("kernel32")
+
+local PAGE_EXECUTE_READWRITE = 0x40
+local base = tonumber(ffi.cast("uint32_t", k32.GetModuleHandleA(nil)))
+
+-- Addresses as in the file (image base 0x400000); the exe is ASLR-relocated.
+local function va(x) return base + x - 0x400000 end
+
+local A = {
+  hp          = va(0xCCAD50),  -- int32
+  xp          = va(0xCCAE58),  -- int64
+  corr_points = va(0xD6A9A0),  -- int64, corruption level is derived from it
+  corr_mask   = va(0xD6A9A8),  -- uint64, one bit per corruption
+  corr9_value = va(0xD6A798),  -- halved by corruption #9; the game doubles it on removal
+  redraw      = va(0xF13664),  -- int32, "status changed" flag
+  }
+T.A = A
+
+local XP_CAP = 999999999  -- the game's own cap
+
+local function i32(addr) return ffi.cast("int32_t*", addr) end
+local function i64(addr) return ffi.cast("int64_t*", addr) end
+local function u64(addr) return ffi.cast("uint64_t*", addr) end
+local function u8(addr) return ffi.cast("uint8_t*", addr) end
+
+local function hex(addr, n)
+  local p, s = u8(addr), {}
+  for i = 0, n - 1 do s[#s+1] = string.format("%02X", p[i]) end
+  return table.concat(s, " ")
+  end
+
+local function matches(addr, expected)
+  local p = u8(addr)
+  for i, b in ipairs(expected) do
+    if p[i-1] ~= b then return false end
+    end
+  return true
+  end
+
+local function write_code(addr, t)
+  local old = ffi.new("unsigned long[1]")
+  if k32.VirtualProtect(ffi.cast("void*", addr), #t, PAGE_EXECUTE_READWRITE, old) == 0 then
+    error("VirtualProtect failed at "..string.format("%08X", addr))
+    end
+  local p = u8(addr)
+  for i, b in ipairs(t) do p[i-1] = b end
+  k32.VirtualProtect(ffi.cast("void*", addr), #t, old[0], old)
+  k32.FlushInstructionCache(k32.GetCurrentProcess(), ffi.cast("void*", addr), #t)
+  end
+
+local function le32(v)
+  v = v % 4294967296
+  local t = {}
+  for i = 0, 3 do t[#t+1] = math.floor(v / 2^(8*i)) % 256 end
+  return t
+  end
+
+-- ---------------------------------------------------------------- code hooks
+-- Each hook replaces the first bytes of some game code with a jump into a code cave. Every hook
+-- tests one flag byte at the start of the cave, so a toggle is a single byte write and the
+-- patched code behaves exactly like the original while its flag is 0.
+
+local FLAGS = {god = 0, hit = 1, miss = 2, surface = 3}  -- byte offsets in the cave
+-- Surface jump data, written by the trainer before it triggers the jump: the level whose
+-- up-staircase leads to the wilderness ("exit level"), and how the game would see it.
+local JUMP = {stair = 8, volcano = 9, dungeon = 10, level = 12, level_type = 16}
+local CAVE_CODE = 32              -- code starts after the flag and data bytes
+
+-- Code emitter: e:bytes(...) appends, e:here() is the address of the next byte.
+local Emitter = {}
+Emitter.__index = Emitter
+
+function Emitter:here() return self.start + #self.code end
+
+function Emitter:bytes(...)
+  for _, x in ipairs({...}) do
+    if type(x) == "table" then
+      for _, b in ipairs(x) do self.code[#self.code+1] = b end
+    else
+      self.code[#self.code+1] = x
+      end
+    end
+  end
+
+function Emitter:jmp(to) self:bytes(0xE9, le32(to - (self:here() + 5))) end
+function Emitter:jne(to) self:bytes(0x0F, 0x85, le32(to - (self:here() + 6))) end
+
+-- cmp byte [flag], 0 / je +skip
+function Emitter:skip_if_off(flag, skip)
+  self:bytes(0x80, 0x3D, le32(T.cave + FLAGS[flag]), 0x00, 0x74, skip)
+  end
+
+-- the overwritten instructions, then back to the game code after them
+function Emitter:resume(hook)
+  self:bytes(hook.expect)
+  self:jmp(hook.at + #hook.expect)
+  end
+
+-- flat(0x83, 0x3D, le32(x), 0) -> one byte list
+local function flat(...)
+  local t = {}
+  for _, x in ipairs({...}) do
+    if type(x) == "table" then for _, b in ipairs(x) do t[#t+1] = b end else t[#t+1] = x end
+    end
+  return t
+  end
+
+local RETURN_1 = {0xB8, 0x01, 0x00, 0x00, 0x00, 0xC3}  -- mov eax,1 / ret
+local RETURN_0 = {0x31, 0xC0, 0xC3}                    -- xor eax,eax / ret
+
+local hooks = {
+  -- PC death routine ("You die...", life saving). If HP < 1 here, set it to 1 first: every
+  -- HP death passes through this check, including those that set HP straight to 0.
+  {name = "death", flag = "god", at = va(0x46A960),
+   expect = {0x53, 0x56, 0x57, 0xBF, 0x01, 0x00, 0x00, 0x00},  -- push ebx/esi/edi; mov edi,1
+   emit = function(e, h)
+     e:skip_if_off(h.flag, 0x13)
+     e:bytes(0x83, 0x3D, le32(A.hp), 0x01)                    -- cmp dword [hp],1
+     e:bytes(0x7D, 0x0A)                                       -- jge resume
+     e:bytes(0xC7, 0x05, le32(A.hp), le32(1))                  -- mov dword [hp],1
+     e:resume(h)
+     end},
+
+  -- Change PC HP by a delta (eax). Clamp the delta so HP stays >= 1, so the fatal blow
+  -- already shows 1 HP instead of waiting for the death check.
+  {name = "hp change", flag = "god", at = va(0x52A360),
+   expect = {0x55, 0x8B, 0xEC, 0x83, 0xEC, 0x08},              -- push ebp; mov ebp,esp; sub esp,8
+   emit = function(e, h)
+     e:skip_if_off(h.flag, 0x1A)
+     e:bytes(0x51)                                             -- push ecx
+     e:bytes(0x8B, 0x0D, le32(A.hp))                           -- mov ecx,[hp]
+     e:bytes(0x01, 0xC1)                                       -- add ecx,eax
+     e:bytes(0x83, 0xF9, 0x01)                                 -- cmp ecx,1
+     e:bytes(0x7D, 0x0B)                                       -- jge pop
+     e:bytes(0xB8, le32(1))                                    -- mov eax,1
+     e:bytes(0x2B, 0x05, le32(A.hp))                           -- sub eax,[hp]
+     e:bytes(0x59)                                             -- pop: pop ecx
+     e:resume(h)
+     end},
+
+  -- PC melee to-hit roll against a monster: returns 1 = hit. Pure dice roll, no side effects.
+  {name = "melee to-hit", flag = "hit", at = va(0x427D70),
+   expect = {0x55, 0x8B, 0xEC, 0x53, 0x56, 0x57},              -- push ebp; mov ebp,esp; push ebx/esi/edi
+   emit = function(e, h)
+     e:skip_if_off(h.flag, #RETURN_1)
+     e:bytes(RETURN_1)
+     e:resume(h)
+     end},
+
+  -- PC missile to-hit roll against the monster in a cell: returns 1 = hit.
+  {name = "missile to-hit", flag = "hit", at = va(0x42E180),
+   expect = {0x55, 0x8B, 0xEC, 0x51, 0x53, 0x56},              -- push ebp; mov ebp,esp; push ecx/ebx/esi
+   emit = function(e, h)
+     e:skip_if_off(h.flag, #RETURN_1)
+     e:bytes(RETURN_1)
+     e:resume(h)
+     end},
+
+  -- Fighting with a non-weapon item (IWT_ITEM) misses on a separate 50% roll after the to-hit
+  -- roll: "test eax,eax / jne <miss>". With the flag on, carry on as a hit.
+  {name = "improvised weapon miss", flag = "hit", at = va(0x424CB2),
+   expect = {0x85, 0xC0, 0x0F, 0x85, 0xB8, 0x1F, 0x00, 0x00},  -- jne 0x426C72
+   emit = function(e, h)
+     local hit, miss = h.at + 8, va(0x426C72)
+     e:skip_if_off(h.flag, 5)
+     e:jmp(hit)
+     e:bytes(0x85, 0xC0)                                       -- test eax,eax
+     e:jne(miss)
+     e:jmp(hit)
+     end},
+
+  -- Monster melee to-hit roll against the PC: returns 0 = miss. It also sets a "blocked"
+  -- flag the miss message reads; clear it so a forced miss shows the plain "misses you".
+  {name = "monster melee to-hit", flag = "miss", at = va(0x42A920),
+   expect = {0x55, 0x8B, 0xEC, 0x83, 0xE4, 0xF8},              -- push ebp; mov ebp,esp; and esp,-8
+   emit = function(e, h)
+     e:skip_if_off(h.flag, 10 + #RETURN_0)
+     e:bytes(0xC7, 0x05, le32(va(0x792670)), le32(0))          -- mov dword [blocked],0
+     e:bytes(RETURN_0)
+     e:resume(h)
+     end},
+
+  -- Monster missile to-hit roll against the PC: returns 0 = miss. The prologue includes
+  -- "inc dword [rng_calls]" with a relocated address, so it is part of what gets replayed.
+  {name = "monster missile to-hit", flag = "miss", at = va(0x437280),
+   expect = flat(0x55, 0x8B, 0xEC, 0x51, 0xFF, 0x05, le32(va(0xF13ED0))),
+   emit = function(e, h)
+     e:skip_if_off(h.flag, #RETURN_0)
+     e:bytes(RETURN_0)
+     e:resume(h)
+     end},
+
+  -- ---- Surface jump: the ascend command (0x467170), bent into one jump to the wilderness.
+  -- With the "surface" flag on, the game behaves as if the PC climbed the up-staircase of the
+  -- exit level (JUMP data): the current level is saved under its own name as usual, the
+  -- destination comes from the exit level's stair link, and placement on arrival uses the
+  -- exit level's identity (which picks the right dungeon entrance on the overworld).
+
+  -- "You don't see any stairway leading upwards" branch: go on to the stair lookup instead.
+  {name = "ascend without stairs", flag = "surface", at = va(0x467288),
+   expect = flat(0x83, 0x3D, le32(va(0xCCAF50)), 0x00),       -- cmp dword [blind],0
+   emit = function(e, h)
+     e:skip_if_off(h.flag, 5)
+     e:jmp(va(0x4672CE))                                       -- the stair lookup
+     e:resume(h)
+     end},
+
+  -- Stair lookup (eax = dungeon*100+level, [esp+18h] = stair index): use the exit level's.
+  {name = "ascend stair lookup", flag = "surface", at = va(0x4672CE),
+   expect = {0x6B, 0xC0, 0x64, 0x03, 0x44, 0x24, 0x18},       -- imul eax,eax,100; add eax,[esp+18h]
+   emit = function(e, h)
+     e:skip_if_off(h.flag, 30)
+     e:bytes(0x0F, 0xBF, 0x05, le32(T.cave + JUMP.dungeon))    -- movsx eax, word [exit dungeon]
+     e:bytes(0x6B, 0xC0, 0x64)                                 -- imul eax,eax,100
+     e:bytes(0x0F, 0xBF, 0x15, le32(T.cave + JUMP.level))      -- movsx edx, word [exit level]
+     e:bytes(0x01, 0xD0)                                       -- add eax,edx
+     e:bytes(0x0F, 0xB6, 0x15, le32(T.cave + JUMP.stair))      -- movzx edx, byte [stair index]
+     e:bytes(0x89, 0x54, 0x24, 0x18)                           -- mov [esp+18h],edx
+     e:resume(h)
+     end},
+
+  -- "<monster> prevents you from ascending the stairs": skipped while jumping.
+  {name = "ascend blocked by monster", flag = "surface", at = va(0x467304),
+   expect = {0x0F, 0xBF, 0xC7, 0x0F, 0xBF, 0xCE},              -- movsx eax,di; movsx ecx,si
+   emit = function(e, h)
+     e:skip_if_off(h.flag, 5)
+     e:jmp(va(0x467336))
+     e:resume(h)
+     end},
+
+  -- "You are too burdened to climb those stairs!": skipped while jumping.
+  {name = "ascend burden check", flag = "surface", at = va(0x46738D),
+   expect = flat(0x8B, 0x15, le32(va(0x8A215C))),              -- mov edx,[...]
+   emit = function(e, h)
+     e:skip_if_off(h.flag, 5)
+     e:jmp(va(0x467401))
+     e:resume(h)
+     end},
+
+  -- After the old level is saved and the new one loaded, before the PC is placed: make the
+  -- "came from" locals describe the exit level ([esp+1Ch] dungeon, [esp+0Ch] level,
+  -- [esp+10h] level type, [esp+14h] volcano flag). eax is kept.
+  {name = "ascend arrival origin", flag = "surface", at = va(0x467605),
+   expect = {0x8B, 0x5C, 0x24, 0x10, 0x83, 0xFB, 0x1A},       -- mov ebx,[esp+10h]; cmp ebx,1Ah
+   emit = function(e, h)
+     e:skip_if_off(h.flag, 44)
+     e:bytes(0x50)                                             -- push eax (locals now +4)
+     e:bytes(0x66, 0xA1, le32(T.cave + JUMP.dungeon))          -- mov ax,[exit dungeon]
+     e:bytes(0x66, 0x89, 0x44, 0x24, 0x20)                     -- mov [esp+20h],ax
+     e:bytes(0x66, 0xA1, le32(T.cave + JUMP.level))            -- mov ax,[exit level]
+     e:bytes(0x66, 0x89, 0x44, 0x24, 0x10)                     -- mov [esp+10h],ax
+     e:bytes(0xA1, le32(T.cave + JUMP.level_type))             -- mov eax,[exit level type]
+     e:bytes(0x89, 0x44, 0x24, 0x14)                           -- mov [esp+14h],eax
+     e:bytes(0x0F, 0xB6, 0x05, le32(T.cave + JUMP.volcano))    -- movzx eax, byte [volcano]
+     e:bytes(0x89, 0x44, 0x24, 0x18)                           -- mov [esp+18h],eax
+     e:bytes(0x58)                                             -- pop eax
+     e:resume(h)
+     end},
+  }
+
+local function install_hooks()
+  if T.cave then return true end  -- already done (script reloaded)
+  local bad = {}
+  for _, h in ipairs(hooks) do
+    if not matches(h.at, h.expect) then bad[#bad+1] = h.name.." ("..hex(h.at, #h.expect)..")" end
+    end
+  if #bad > 0 then
+    T.log("hooks not installed, unexpected code (other ADOM version?): "..table.concat(bad, "; "))
+    return false
+    end
+  local cave = tonumber(ffi.cast("uint32_t", k32.VirtualAlloc(nil, 4096, 0x3000, PAGE_EXECUTE_READWRITE)))
+  if cave == 0 then T.log("hooks not installed: VirtualAlloc failed") return false end
+  T.cave = cave
+  local p = u8(cave)
+  for i = 0, CAVE_CODE - 1 do p[i] = 0 end
+  local pos = cave + CAVE_CODE
+  for _, h in ipairs(hooks) do
+    local e = setmetatable({start = pos, code = {}}, Emitter)
+    h.emit(e, h)
+    for i, b in ipairs(e.code) do p[pos - cave + i - 1] = b end
+    local patch = setmetatable({start = h.at, code = {}}, Emitter)
+    patch:jmp(pos)
+    while #patch.code < #h.expect do patch:bytes(0x90) end
+    write_code(h.at, patch.code)
+    pos = pos + #e.code
+    end
+  T.log(string.format("hooks installed (exe base %08X, cave %08X)", base, cave))
+  -- fresh cave: switch on the default toggles (a script reload keeps the current state)
+  local on = {}
+  for name, enabled in pairs(adomtrainer_defaults or {}) do
+    if enabled and FLAGS[name] then
+      u8(cave)[FLAGS[name]] = 1
+      on[#on+1] = name
+      end
+    end
+  table.sort(on)
+  T.log("on from the start: "..(#on > 0 and table.concat(on, ", ") or "nothing"))
+  return true
+  end
+
+function T.flag(name) return T.cave ~= nil and u8(T.cave)[FLAGS[name]] ~= 0 end
+
+function T.set_flag(name, on)
+  if not T.cave then return false end
+  u8(T.cave)[FLAGS[name]] = on and 1 or 0
+  return true
+  end
+
+-- ---------------------------------------------------------------- actions
+-- NotEye runs on its own thread (threaded = true in adom.noe). Game memory is only written
+-- while the game is idle, waiting for the next command; key presses at other times are queued.
+
+local function in_game()
+  return Global and Global.is_game_running
+  end
+
+local function idle()
+  return in_game() and Global.is_waiting_for_next_command
+  end
+
+local function bubble(text, color)
+  if not (create_bubble and AnimationInfos and PCData and PCData.x) then return end
+  table.insert(AnimationInfos, create_bubble(PCData.x, PCData.y, color, text, true, true, false))
+  end
+
+local actions = {}
+
+actions.heal = function()
+  local pc = adom_nelib_player_map()
+  local maxhp = pc and pc.max_hp
+  if not maxhp or maxhp < 1 then return end
+  local before = i32(A.hp)[0]
+  if before < maxhp then i32(A.hp)[0] = maxhp end
+  i32(A.redraw)[0] = 1
+  bubble("+"..math.max(0, maxhp - before).." HP", 0x00FF00)
+  T.log("heal "..before.." -> "..maxhp)
+  end
+
+actions.xp = function()
+  local p = i64(A.xp)
+  local before = tonumber(p[0])
+  local after = math.min(before + T.xp_amount, XP_CAP)
+  p[0] = after
+  i32(A.redraw)[0] = 1
+  bubble("+"..(after - before).." XP", 0x009900)
+  T.log("xp "..before.." -> "..after)
+  end
+
+actions.cure = function()
+  local mask = u64(A.corr_mask)
+  local m = mask[0]
+  local points = tonumber(i64(A.corr_points)[0])
+  if m == 0 and points == 0 then
+    bubble("No corruption", 0xFFFFFF)
+    return
+    end
+  -- corruption #9 halves a body value when gained; the game's removal code doubles it back
+  if bit.band(ffi.cast("uint32_t*", A.corr_mask)[0], 0x200) ~= 0 then
+    i32(A.corr9_value)[0] = i32(A.corr9_value)[0] * 2
+    end
+  mask[0] = 0
+  i64(A.corr_points)[0] = 0
+  i32(A.redraw)[0] = 1
+  bubble("Corruption removed", 0x00FF00)
+  T.log("cure corruption: mask "..tostring(m).." points "..points.." -> 0")
+  end
+
+-- Negative status counters (int32; 0 = not affected). Several statuses have more than one
+-- source; the game's own cures zero these same variables.
+local STATUSES = {
+  {"blind",     {0xCCAF50, 0xD6AE4C, 0xD6AE50}},  -- blindness, mud / dust in the face
+  {"stunned",   {0xCCAF54}},
+  {"confused",  {0xCCAF58}},
+  {"slowed",    {0xCCAF5C}},
+  {"paralyzed", {0xCCAF60}},
+  {"sick",      {0xCCAF64}},
+  {"deaf",      {0xCCAF68, 0xCCAF88}},            -- deafness, beeswax in the ears
+  {"mute",      {0xCCAF6C}},
+  {"asleep",    {0xCCAF70}},
+  {"bleeding",  {0xD6A770}},
+  {"drunk",     {0xD6A74C}},                      -- alcohol level
+  {"poisoned",  {0xD6A754, 0xD6A758}},            -- poison strength and duration
+  }
+
+actions.status = function()
+  local cured = {}
+  for _, s in ipairs(STATUSES) do
+    local hit = false
+    for _, addr in ipairs(s[2]) do
+      local p = i32(va(addr))
+      if p[0] ~= 0 then p[0] = 0 hit = true end
+      end
+    if hit then cured[#cured+1] = s[1] end
+    end
+  i32(A.redraw)[0] = 1
+  bubble(#cured > 0 and "Cured: "..table.concat(cured, ", ") or "No negative status", #cured > 0 and 0x00FF00 or 0xFFFFFF)
+  T.log("cure status: "..(#cured > 0 and table.concat(cured, ", ") or "none"))
+  end
+
+T.pending = T.pending or {}
+
+function T.request(name)
+  if not in_game() then return end
+  T.pending[name] = true
+  if idle() then T.flush() end
+  end
+
+function T.flush()
+  for name in pairs(T.pending) do
+    T.pending[name] = nil
+    local ok, err = pcall(actions[name])
+    if not ok then T.log(name.." failed: "..tostring(err)) end
+    end
+  end
+
+local TOGGLE_LABELS = {god = "God mode", hit = "Always hit", miss = "Enemies always miss"}
+
+function T.toggle(name)
+  local label = TOGGLE_LABELS[name]
+  if not T.cave then
+    bubble(label.." unavailable", 0xFF0000)
+    return
+    end
+  local on = not T.flag(name)
+  T.set_flag(name, on)
+  bubble(label..(on and " ON" or " OFF"), on and 0x00FF00 or 0xFF8000)
+  T.log(label.." "..(on and "on" or "off"))
+  end
+
+-- ---------------------------------------------------------------- go to the surface
+-- One jump to the wilderness. The route is planned here, read-only: follow the game's own
+-- up-staircase links from the current level to the level whose up-staircase leads to the
+-- wilderness (the "exit level": D1 for a plain dungeon, but sub-dungeons are followed too).
+-- Then the ascend command is sent once with the surface hooks on; see "Surface jump" above.
+-- Nothing on the way is visited, and blocking monsters or burden don't stop it.
+
+local JUMP_TIMEOUT_MS = 1500  -- idle this long after the jump without a level change = refused
+local MAX_LINKS = 100
+
+local function on_surface()
+  return Global.special_level == speciallevelids.WILDERNESS
+  end
+
+local function level_key()
+  return tostring(Global.dungeon_level_shortcut)..":"..tostring(Global.dungeon_level)
+  end
+
+-- The game's level data, indexed by dungeon*100+level: stair links (per up-staircase index,
+-- the destination dungeon and level, -1 where there is no such staircase) and level types
+-- (the same numbers as speciallevelids).
+local STAIRS_UP_DUNGEON, STAIRS_UP_LEVEL = va(0xACED20), va(0xBC7D80)
+local LEVEL_INFO, LEVEL_INFO_SIZE = va(0xCCB068), 128
+local CUR_DUNGEON, CUR_LEVEL = va(0x8DCC5C), va(0x8DCC5E)
+
+local function level_type(d, l)
+  return ffi.cast("int32_t*", LEVEL_INFO + (d * 100 + l) * LEVEL_INFO_SIZE)[0]
+  end
+
+local function up_link(d, l)
+  for stair = 0, 1 do
+    local i = (d * 100 + l) * 100 + stair
+    local td = ffi.cast("int16_t*", STAIRS_UP_DUNGEON)[i]
+    local tl = ffi.cast("int16_t*", STAIRS_UP_LEVEL)[i]
+    if td >= 0 and tl >= 0 then return td, tl, stair end
+    end
+  end
+
+-- -> exit dungeon, exit level, stair index  or  nil, reason
+local function plan_exit()
+  local d = ffi.cast("int16_t*", CUR_DUNGEON)[0]
+  local l = ffi.cast("int16_t*", CUR_LEVEL)[0]
+  local seen = {}
+  for _ = 1, MAX_LINKS do
+    local td, tl, stair = up_link(d, l)
+    if not td then return nil, string.format("no way up from %d/%d", d, l) end
+    if level_type(td, tl) == speciallevelids.WILDERNESS then return d, l, stair end
+    local key = d * 100 + l
+    if seen[key] then return nil, "the stairs up here lead in a circle" end
+    seen[key] = true
+    d, l = td, tl
+    end
+  return nil, "no exit found"
+  end
+
+local function jump_finish(text, color)
+  T.set_flag("surface", false)
+  T.log("surface: "..text)
+  T.jump = nil
+  bubble(text, color)
+  end
+
+function T.start_climb()
+  if not T.cave then bubble("Surface unavailable", 0xFF0000) return end
+  if T.jump then return end
+  if on_surface() then bubble("Already on the surface", 0xFFFFFF) return end
+  local d, l, stair = plan_exit()
+  if not d then
+    T.log("surface: not possible from "..level_key()..": "..l)
+    bubble("Can't reach the surface from here", 0xFF8000)
+    return
+    end
+  local cave = u8(T.cave)
+  cave[JUMP.stair] = stair
+  cave[JUMP.volcano] = ((d == 0xF or d == 0x23) and l == 5) and 1 or 0
+  ffi.cast("int16_t*", T.cave + JUMP.dungeon)[0] = d
+  ffi.cast("int16_t*", T.cave + JUMP.level)[0] = l
+  ffi.cast("int32_t*", T.cave + JUMP.level_type)[0] = level_type(d, l)
+  T.log(string.format("surface: jumping from %s via exit level %d/%d (type %d, stair %d)",
+    level_key(), d, l, level_type(d, l), stair))
+  T.jump = {from = level_key(), sent_at = getticks()}
+  T.set_flag("surface", true)
+  post_game_command(gamecommandids.GC_ASCEND, -1, -1)
+  end
+
+function T.climb_tick()
+  local j = T.jump
+  if not j or not idle() then return end
+  if level_key() == j.from then
+    if getticks() - j.sent_at < JUMP_TIMEOUT_MS then return end
+    return jump_finish("The game refused the jump", 0xFF8000)
+    end
+  if on_surface() then return jump_finish("Surface!", 0x00FF00) end
+  jump_finish("Jumped, but not to the surface ("..level_key()..")", 0xFF8000)
+  end
+
+-- ---------------------------------------------------------------- keys and frame hook
+
+local key_actions = {
+  god     = function() T.toggle("god") end,
+  hit     = function() T.toggle("hit") end,
+  miss    = function() T.toggle("miss") end,
+  heal    = function() T.request("heal") end,
+  xp      = function() T.request("xp") end,
+  cure    = function() T.request("cure") end,
+  status  = function() T.request("status") end,
+  surface = function() T.start_climb() end,
+  }
+
+-- "ctrl+F9" matches Ctrl+F9 only: no Shift, no Alt. Raw modifier bits, so Caps Lock (which
+-- NotEye's modshiftpressed counts as Shift) doesn't change which key is which.
+local MOD_MASKS = {
+  ctrl  = KMOD.LCTRL + KMOD.RCTRL,
+  shift = KMOD.LSHIFT + KMOD.RSHIFT,
+  alt   = KMOD.LALT + KMOD.RALT,
+  }
+
+local function key_matches(ev, keyname)
+  local want, base = {}, keyname
+  while true do
+    local m, rest = base:match("^(%a+)%+(.+)$")
+    if not (m and MOD_MASKS[m:lower()]) then break end
+    want[m:lower()], base = true, rest
+    end
+  local k = rawget(KEYS, base)
+  if not (k and ev.scancode == k.scancode) then return false end
+  for name, mask in pairs(MOD_MASKS) do
+    if (bAND(ev.mod or 0, mask) > 0) ~= (want[name] or false) then return false end
+    end
+  return true
+  end
+
+function T.on_key(ev)
+  if ev.type ~= evKeyDown then return false end
+  for name, keyname in pairs(adomtrainer_keys) do
+    if key_matches(ev, keyname) then
+      if in_game() then key_actions[name]() end
+      return true
+      end
+    end
+  return false
+  end
+
+function T.tick()
+  if next(T.pending) and idle() then T.flush() end
+  if T.jump then T.climb_tick() end
+  end
+
+-- ---------------------------------------------------------------- lag probe
+-- Diagnostics for stutter: writes to adomtrainer/lag.log only when something is slow.
+--   render   one NotEye frame took long to draw (UI thread)
+--   gap      no frame at all for a while (UI thread blocked outside drawing)
+--   turn     the game took long between accepting a command and asking for the next one
+--            (game thread; also counts animations and --more-- prompts, see the last message)
+
+adomtrainer_lagprobe = false  -- set to true to log stalls to adomtrainer/lag.log
+local LAG = {render = 100, gap = 250, turn = 400}  -- thresholds in ms
+
+T.probe = T.probe or {last_msg = ""}
+
+local function lag_log(kind, ms, extra)
+  local f = io.open(T.dir.."lag.log", "a")
+  if f then
+    f:write(string.format("%s %-6s %5d ms  %s\n", os.date("%H:%M:%S"), kind, ms, extra or ""))
+    f:close()
+    end
+  end
+
+function T.probe_frame(t0, t1)
+  local P = T.probe
+  if t1 - t0 >= LAG.render then lag_log("render", t1 - t0) end
+  if P.last_frame and t0 - P.last_frame >= LAG.gap then lag_log("gap", t0 - P.last_frame) end
+  P.last_frame = t1
+  local waiting = idle() and true or false
+  if in_game() then
+    if not waiting and P.waiting then P.busy_since = t1 end
+    if waiting and not P.waiting and P.busy_since and t1 - P.busy_since >= LAG.turn then
+      lag_log("turn", t1 - P.busy_since, "last msg: "..P.last_msg)
+      end
+    end
+  P.waiting = waiting
+  end
+
+if not T.hooked then
+  T.hooked = true
+
+  local frame = evhandlers[0]
+  evhandlers[0] = function(ev)
+    local t0 = getticks()
+    local r = frame(ev)
+    if adomtrainer_lagprobe and T.probe_frame then pcall(T.probe_frame, t0, getticks()) end
+    if T.tick then pcall(T.tick) end
+    return r
+    end
+
+  local lhandle_game_event = handle_game_event
+  function handle_game_event(ev)
+    if ev.game_event_id == gameeventids.GE_MESSAGE_LINE_UPDATED and ev.line and T.probe then
+      T.probe.last_msg = ev.line
+      end
+    return lhandle_game_event(ev)
+    end
+
+  -- Loaded after the bot (see install.ps1), so this handler sees keys first: the bot's F12
+  -- check ignores Ctrl and would otherwise also react to Ctrl+F12.
+  local lhandlespecialkeys = handlespecialkeys
+  function handlespecialkeys(ev)
+    if T.on_key then
+      local ok, used = pcall(T.on_key, ev)
+      if ok and used then return true end
+      end
+    return lhandlespecialkeys(ev)
+    end
+  end
+
+local ok, err = pcall(install_hooks)
+if not ok then T.log("hook install error: "..tostring(err)) end
+T.log("trainer loaded")

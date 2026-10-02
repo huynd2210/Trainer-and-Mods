@@ -9,6 +9,7 @@ Generated 2026-09-02.
 
 | Game | Mods / trainers | dist | src | Source location |
 |---|---|---|---|---|
+| ADOM | ADOM Bot — grinding bot inside the game's NotEye Lua layer: fights safe monsters, flees dangerous ones, eats/prays, loots, and walks to Terinyo to buy food / sell loot (Lua `.noe`; no loader, NotEye ships with the game) | 2 zips (mod + source) | yes | `C:\Games\Trainers and Mods\ADOM Bot` |
 | Battle Brothers | custom_enemy, custom_events, kill_tracker (Squirrel `.nut`) | 3 zips | yes | `Battle Brothers\_modsrc\{custom_enemy,custom_events_build,build}` |
 | Breachway | BreachwayTrainer v1.4.5 | 1 zip (built here) | **trainer source missing** — only `save_editor.py` | `Breachway\BepInEx\plugins` |
 | CULTIC | GodMode, KillTracker, LighterBrighter, Minimap, Replay, SuperHot, Hotkey Trainer | 14 zips | yes | `CULTIC.v2026.01.10\CULTIC\*Source` |
@@ -20,10 +21,10 @@ Generated 2026-09-02.
 | Die For The Lich | Meta-Progression mod (Godot) | source zip + BUILD-NOTE | yes | `Die.For.The.Lich\game\forward_plus\meta_progression_mod` |
 | Disfigure | DisfigureTrainer | 1 zip (built here) | yes | `Disfigure\DisfigureTrainer` |
 | He is Coming | HicDraft | 2 zips | yes | `He.is.Coming.v0.9.22\moddev` |
-| Laysara: Summit Kingdom | Extra Income — configurable monthly income per map, shown as its own row in the income breakdown (UE4SS, Lua) | 2 zips (mod + source) | yes | `C:\Games\Trainers and Mods\Laysara Extra Income` |
+| Laysara: Summit Kingdom | Extra Income — configurable monthly income per map, shown as its own row in the income breakdown (UE4SS, Lua) | 2 zips (mod + source) | yes | `steamapps\common\Laysara Summit Kingdom\mods\ExtraIncome` |
 | MENACE | MenaceTrainer | 1 zip (built here) | yes | `C:\Games\MenaceTrainer` (standalone folder) |
 | Magical Princess | MagicalPrincessTrainer v1.1.0 | 2 zips | yes | `Magical Princess\MagicalPrincessTrainer` |
-| Nuclear Option | KillCostTracker, AMRAAM (AIM-120 missile, lofted ARH) | 3 zips (KillCostTracker; AMRAAM mod + source) | yes | `Nuclear.Option.v0.33.4\game\ModSource\{KillCostTracker,AMRAAM}` |
+| Nuclear Option | KillCostTracker, AMRAAM (AIM-120 missile, lofted ARH), Auto-missile Defense (auto-fires IR missile at incoming radar missiles) | 5 zips (KillCostTracker; AMRAAM and AutoMissileDefense, mod + source each) | yes | `Nuclear.Option.v0.33.4\game\ModSource\{KillCostTracker,AMRAAM,AutoMissileDefense}` |
 | Night Shippers | NightShippersTrainer (UE4SS, Lua) | 2 zips (built here) | yes | `C:\Users\Admin\Documents\NightShippersTrainer` (standalone folder) |
 | PEAK | JetpackInfiniteFuel | 1 zip (built here) | yes | `PEAK.v2.02.a_LinkNeverDie.Com\Mods\JetpackInfiniteFuel` |
 | Quasimorph | KillTracker, MapReveal, OperatorBoost, Spawner, WarpDrive | 11 zips | yes | `Quasimorph.v1.0\Quasimorph\ModSource` |
@@ -32,6 +33,7 @@ Generated 2026-09-02.
 | Sir We Have an Orc Problem | Godot trainer (`trainer.gd` + pck inject tooling) | 1 zip (built here) | yes | `Sir.We.Have.an.Orc.Problem\mod` |
 | Skull Horde | Skull Horde Trainer (external save editor) | 1 zip (built here) | yes | `Skull Horde\SkullHordeTrainer` |
 | Starless Abyss | StarlessCheats, StarlessBestiary, StarlessShips, StarlessSpeed | 4 zips (built here) | **source missing** | `Starless.Abyss.v1.011\...\BepInEx\plugins` |
+| Tales of Maj'Eyal | ToME Trainer — F9 heal to full, F10 toggle fatal hit leaves 1 HP, F11 +1000 EXP, F12 toggle never miss (native ToME addon `.teaa`, Lua; no loader needed) | 2 zips (mod + source) | yes | `C:\Games\Trainers and Mods\ToME Trainer` |
 | The Last Spell | TLSTrainer, TLSKillTracker | 2 zips (built here) | yes | `The.Last.Spell.v1.3.32.10\_trainer_dev` |
 | War on the Sea | Cheat Pack: WoTSTrainer, WoTSAceAviators, WoTSMoreTargets, WoTSFireControl | 2 zips (mod + source) | yes | `War.on.the.Sea.v1.09a\wots-{trainer,aceaviators,moretargets,firecontrol}` |
 
@@ -131,6 +133,7 @@ Judgment call:
   outside `C:\Games` and is not here. Not flown in a live mission yet; see its README.
   The Kill and Cost Tracker zip here is **1.4.0**. 1.5.0 is installed in the game but
   was never repackaged.
+- **Nuclear Option Auto-missile Defense** (added 2026-09-29): `dist\` has `AutoMissileDefense.zip` and `AutoMissileDefense-Source.zip`. `AutoMissileDefense-Pack.zip` (BepInEx 5 + mod, 0.6 MB) is built in the workspace `ModSource\AutoMissileDefenseelease\` and not published. Source leaves out `bin`, `obj` and `build.log`.
 - Build output (`bin`, `obj`, `__pycache__`, `.venv`, `.git`) was excluded from every
   copied source tree, as were redistributed Unity/BepInEx assemblies.
 - **Laysara Extra Income** (added 2026-09-27) is UE4SS on UE 4.27, published in the

@@ -1,0 +1,11 @@
+Auto-missile Defense (Nuclear Option 0.33.4) - self-contained pack
+==================================================================
+Contains BepInEx 5 (x64, Mono) and the Auto-missile Defense plugin.
+
+1. Extract this zip into the game folder (the one with NuclearOption.exe).
+   Overwrite if asked.
+2. Start the game once. In an aircraft carrying an IR missile (e.g. MMR-S3),
+   press F8 to toggle defense.
+   See BepInEx\plugins\AutoMissileDefense\README.md.
+
+Uninstall: delete BepInEx\plugins\AutoMissileDefense.

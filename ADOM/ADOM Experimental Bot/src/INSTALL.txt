@@ -1,0 +1,13 @@
+ADOM Bot - install
+
+1. Extract this zip anywhere (for example your Desktop).
+2. Right-click install.ps1 > Run with PowerShell.
+   (If ADOM is not in the default Steam folder:
+    powershell -ExecutionPolicy Bypass -File install.ps1 -GameDir "D:\path\to\ADOM")
+3. Start ADOM, load a character, stand in a dungeon (or on a dungeon entrance), press F12.
+
+F12 starts/stops the bot. Shift+F12 reloads its settings (ADOM\games\adom-bot-config.noe).
+If it pauses, the reason is in ADOM\adombot\ALERT.txt.
+
+Uninstall: powershell -ExecutionPolicy Bypass -File install.ps1 -Uninstall
+A Steam update or "Verify integrity of game files" removes the bot's hook; run install.ps1 again.
