@@ -1,5 +1,0 @@
-System.NullReferenceException: Object reference not set to an instance of an object
-  at TMPro.TMP_Dropdown.AlphaFadeList (System.Single duration, System.Single start, System.Single end) [0x00048] in <8a601e457e844d9da9c9ebdd81459b86>:0 
-  at TMPro.TMP_Dropdown.Show () [0x005b8] in <8a601e457e844d9da9c9ebdd81459b86>:0 
-  at NuclearOptionAMRAAM.MenuSmokeCapture.Render (System.String output, System.Text.StringBuilder report) [0x0028f] in <b9c0feb4b5ea4529bc27c28128a2a613>:0 
-  at NuclearOptionAMRAAM.SmokeCheck.Postfix () [0x00531] in <b9c0feb4b5ea4529bc27c28128a2a613>:0 

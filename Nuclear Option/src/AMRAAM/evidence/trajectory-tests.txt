@@ -1,6 +1,0 @@
-5 km: max altitude 1000 m, elapsed 10.7 s, closest approach 58.1 m; DIRECT
-20 km: max altitude 1000 m, elapsed 26.1 s, closest approach 51.3 m; DIRECT
-25 km: max altitude 2014 m, elapsed 30.4 s, closest approach 53.4 m; LOFT
-60 km: max altitude 9586 m, elapsed 62.6 s, closest approach 53.4 m; LOFT
-140 km: max altitude 18919 m, elapsed 132.7 s, closest approach 61.0 m; LOFT
-PASS: 46 assertions. Kinematic guidance check only; live game aerodynamics require gameplay testing.

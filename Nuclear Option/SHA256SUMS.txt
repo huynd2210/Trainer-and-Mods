@@ -1,0 +1,3 @@
+9256bb44fb79c5c0671ec8507ee69f4b8d0759d2ea64c6a40982a0726274dc1f  AutoMissileDefense-1.0.1-NO0.34.1-Dist.zip
+9bd7348b546d19bd811a736eebe14e3cc224779095be68fb63b162fa6b0b9ccc  AutoMissileDefense-1.0.1-NO0.34.1-Mod.zip
+5380b15338f2b15344ca3a3d2d45cfa11f1b42cd93389b4aecaca0b71e0aa96c  AutoMissileDefense-1.0.1-NO0.34.1-Source.zip
