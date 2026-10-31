@@ -1,0 +1,29 @@
+Theater Command v1.0.0 - Self-Contained Pack
+============================================
+This pack bundles BepInEx 5.4.23.2 (x64) plus the Theater Command plugin, so
+no separate BepInEx install is needed. It targets Regiments v1.5.0 (Mono x64).
+
+INSTALL
+-------
+1. Extract this zip INTO the game folder (the folder that contains
+   Regiments.exe). It drops winhttp.dll, doorstop_config.ini and a
+   BepInEx\ folder next to the executable.
+2. Launch Regiments.exe > War Paths > pick an empty slot > set Mode to
+   "Theater Command" > Accept. The theater map opens.
+
+Controls and rules are in README.txt (in the mod-only zip) and on the
+strip at the bottom of the map: rest on a unit to see its platoons, drag
+units to move and attack, double-click one to reinforce it, right-click to
+refit, Enter for the next turn, click a battle to fight or auto-resolve.
+
+REMOVE
+------
+Delete winhttp.dll, doorstop_config.ini, .doorstop_version, changelog.txt
+and the BepInEx\ folder. Theater campaigns are kept in
+TheaterCommand_<slot>.json in the game's save folder; delete those too if
+you want them gone.
+
+NOTES
+-----
+- First launch with BepInEx takes a few seconds longer. The log is at
+  BepInEx\LogOutput.log; look for "Theater Command" ... "patched".

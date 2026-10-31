@@ -1,0 +1,54 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <LangVersion>7.3</LangVersion>
+    <AssemblyName>KillTracker</AssemblyName>
+    <RootNamespace>KillTracker</RootNamespace>
+    <Nullable>disable</Nullable>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    <Version>1.0.0</Version>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <OutputPath>..\out\</OutputPath>
+    <EnableDefaultItems>true</EnableDefaultItems>
+  </PropertyGroup>
+
+  <!-- Provides .NET Framework 4.7.2 reference assemblies so the .NET 8 SDK can compile net472 -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies.net472" Version="1.0.3" PrivateAssets="all" />
+  </ItemGroup>
+
+  <!-- Game assemblies (Unity 2021.3 Mono) -->
+  <ItemGroup>
+    <Reference Include="MainAssembly">
+      <HintPath>..\..\..\game\Regiments_Data\Managed\MainAssembly.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <!-- GameTime derives from an Odin SerializedMonoBehaviour -->
+    <Reference Include="Sirenix.Serialization">
+      <HintPath>..\..\..\game\Regiments_Data\Managed\Sirenix.Serialization.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>..\..\..\game\Regiments_Data\Managed\UnityEngine.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>..\..\..\game\Regiments_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <!-- BepInEx 5 runtime -->
+  <ItemGroup>
+    <Reference Include="BepInEx">
+      <HintPath>..\..\tools\bepinex\BepInEx\core\BepInEx.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="0Harmony">
+      <HintPath>..\..\tools\bepinex\BepInEx\core\0Harmony.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+</Project>

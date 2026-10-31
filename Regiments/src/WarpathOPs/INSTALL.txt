@@ -1,0 +1,30 @@
+﻿Warpath OPs v1.1.0 - Self-Contained Pack
+========================================
+This pack bundles BepInEx 5.4.23.2 (x64) plus the WarpathOPs plugin, so no
+separate BepInEx install is needed. It targets Regiments v1.5.0 (Mono x64).
+
+INSTALL
+-------
+1. Extract this zip INTO the game folder (the folder that contains
+   Regiments.exe). It drops winhttp.dll, doorstop_config.ini and a
+   BepInEx\ folder next to the executable.
+2. Launch Regiments.exe and start or continue a Warpath run. Open the
+   regiment manager between battles: the OP counter shows 99999.
+
+CONFIG
+------
+BepInEx\config\com.regiments.warpathops.cfg (created on first launch):
+  Enabled      = true     turn the mod off without uninstalling
+  TargetOPs    = 99999    the amount you are held at (max 99999)
+  AlsoCampaign = false    also apply to the regular scripted campaigns
+
+REMOVE
+------
+Delete winhttp.dll, doorstop_config.ini, .doorstop_version, changelog.txt
+and the BepInEx\ folder. Nothing existing is touched.
+
+NOTES
+-----
+- First launch with BepInEx takes a few seconds longer. The log is at
+  BepInEx\LogOutput.log; look for "Warpath OPs 1.1.0 loaded".
+- Player-side only; the enemy is unaffected.

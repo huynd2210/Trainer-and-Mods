@@ -1,0 +1,32 @@
+Kill Tracker v1.0.0 - Self-Contained Pack
+=========================================
+This pack bundles BepInEx 5.4.23.2 (x64) plus the KillTracker plugin, so no
+separate BepInEx install is needed. It targets Regiments v1.5.0 (Mono x64).
+
+INSTALL
+-------
+1. Extract this zip INTO the game folder (the folder that contains
+   Regiments.exe). It drops winhttp.dll, doorstop_config.ini and a
+   BepInEx\ folder next to the executable.
+2. Launch Regiments.exe and play a battle. A text file appears in the
+   KillTracker folder next to Regiments.exe as soon as the first unit dies,
+   and gets a summary when the battle ends.
+
+CONFIG
+------
+BepInEx\config\com.regiments.killtracker.cfg (created on first launch):
+  Enabled = true          turn logging off without uninstalling
+  Folder  = KillTracker   where the files go (relative to the game folder,
+                          or a full path)
+
+REMOVE
+------
+Delete winhttp.dll, doorstop_config.ini, .doorstop_version, changelog.txt
+and the BepInEx\ folder. The KillTracker folder holds only your battle logs;
+delete it too if you don't want them.
+
+NOTES
+-----
+- First launch with BepInEx takes a few seconds longer. The log is at
+  BepInEx\LogOutput.log; look for "Kill Tracker 1.0.0 loaded".
+- Only your own units are tracked; allied AI commanders are left out.

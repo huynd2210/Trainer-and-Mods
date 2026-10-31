@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- .NET Framework, like the game's Mono runtime, so the real game assembly loads and Harmony
+       can patch it for real. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net472</TargetFramework>
+    <LangVersion>7.3</LangVersion>
+    <PlatformTarget>x64</PlatformTarget>
+    <AssemblyName>VerifyKillTracker</AssemblyName>
+    <RootNamespace>VerifyKillTracker</RootNamespace>
+    <Nullable>disable</Nullable>
+    <EnableDefaultItems>true</EnableDefaultItems>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies.net472" Version="1.0.3" PrivateAssets="all" />
+  </ItemGroup>
+
+  <!-- Resolved at run time from the game and BepInEx folders (see Program.Resolve), not copied. -->
+  <ItemGroup>
+    <Reference Include="KillTracker"><HintPath>..\out\KillTracker.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="MainAssembly"><HintPath>..\..\..\game\Regiments_Data\Managed\MainAssembly.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Sirenix.Serialization"><HintPath>..\..\..\game\Regiments_Data\Managed\Sirenix.Serialization.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="UnityEngine"><HintPath>..\..\..\game\Regiments_Data\Managed\UnityEngine.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="UnityEngine.CoreModule"><HintPath>..\..\..\game\Regiments_Data\Managed\UnityEngine.CoreModule.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="BepInEx"><HintPath>..\..\tools\bepinex\BepInEx\core\BepInEx.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="0Harmony"><HintPath>..\..\tools\bepinex\BepInEx\core\0Harmony.dll</HintPath><Private>false</Private></Reference>
+  </ItemGroup>
+
+</Project>

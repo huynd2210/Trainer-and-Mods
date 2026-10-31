@@ -28,6 +28,7 @@ Generated 2026-09-02.
 | Night Shippers | NightShippersTrainer (UE4SS, Lua) | 2 zips (built here) | yes | `C:\Users\Admin\Documents\NightShippersTrainer` (standalone folder) |
 | PEAK | JetpackInfiniteFuel | 1 zip (built here) | yes | `PEAK.v2.02.a_LinkNeverDie.Com\Mods\JetpackInfiniteFuel` |
 | Quasimorph | KillTracker, MapReveal, OperatorBoost, Spawner, WarpDrive | 11 zips | yes | `Quasimorph.v1.0\Quasimorph\ModSource` |
+| Regiments | Theater Command 1.0.0 (WARNO Army General-style theater campaign inside War Paths: grid map, NATO counters, drag to move/attack, battles fought as Regiments battles or auto-resolved), Warpath OPs 1.1.0 (Operational Authority held at 99,999), Kill Tracker 1.0.0 (a .txt per battle of your kills and losses, soldiers credited to the platoon that fired, summary by type and platoon; allies left out) | 6 zips (mod + source each) | yes | `C:\Games\Regiments.v1.5.0\mod\{theater-command,regiments-warpathops,kill-tracker}` |
 | ReStory: Chill Electronics Repairs | MoreMoney (F8 adds yen to wallet) | 2 zips (mod + source) | yes | `ReStory.Chill.Electronics.Repairs\MoreMoney` |
 | Rift Wizard 3 | 10 Python mods (already present) | source *is* the distribution | yes | `Rift.Wizard.3\game\mods` |
 | Sir We Have an Orc Problem | Godot trainer (`trainer.gd` + pck inject tooling) | 1 zip (built here) | yes | `Sir.We.Have.an.Orc.Problem\mod` |
@@ -147,3 +148,4 @@ Judgment call:
   Worth knowing for this one: the game is UE 5.5 and the *tagged* UE4SS releases
   predate 5.5 and silently fail to load - only experimental/CI builds work, so
   "go download UE4SS" is not sufficient advice here.
+- **Regiments** (added 2026-10-30): `Regiments\dist\` has `TheaterCommand.zip`, `WarpathOPs.zip` and their `-Source.zip`; `src\` has both workspaces unzipped. The `-Pack` zips (BepInEx 5.4.23.2 + mod) are built in each workspace's `release\` and not published; `dist\LOADER-NOT-BUNDLED.md` says how to rebuild them. Theater Command was run in the game through moves, auto-resolve and two fought battles; heavy-casualty and defence battles are not yet seen in the game. Kill Tracker added 2026-10-31 (`dist\KillTracker.zip` + `-Source.zip`, `src\KillTracker\`); one War Path battle played, per-platoon vehicle kills and losses matched the game's save exactly.
