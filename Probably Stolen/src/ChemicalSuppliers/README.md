@@ -18,12 +18,21 @@ Two new sellers for the drug lab.
   so the supply boxes stay the cheaper route. Change it (50% to 500%) under **Chemical
   Merchant reagent price** in this mod's settings in the Mods menu; starch isn't affected.
 
-  They only come when called: press **F8** (Extra Customer) and pick them under
-  *Substances and chemicals*.
+  They only come when called (see *Calling them* below).
 - **Shady Mushroom Seller** — a big lot at a 15–25% wholesale discount: 6–10 Dream Caps,
   sometimes a couple of large ones, and 3–6 Nightmare Caps. They walk in on their own on
   20% of days (change it, 0 to 100, in this mod's settings in the Mods menu; 0 = only when
-  called), after the intro days, and can also be called from Extra Customer's F8 list.
+  called), after the intro days, and can be called any time.
+
+## Calling them
+
+The mod checks at startup whether **Extra Customer** is running and picks one key:
+
+- **With Extra Customer:** press **F8** while the shop is open; both sellers are in its
+  list under *Substances and chemicals*. This mod adds no key of its own.
+- **Without it:** **F7** calls the Chemical Merchant and **Shift+F7** the Shady Mushroom
+  Seller. A chime means the seller joined the end of today's queue; a two-beep sound means
+  the shop isn't open. Rebind under **Options > Keybinds > Call a chemical supplier**.
 
 Both are black-market customers. Everything they sell is a normal game item, so saves stay
 fine if you remove the mod.
@@ -33,6 +42,6 @@ fine if you remove the mod.
 1. Extract the zip into the game folder (the one with `Probably Stolen.exe`), so you get
    `Mods\ChemicalSuppliers\ChemicalSuppliers.dll` and `manifest.xml`.
 2. Start the game, open **Mods** from the main menu, enable **Chemical Suppliers**, restart.
-3. To call them, also install **Extra Customer** 1.3.0 or newer.
 
-Uses the game's built-in mod loader; nothing else is needed. Made for v0.46D.
+Uses the game's built-in mod loader and needs no other mod; Extra Customer is optional.
+Made for v0.46D.

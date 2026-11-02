@@ -3,8 +3,11 @@
   <ID>NoRentIncrease</ID>
   <Name>No Rent Increase</Name>
   <Author>NyanDoggo</Author>
-  <ModVersion>1.0.0</ModVersion>
+  <ModVersion>1.0.1</ModVersion>
   <Description>The landlord stops raising the rent. Your weekly rent stays at whatever it is when you enable the mod, paid or missed. Rent changes you agree to yourself (vending machine deals, starting perks) still apply.</Description>
+  <GameVersions>
+    <Version>0.46</Version>
+  </GameVersions>
   <Assemblies>
     <Assembly>NoRentIncrease.dll</Assembly>
   </Assemblies>

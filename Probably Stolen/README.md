@@ -10,7 +10,8 @@ Ten mods by NyanDoggo for the game's built-in mod loader (no BepInEx needed). Ma
   firearms, contraband, specialists...); click one to put them at the end of today's queue. Shift+F8 adds a
   random customer. Rebind in Options > Keybinds. Every morning it also adds extra
   customers on top of the normal ones: 1 by default, 0 to 10 in the mod's settings.
-  With Chemical Suppliers installed, its two sellers are in the F8 list too.
+  With Chemical Suppliers installed, its two sellers are in the F8 list too, and that mod
+  then adds no key of its own.
 - **Fraud Detection**: hovering an item shows what it really is when its label lies
   (counterfeit cigarettes, stamps and injectors, impure water and chemicals, worn or
   expired goods...) and the real value change. The inspection screen opens with the
@@ -27,12 +28,13 @@ Ten mods by NyanDoggo for the game's built-in mod loader (no BepInEx needed). Ma
   still take only their own goods, and a bay can't go inside itself. Take nested bays out
   before disabling the mod.
 - **Chemical Suppliers**: two new sellers for the drug lab. The **Chemical Merchant**
-  (call with Extra Customer's F8) sells alcohol, reducing agent, pure N-Methylol Base for
+  sells alcohol, reducing agent, pure N-Methylol Base for
   Phanta (no stabilizer, so no acid step) and cheap 2 L starch bottles for cutting a batch;
   the reagents cost 2x base price by default (50-500% in its settings). The **Shady
-  Mushroom Seller** sells a wholesale lot of Dream Caps and Nightmare Caps, walks in on 20%
-  of days (0-100 in its settings) and can also be called from F8. Only vanilla items, so
-  saves are fine without the mod.
+  Mushroom Seller** sells a wholesale lot of Dream Caps and Nightmare Caps and walks in on
+  20% of days (0-100 in its settings). Call either one: it detects Extra Customer at
+  startup and uses its F8 list when it's running; otherwise F7 calls the merchant and
+  Shift+F7 the mushroom seller. Only vanilla items, so saves are fine without the mod.
 - **Instant Evaporator**: the Evaporator does a whole night's work every second (about
   300 ml), at the same Energy Cell power per litre. Distillate and the Solvent Recovery
   Module work as before.
@@ -42,9 +44,11 @@ Ten mods by NyanDoggo for the game's built-in mod loader (no BepInEx needed). Ma
 
 ## Install
 
-Extract `dist\<Mod>.zip` into the game folder (next to `Probably Stolen.exe`). It
-creates `Mods\<Mod>\`. Start the game, open **Mods** on the main menu, enable the mod,
-and restart.
+Every mod stands alone: install any one, or any mix, with nothing else needed (no other
+mod, no BepInEx). Extract `dist\<Mod>.zip` into the game folder (next to
+`Probably Stolen.exe`). It creates `Mods\<Mod>\`. Start the game, open **Mods** on the
+main menu, enable the mod, and restart. Each mod is tagged for game version 0.46, so the
+Mods menu flags it if your game is a different version.
 
 ## Build
 

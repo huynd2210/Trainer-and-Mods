@@ -3,8 +3,11 @@
   <ID>PreciseTemperature</ID>
   <Name>Precise Temperature Control</Name>
   <Author>NyanDoggo</Author>
-  <ModVersion>1.0.0</ModVersion>
+  <ModVersion>1.0.1</ModVersion>
   <Description>Set the Heating Plate's target temperature to the exact degree, with or without Chemical Equipment Modules: -/+ change it by 1 °C, Shift-click by 10 °C. The plate heats up to the target, stops there and holds it exactly. Max temperature (99 °C without modules, 160 °C with) and heating speed still depend on the modules.</Description>
+  <GameVersions>
+    <Version>0.46</Version>
+  </GameVersions>
   <Assemblies>
     <Assembly>PreciseTemperature.dll</Assembly>
   </Assemblies>
