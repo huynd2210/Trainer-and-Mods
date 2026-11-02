@@ -1,0 +1,28 @@
+Session transport starting on 127.0.0.1:27856
+Authenticated guest Guest
+Remote native actor ready: independent skills=True control=True
+Network movement: host distance=0 guest distance=4.870599 received sequence=139
+Network attacks: host shots=0 guest shots=1
+Network skill use: host=0 guest=1
+Granted all 40 native items to guest; inventory host=0 guest=40
+All-item ownership check passed: host inventory and 16 equipment stats unchanged
+Skill smoke 0: Horn Blast invoked on guest
+Skill smoke 1: Triple Shot invoked on guest
+Skill smoke 2: Multi-Shot invoked on guest
+Skill smoke 3: Arrow Rain invoked on guest
+Skill smoke 4: Molting Escape invoked on guest
+Skill smoke 5: Aimed Shot invoked on guest
+Skill smoke 6: Sniping invoked on guest
+Skill smoke 7: Dragon Arrow invoked on guest
+Skill smoke 8: Lizard-Swampthrow invoked on guest
+Skill smoke 9: Explosive Arrow invoked on guest
+Skill smoke 10: Lizard-Slash invoked on guest
+Skill smoke 11: Lizard-Talisman invoked on guest
+Skill smoke 12: Lizard-Psychokinesis invoked on guest
+Skill smoke 13: Returning Blade invoked on guest
+Skill smoke 14: Flash Bomb invoked on guest
+Skill smoke 15: Buried Bomb invoked on guest
+Skill smoke 16: Powder Keg invoked on guest
+Skill smoke 17: Tiger's Eye invoked on guest
+NATIVE GAMEPLAY CHECKS PASSED: 18 skills invoked; all 40 items isolated; host singleton stable
+HOST INTEGRATION PASSED: authoritative input and 1065 snapshots

@@ -1,0 +1,38 @@
+<Project>
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <!-- Compile against the game's own Mono runtime assemblies instead of a NuGet
+         targeting pack: no network needed, and the API surface is exactly what the
+         game will load at runtime. -->
+    <NoStdLib>true</NoStdLib>
+    <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <EnableDefaultCompileItems>true</EnableDefaultCompileItems>
+    <DebugType>none</DebugType>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    <Deterministic>true</Deterministic>
+    <NoWarn>$(NoWarn);CS0649;CS0169;CS0436</NoWarn>
+
+    <!-- Darkest Dungeon II install (note the (R) in the folder name). Override with -p:GameDir=... -->
+    <GameDir Condition="'$(GameDir)' == ''">C:\Program Files (x86)\Steam\steamapps\common\Darkest Dungeon® II\</GameDir>
+    <ManagedDir>$(GameDir)Darkest Dungeon II_Data\Managed\</ManagedDir>
+
+    <!-- BepInEx 5.4.23.5 x64 extracted into the workspace (never installed into the game by this build). -->
+    <BepInExCoreDir Condition="'$(BepInExCoreDir)' == ''">$(MSBuildThisFileDirectory)..\vendor\BepInEx\BepInEx\core\</BepInExCoreDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Mono BCL, taken from the game install -->
+    <Reference Include="mscorlib"><HintPath>$(ManagedDir)mscorlib.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="System"><HintPath>$(ManagedDir)System.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="System.Core"><HintPath>$(ManagedDir)System.Core.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="netstandard"><HintPath>$(ManagedDir)netstandard.dll</HintPath><Private>false</Private></Reference>
+
+    <!-- BepInEx -->
+    <Reference Include="BepInEx"><HintPath>$(BepInExCoreDir)BepInEx.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="0Harmony"><HintPath>$(BepInExCoreDir)0Harmony.dll</HintPath><Private>false</Private></Reference>
+  </ItemGroup>
+
+</Project>

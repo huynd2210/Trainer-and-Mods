@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Mod>
+  <ID>AutoAppraisal</ID>
+  <Name>Auto Appraisal</Name>
+  <Author>NyanDoggo</Author>
+  <ModVersion>1.1.0</ModVersion>
+  <Description>Appraisal items show their true value when you hover them, and the appraisal box opens with that exact value already in it. You still press Estimate yourself. Pair with Fraud Detection to also catch counterfeits.</Description>
+  <Assemblies>
+    <Assembly>AutoAppraisal.dll</Assembly>
+  </Assemblies>
+  <Capabilities />
+</Mod>

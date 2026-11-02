@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Mod>
+  <ID>RecursiveStorage</ID>
+  <Name>Recursive Storage</Name>
+  <Author>NyanDoggo</Author>
+  <ModVersion>1.0.0</ModVersion>
+  <Description>Storage bays fit inside other storage bays, as deep as you like: a storage bay in a large storage bay, a makeshift bay in a storage bay, and so on. The gunsmith and chemist bays still take only their own goods, and smuggler bays keep their own rules.</Description>
+  <Assemblies>
+    <Assembly>RecursiveStorage.dll</Assembly>
+  </Assemblies>
+  <Capabilities />
+</Mod>

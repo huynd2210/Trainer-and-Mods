@@ -1,0 +1,15 @@
+Session transport starting on 127.0.0.1:27856
+Authenticated guest Guest
+Remote native actor ready: independent skills=True control=True
+Readiness gate verified: starting is blocked before both players ready
+Preparation UI audit passed: 40 native icons/descriptions; actual grid select/deselect; skill choices; ready button
+Separate prepared loadouts equipped: host=0,39 guest=10,20
+Shared transition started; host state=Sleep
+Native transition iterator state=2 result=True
+Native transition iterator state=3 result=True
+Native transition iterator state=-1 result=False
+Transition parents: leader=<root> leaderState=MoveUp
+Shared stage transition completed: generation=2 stage=0 guest inventory=2
+Prepared control states: host=True guest=True
+NATIVE PREPARATION CHECKS PASSED: both ready; separate RPC-selected items and skills equipped; both players controllable
+HOST INTEGRATION PASSED: authoritative input and 198 snapshots

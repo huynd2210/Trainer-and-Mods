@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "C:\Games\Swamp.Keeper.v1.05\game\ModsSource\SwampKeeperCoop\run_pair.py", line 115, in <module>
+    if 'SESSION FAILED' in report or 'INTEGRATION PASSED' not in report:raise RuntimeError(role+' integration failed')
+                                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: host integration failed

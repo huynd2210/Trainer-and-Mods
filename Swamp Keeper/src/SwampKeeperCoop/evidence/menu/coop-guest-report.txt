@@ -1,0 +1,13 @@
+F7 handler opened the co-op menu on the title screen; EventSystem=EventSystem
+Clicked Join in the F7 menu; status: Connecting to host…
+Session transport starting on 127.0.0.1:27856
+Local asset catalog: sprites=6725 materials=50 tilemaps=0
+Guest simulation stopped; authoritative rendering enabled
+Guest received stage=-1 generation=1
+First authoritative snapshot: actors=2 sprites=827
+Clicked item 7 and Ready in the F7 preparation grid
+Guest received stage=0 generation=1
+Guest sees the run started; moving
+GUEST INTEGRATION PASSED: snapshots=159 replicas=792 missing sprites=0
+Guest left the session; restarting to the title screen
+Clicked Quit to title in the guest's co-op menu

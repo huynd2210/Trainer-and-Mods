@@ -1,0 +1,7 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>ChemicalSuppliers</AssemblyName>
+    <RootNamespace>ChemicalSuppliers</RootNamespace>
+    <Version>1.2.0</Version>
+  </PropertyGroup>
+</Project>

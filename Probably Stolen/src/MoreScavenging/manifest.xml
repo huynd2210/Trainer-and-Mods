@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Mod>
+  <ID>MoreScavenging</ID>
+  <Name>More Scavenging</Name>
+  <Author>NyanDoggo</Author>
+  <ModVersion>1.0.0</ModVersion>
+  <Description>Adds extra scavenging attempts at the dumping ground every night: 1000 by default, 0 to 10000 in this mod's settings. By default the injury risk stops climbing after your normal number of attempts, so the extra ones stay usable; turn that off in the settings for the vanilla risk curve.</Description>
+  <Assemblies>
+    <Assembly>MoreScavenging.dll</Assembly>
+  </Assemblies>
+  <Capabilities />
+</Mod>

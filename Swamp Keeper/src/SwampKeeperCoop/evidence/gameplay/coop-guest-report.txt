@@ -1,0 +1,18 @@
+Session transport starting on 127.0.0.1:27856
+Local asset catalog: sprites=6725 materials=50 tilemaps=0
+Guest simulation stopped; authoritative rendering enabled
+Guest received stage=0 generation=1
+First authoritative snapshot: actors=2 sprites=795
+GUEST INTEGRATION PASSED: snapshots=158 replicas=843 missing sprites=0
+Guest imported native sprite 820
+Guest imported native sprite 836
+Guest imported native sprite 838
+Guest imported native sprite 840
+Guest imported native sprite 842
+Guest imported native sprite 844
+Guest imported native sprite 846
+Guest imported native sprite 848
+Guest imported native sprite 850
+Guest imported native sprite 882
+Guest received stage=1 generation=1
+INTEGRATION PASSED: peer exited after verification

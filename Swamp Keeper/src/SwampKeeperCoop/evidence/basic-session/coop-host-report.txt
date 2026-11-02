@@ -1,0 +1,6 @@
+Session transport starting on 127.0.0.1:27856
+Authenticated guest Guest
+Remote native actor ready: independent skills=True control=True
+Network movement: host distance=0 guest distance=4.870599 received sequence=165
+Network attacks: host shots=0 guest shots=1
+HOST INTEGRATION PASSED: authoritative input and 202 snapshots

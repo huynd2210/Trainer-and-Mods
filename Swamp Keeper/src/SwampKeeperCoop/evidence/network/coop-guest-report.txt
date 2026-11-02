@@ -1,0 +1,18 @@
+Session transport starting on 127.0.0.1:27857
+Local asset catalog: sprites=6725 materials=50 tilemaps=0
+Guest simulation stopped; authoritative rendering enabled
+Guest received stage=0 generation=1
+First authoritative snapshot: actors=2 sprites=790
+GUEST INTEGRATION PASSED: snapshots=161 replicas=825 missing sprites=0
+Connection lost (closed); preserving both actors and run progression
+Drop 1 detected by guest
+Rejoin attempt status: Connection lost. Open F7 and join again to resume your run.
+Reconnected: actor inventories and run identity preserved
+Guest resumed run after rejoin 1
+Peer silent for 8 s; closing the dead link
+Connection lost (closed); preserving both actors and run progression
+Drop 2 detected by guest
+Rejoin attempt status: Connection lost. Open F7 and join again to resume your run.
+Reconnected: actor inventories and run identity preserved
+Guest resumed run after rejoin 2
+INTEGRATION PASSED: peer exited after verification

@@ -1,0 +1,25 @@
+Session transport starting on 127.0.0.1:27856
+Authenticated guest Guest
+Remote native actor ready: independent skills=True control=True
+Network movement: host distance=0 guest distance=4.870599 received sequence=122
+Network attacks: host shots=0 guest shots=1
+Co-op actor down: guest; survivor continues
+Single-player death verified: guest down; host survives and native run-ending screen remains hidden
+Shared transition started; host state=Idle
+Native transition iterator state=4 result=True
+Native transition iterator state=5 result=True
+Native transition iterator state=-1 result=False
+Co-op actor revived at next stage: guest
+Transition parents: leader=<root> leaderState=Idle
+Shared stage transition completed: generation=2 stage=1 guest inventory=0
+Stage revival verified: guest alive and independently controllable
+Co-op actor down: host; survivor continues
+Host-only death verified: guest survives
+Co-op actor down: guest; survivor continues
+Both players down; native run-ending sequence started
+NATIVE DEATH CHECKS PASSED: independent deaths, next-stage revival, one native team-wipe screen
+Native run restart requested: quick=False
+Rebuilding both actors after native run restart
+Remote native actor ready: independent skills=True control=True
+NATIVE RESTART CHECK PASSED: new run identity, two living actors, preparation restored
+HOST INTEGRATION PASSED: authoritative input and 486 snapshots

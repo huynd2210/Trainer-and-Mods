@@ -1,0 +1,10 @@
+Session transport starting on 127.0.0.1:27856
+Local asset catalog: sprites=6725 materials=50 tilemaps=0
+Guest simulation stopped; authoritative rendering enabled
+Exercising asset fallback for sprite 1 Enemy_Bowman_Shadow
+Guest received stage=0 generation=1
+First authoritative snapshot: actors=2 sprites=796
+Guest imported native sprite 1
+GUEST INTEGRATION PASSED: snapshots=157 replicas=843 missing sprites=0
+Guest received stage=1 generation=1
+INTEGRATION PASSED: peer exited after verification

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Mod>
+  <ID>LotteryForesight</ID>
+  <Name>Lottery Foresight</Name>
+  <Author>NyanDoggo</Author>
+  <ModVersion>1.0.0</ModVersion>
+  <Description>Know before you buy. Hover a lottery ticket to see the numbers the coming draw will pick and what that ticket wins; hover a scratch ticket to see its prize before you scratch it. Works on tickets on a seller's table too. The weekly draw uses the foreseen numbers (instead of the luck-based re-draws).</Description>
+  <Assemblies>
+    <Assembly>LotteryForesight.dll</Assembly>
+  </Assemblies>
+  <Capabilities />
+</Mod>

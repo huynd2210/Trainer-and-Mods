@@ -1,0 +1,70 @@
+Session transport starting on 127.0.0.1:27856
+Authenticated guest Guest
+Remote native actor ready: independent skills=True control=True
+Network movement: host distance=0 guest distance=4.870599 received sequence=125
+Network attacks: host shots=0 guest shots=1
+All-item network arrows: guest hits +50 host hits +0 host shots +0
+Skill 0 Skill_00_Horn: used=True guest uses +1 charge 2/8 guest hits +6 host hits +0 guest self-effect []
+Skill 1 Skill_01_TripleShot: used=True guest uses +1 charge 2/12 guest hits +14 host hits +0 guest self-effect []
+Skill 2 Skill_02_MultiShot: used=True guest uses +1 charge 2/15 guest hits +3 host hits +0 guest self-effect []
+Transferred missing native sprite 879  704x562 61881 bytes
+Skill 3 Skill_03_ArrowRain: used=True guest uses +1 charge 2/11 guest hits +1 host hits +0 guest self-effect [buff=0.35000002]
+Skill 4 Skill_04_Molting: used=True guest uses +1 charge 0/15 guest hits +1 host hits +0 guest self-effect [buff=0.15000002 dummy=True]
+Transferred missing native sprite 924  354x187 7811 bytes
+Skill 5 Skill_05_AimedShot: used=True guest uses +1 charge 2/12 guest hits +2 host hits +0 guest self-effect []
+Skill 6 Skill_06_Deadeye: used=True guest uses +1 charge 2/16 guest hits +3 host hits +0 guest self-effect [range=16 pen=6 buffStats=0/-0.050000004/5/0/4]
+Skill 7 Skill_07_DragonArrow: used=True guest uses +1 charge 2/15 guest hits +2 host hits +0 guest self-effect [range=11 pen=2 buffStats=0/-0.050000004/0/0/0]
+Transferred missing native sprite 967  704x562 61881 bytes
+Skill 8 Skill_08_SwampArrow: used=True guest uses +1 charge 2/14 guest hits +3 host hits +0 guest self-effect []
+Skill 9 Skill_09_ExplosiveArrow: used=True guest uses +1 charge 2/11 guest hits +3 host hits +0 guest self-effect []
+Skill 10 Skill_10_LizardSlash: used=True guest uses +1 charge 2/8 guest hits +3 host hits +0 guest self-effect []
+Skill 11 Skill_11_LizardTalisman: used=True guest uses +1 charge 0/18 guest hits +3 host hits +0 guest self-effect [noDraw=True noNock=True]
+Skill 12 Skill_12_LizardPsychokinesis: used=True guest uses +1 charge 2/10 guest hits +3 host hits +0 guest self-effect []
+Skill 13 Skill_13_ReturningBlade: used=True guest uses +1 charge 2/11 guest hits +3 host hits +0 guest self-effect []
+Skill 14 Skill_14_FlashThunder: used=True guest uses +1 charge 2/10 guest hits +3 host hits +0 guest self-effect []
+Skill 15 Skill_15_BuriedThunder: used=True guest uses +1 charge 2/12 guest hits +3 host hits +0 guest self-effect []
+Skill 16 Skill_16_PowderKeg: used=True guest uses +1 charge 2/5 guest hits +3 host hits +0 guest self-effect []
+Skill 17 Skill_17_TigerEye: used=True guest uses +1 charge 0/0 guest hits +3 host hits +0 guest self-effect []
+Item 0 Item_00_SecondaryQuiver: identical owner-only effect capacity=11 itemStats=3/0/0/0/0 items=1
+Item 1 Item_01_LargeNock: identical owner-only effect nock=0.120000005 itemStats=3/-0.03/0/0/0 items=2
+Item 2 Item_02_ElasticBowstring: identical owner-only effect range=10 itemStats=3/-0.03/2/0/0 items=3
+Item 3 Item_03_FingerGuard: identical owner-only effect draw=0.29999998 itemStats=3/-0.03/2/-0.05/0 items=4
+Item 4 Item_04_Pyeonjeon: identical owner-only effect pen=2 itemStats=3/-0.03/2/-0.05/1 items=5
+Item 5 Item_05_DoubleFletching: identical owner-only effect minRange=4.5 items=6
+Item 6 Item_06_WoodenClogs: identical owner-only effect items=7
+Item 7 Item_07_Taesahye: identical owner-only effect move=0.1 items=8
+Item 8 Item_08_ScentPouch: identical owner-only effect reload=1.4 items=9
+Item 9 Item_09_LightBodyCharm: identical owner-only effect attackMove=1.3 items=10
+Item 10 Item_10_Ginseng: identical owner-only effect dodgeDist=1.2 items=11
+Item 11 Item_11_SilkClothes: identical owner-only effect items=12
+Item 12 Item_12_StabilizingWeight: identical owner-only effect risk=11 items=13
+Item 13 Item_13_WindTalisman: identical owner-only effect items=14
+Item 14 Item_14_MutatedSwampApple: identical owner-only effect mutated=1 items=15
+Item 15 Item_15_Tailring: identical owner-only effect buff=0.15 items=16
+Item 16 Item_16_TailGuard: identical owner-only effect tailGuard=0.5 items=17
+Item 17 Item_17_IgnitionCompound: identical owner-only effect items=18
+Item 18 Item_18_JadeBell: identical owner-only effect items=19
+Item 19 Item_19_FinalArrowTalisman: identical owner-only effect reload=1.55 autoRetrieve=True items=20
+Item 20 Item_20_FangNecklace: identical owner-only effect items=21
+Item 21 Item_21_ArrowHusk: identical owner-only effect items=22
+Item 22 Item_22_RetrievalCord: identical owner-only effect retrieve=3 items=23
+Item 23 Item_23_TridentArrow: identical owner-only effect trident=True items=24
+Item 24 Item_24_PortableWatchtower: identical owner-only effect items=25
+Item 25 Item_25_ElasticArrow: identical owner-only effect elastic=True items=26
+Item 26 Item_26_Hwacha: identical owner-only effect items=27
+Item 27 Item_27_GhostcallArrow: identical owner-only effect nock=0.07000001 buffStats=0/-0.05/0/0/0 watchtower=True items=28
+Item 28 Item_28_Snare: identical owner-only effect items=29
+Item 29 Item_29_PineTarJar: identical owner-only effect items=30
+Item 30 Item_30_TatteredCloth: identical owner-only effect items=31
+Item 31 Item_31_Spyglass: identical owner-only effect items=32
+Item 32 Item_32_Cornucopia: identical owner-only effect items=33
+Item 33 Item_33_SpiritStone: identical owner-only effect spirit=True items=34
+Item 34 Item_34_TwinshotBow: identical owner-only effect items=35
+Item 35 Item_35_SlayingCharm: identical owner-only effect items=36
+Item 36 Item_36_PowderCharge: identical owner-only effect powder=2 items=37
+Item 37 Item_37_RicochetMail: identical owner-only effect items=38
+Item 38 Item_38_StrawSandal: identical owner-only effect items=39
+Item 39 Item_39_LeatherGlove: identical owner-only effect capacity=12 nock=0.060000006 range=11 draw=0.28 itemStats=4/-0.04/3/-0.07/1 items=40
+All 40 items: owner-only, identical static effects on guest and host; every item sensor rides on its owner
+EFFECT CHECKS PASSED: 40 items owner-only and identical on both actors; item-triggered and all 18 skill effects from guest network input credited to the guest only
+HOST INTEGRATION PASSED: authoritative input and 2096 snapshots

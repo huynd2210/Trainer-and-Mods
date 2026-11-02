@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><TargetFramework>net6.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable><LangVersion>latest</LangVersion><AssemblyName>SwampKeeperCoop</AssemblyName><GameDir>$(MSBuildThisFileDirectory)..\..\coop-investigation\sandbox</GameDir></PropertyGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="UniqueNativeMethods.txt" LogicalName="SwampKeeperCoop.UniqueNativeMethods.txt" />
+    <ProjectReference Include="..\Protocol\Protocol.csproj" />
+    <Reference Include="SwampKeeperMods"><HintPath>$(GameDir)\BepInEx\plugins\SwampKeeperMods\SwampKeeperMods.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="$(GameDir)\BepInEx\core\*.dll" Exclude="$(GameDir)\BepInEx\core\dobby.dll" Private="false" />
+    <Reference Include="$(GameDir)\BepInEx\interop\*.dll" Private="false" />
+  </ItemGroup>
+  <Target Name="Deploy" AfterTargets="Build"><Copy SourceFiles="$(TargetPath);$(TargetDir)SwampKeeperCoop.Protocol.dll" DestinationFolder="$(GameDir)\BepInEx\plugins\SwampKeeperCoop" /></Target>
+</Project>

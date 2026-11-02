@@ -1,0 +1,18 @@
+F7 handler opened the co-op menu on the title screen; EventSystem=EventSystem
+Clicked Host in the F7 menu; status: Hosting on TCP 27856. Waiting for a guest…
+Session transport starting on 0.0.0.0:27856
+Authenticated guest Guest
+Remote native actor ready: independent skills=True control=True
+Clicked item 3 and Ready in the F7 preparation grid
+Separate prepared loadouts equipped: host=3 guest=7
+Shared transition started; host state=Ladder
+Native transition iterator state=1 result=True
+Native transition iterator state=2 result=True
+Native transition iterator state=3 result=True
+Native transition iterator state=-1 result=False
+Transition parents: leader=<root> leaderState=MoveUp
+Shared stage transition completed: generation=2 stage=0 guest inventory=1
+Guest regrouped with the host after a native scripted move (Idle)
+In run after menu session: guest moved 3.6629639 host moved 0 host items=3 guest items=7
+MENU CHECKS PASSED: F7 handler opened the menu; Host/Join, item grid and Ready clicked through the EventSystem; real connection flow; run entered; guest moved independently with its own loadout
+HOST INTEGRATION PASSED: authoritative input and 202 snapshots

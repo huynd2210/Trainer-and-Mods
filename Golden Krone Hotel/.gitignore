@@ -1,0 +1,9 @@
+__pycache__/
+*.py[cod]
+llm-play/current-seed-state.json
+llm-play/winning-*.json
+llm-play/play-session.jsonl
+llm-play/seed-atlas.json
+mod-tests/*.png
+mod-tests/*observation.json
+mod-tests/*guard.json

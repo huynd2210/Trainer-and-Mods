@@ -1,0 +1,2 @@
+86c865dfedd3537112866abaefe86fdb25105afaeb591a1f74eaf943eaf6810c  GKH-SeedAids-LLMBridge-2026.10.12-mod.zip
+b383eb28e14309591cbd7d073ca80d1c3b4f9624cb89c560176fa3fbcb6d1cb0  GKH-SeedAids-LLMBridge-2026.10.12-source.zip

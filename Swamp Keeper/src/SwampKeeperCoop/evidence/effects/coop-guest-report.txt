@@ -1,0 +1,46 @@
+Session transport starting on 127.0.0.1:27856
+Local asset catalog: sprites=6725 materials=50 tilemaps=0
+Guest simulation stopped; authoritative rendering enabled
+Guest received stage=0 generation=1
+First authoritative snapshot: actors=2 sprites=794
+GUEST INTEGRATION PASSED: snapshots=156 replicas=827 missing sprites=0
+Guest imported native sprite 871
+Guest imported native sprite 872
+Guest imported native sprite 873
+Guest imported native sprite 874
+Guest imported native sprite 875
+Guest imported native sprite 876
+Guest imported native sprite 877
+Guest imported native sprite 879
+Guest imported native sprite 894
+Guest imported native sprite 896
+Guest imported native sprite 898
+Guest imported native sprite 900
+Guest imported native sprite 901
+Guest imported native sprite 903
+Guest imported native sprite 905
+Guest imported native sprite 907
+Guest imported native sprite 910
+Guest imported native sprite 911
+Guest imported native sprite 912
+Guest imported native sprite 913
+Guest imported native sprite 914
+Guest imported native sprite 915
+Guest imported native sprite 916
+Guest imported native sprite 917
+Guest imported native sprite 918
+Guest imported native sprite 919
+Guest imported native sprite 920
+Guest imported native sprite 921
+Guest imported native sprite 922
+Guest imported native sprite 923
+Guest imported native sprite 924
+Guest imported native sprite 959
+Guest imported native sprite 960
+Guest imported native sprite 961
+Guest imported native sprite 962
+Guest imported native sprite 963
+Guest imported native sprite 964
+Guest imported native sprite 965
+Guest imported native sprite 967
+INTEGRATION PASSED: peer exited after verification

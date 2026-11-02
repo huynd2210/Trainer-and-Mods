@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Warsim Stats</title>
+<style>
+:root {
+  color-scheme: light;
+  --page: #f9f9f7;
+  --surface: #fcfcfb;
+  --text-primary: #0b0b0b;
+  --text-secondary: #52514e;
+  --text-muted: #898781;
+  --grid: #e1e0d9;
+  --axis: #c3c2b7;
+  --border: rgba(11,11,11,0.10);
+  --hover: rgba(11,11,11,0.04);
+  --selected: rgba(42,120,214,0.10);
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --good: #006300;
+  --critical: #d03b3b;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --page: #0d0d0d;
+    --surface: #1a1a19;
+    --text-primary: #f0efec;
+    --text-secondary: #c3c2b7;
+    --text-muted: #898781;
+    --grid: #2c2c2a;
+    --axis: #383835;
+    --border: rgba(255,255,255,0.10);
+    --hover: rgba(255,255,255,0.05);
+    --selected: rgba(57,135,229,0.16);
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    --good: #0ca30c;
+    --critical: #e66767;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #0d0d0d;
+  --surface: #1a1a19;
+  --text-primary: #f0efec;
+  --text-secondary: #c3c2b7;
+  --text-muted: #898781;
+  --grid: #2c2c2a;
+  --axis: #383835;
+  --border: rgba(255,255,255,0.10);
+  --hover: rgba(255,255,255,0.05);
+  --selected: rgba(57,135,229,0.16);
+  --series-1: #3987e5;
+  --series-2: #d95926;
+  --good: #0ca30c;
+  --critical: #e66767;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--page);
+  color: var(--text-primary);
+  font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+main { max-width: 1120px; margin: 0 auto; padding: 24px 16px 48px; }
+h1 { font-size: 22px; font-weight: 600; margin: 0; }
+h2 { font-size: 15px; font-weight: 600; margin: 0 0 12px; }
+h3 { font-size: 13px; font-weight: 600; margin: 0; color: var(--text-secondary); }
+.sub { color: var(--text-secondary); margin: 2px 0 20px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+section { margin-top: 16px; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 12px; }
+.tile .label { color: var(--text-secondary); font-size: 13px; }
+.tile .value { font-size: 24px; font-weight: 600; margin-top: 2px; }
+.tile .note { color: var(--text-muted); font-size: 12px; margin-top: 2px; overflow-wrap: anywhere; }
+.records { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-top: 12px; }
+.record { cursor: pointer; }
+.record:hover { background: var(--hover); }
+.table-wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+th, td { text-align: right; padding: 7px 10px; border-bottom: 1px solid var(--grid); white-space: nowrap; }
+th { color: var(--text-secondary); font-weight: 600; font-size: 12px; }
+th:first-child, td:first-child { text-align: left; }
+#runs tbody tr { cursor: pointer; }
+#runs tbody tr:hover { background: var(--hover); }
+#runs tbody tr[aria-selected="true"] { background: var(--selected); }
+#runs tbody tr:focus-visible { outline: 2px solid var(--series-1); outline-offset: -2px; }
+.kingdom { font-weight: 600; }
+.ruler { color: var(--text-secondary); font-size: 12px; }
+.status { display: inline-flex; align-items: center; gap: 5px; }
+.status::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--text-muted); }
+.status.playing::before { background: var(--good); }
+.status.fallen::before { background: var(--critical); }
+.detail-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 16px; align-items: baseline; }
+.detail-head .sub { margin: 0; }
+.charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; margin-top: 12px; }
+.chart { position: relative; }
+.chart svg { display: block; width: 100%; overflow: visible; }
+.chart svg:focus { outline: none; }
+.chart svg:focus-visible { outline: 2px solid var(--series-1); outline-offset: 4px; border-radius: 4px; }
+.chart .peak { color: var(--text-muted); font-size: 12px; margin: 2px 0 6px; }
+.legend { display: flex; gap: 14px; color: var(--text-secondary); font-size: 12px; margin: 2px 0 6px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 14px; height: 2px; border-radius: 1px; display: inline-block; }
+.tip {
+  position: absolute; pointer-events: none; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 6px; padding: 6px 9px; font-size: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  white-space: nowrap; display: none; z-index: 2;
+}
+.tip .yr { color: var(--text-muted); margin-bottom: 2px; }
+.tip .row { display: flex; align-items: center; gap: 6px; }
+.tip .row i { width: 10px; height: 2px; display: inline-block; }
+.tip .row b { font-weight: 600; }
+.tip .row span { color: var(--text-secondary); }
+button.link {
+  background: none; border: 1px solid var(--border); color: var(--text-primary); border-radius: 6px;
+  padding: 5px 10px; font: inherit; font-size: 13px; cursor: pointer;
+}
+button.link:hover { background: var(--hover); }
+.empty { color: var(--text-secondary); }
+.empty code { background: var(--hover); padding: 1px 5px; border-radius: 4px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Warsim stats</h1>
+  <p class="sub" id="generated"></p>
+  <div id="app"></div>
+</main>
+<script>
+const DATA = /*WARSIM_DATA*/null;
+
+const $ = (tag, attrs = {}, ...kids) => {
+  const el = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (k === 'class') el.className = v;
+    else if (k.startsWith('on')) el.addEventListener(k.slice(2), v);
+    else el.setAttribute(k, v);
+  }
+  for (const kid of kids) if (kid != null) el.append(kid instanceof Node ? kid : document.createTextNode(String(kid)));
+  return el;
+};
+const SVG = (tag, attrs = {}) => {
+  const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+  for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
+  return el;
+};
+const fmt = n => n.toLocaleString('en-US');
+const compact = n => {
+  const a = Math.abs(n);
+  if (a >= 1e9) return (n / 1e9).toFixed(a >= 1e10 ? 0 : 1).replace(/\.0$/, '') + 'B';
+  if (a >= 1e6) return (n / 1e6).toFixed(a >= 1e7 ? 0 : 1).replace(/\.0$/, '') + 'M';
+  if (a >= 1e3) return (n / 1e3).toFixed(a >= 1e4 ? 0 : 1).replace(/\.0$/, '') + 'K';
+  return String(n);
+};
+const duration = s => {
+  const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60);
+  return h ? `${h}h ${m}m` : `${m}m`;
+};
+const plural = (n, one, many) => `${fmt(n)} ${n === 1 ? one : many}`;
+
+// ---------------------------------------------------------------- derived numbers
+
+function prepare(data) {
+  const idx = {};
+  data.columns.forEach((c, i) => idx[c.key] = i);
+  const kinds = k => data.columns.map((c, i) => c.kind === k ? i : -1).filter(i => i >= 0);
+  const income = kinds('income'), expense = kinds('expense'), counters = kinds('counter');
+  const sum = (row, cols) => cols.reduce((s, i) => s + row[i], 0);
+  const col = (run, key) => idx[key] === undefined ? run.rows.map(() => 0) : run.rows.map(r => r[idx[key]]);
+  for (const run of data.runs) {
+    const rows = run.rows;
+    run.firstYear = rows.length ? rows[0][0] : run.startYear;
+    run.lastYear = rows.length ? rows[rows.length - 1][0] : run.startYear;
+    run.years = Math.max(0, run.lastYear - run.startYear);
+    const last = rows[rows.length - 1] || data.columns.map(() => 0);
+    run.final = {};
+    for (const i of counters) run.final[data.columns[i].key] = last[i];
+    run.income = rows.map(r => sum(r, income));
+    run.expense = rows.map(r => sum(r, expense));
+    run.goldEarned = run.income.reduce((a, b) => a + b, 0);
+    run.peak = {};
+    for (const c of data.columns) if (c.kind === 'level') run.peak[c.key] = Math.max(0, ...col(run, c.key));
+    run.col = key => col(run, key);
+  }
+  return { idx };
+}
+
+// ---------------------------------------------------------------- line chart
+
+let chartSeq = 0;
+function lineChart({ title, years, series, area }) {
+  const id = ++chartSeq;
+  const box = $('div', { class: 'chart card' }, $('h3', {}, title));
+  if (series.length > 1) {
+    box.append($('div', { class: 'legend' }, ...series.map(s =>
+      $('span', {}, $('i', { style: `background:${s.color}` }), s.label))));
+  } else {
+    const peak = Math.max(...series[0].values);
+    box.append($('div', { class: 'peak' }, `Peak ${fmt(peak)}`));
+  }
+  const svg = SVG('svg', { tabindex: 0, role: 'img', 'aria-label': `${title} by year. Use arrow keys to read values.` });
+  const tip = $('div', { class: 'tip' });
+  box.append(svg, tip);
+  const H = 170, M = { t: 8, r: 52, b: 22, l: 44 };
+  let x, y, W, focus = -1;
+
+  function draw() {
+    W = Math.max(260, box.clientWidth - 32);
+    svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+    svg.setAttribute('height', H);
+    svg.replaceChildren();
+    const all = series.flatMap(s => s.values);
+    let lo = Math.min(0, ...all), hi = Math.max(0, ...all);
+    if (hi === lo) hi = lo + 1;
+    const step = niceStep((hi - lo) / 4);
+    lo = Math.floor(lo / step) * step;
+    hi = Math.ceil(hi / step) * step;
+    const x0 = years[0], x1 = years[years.length - 1];
+    x = v => x1 === x0 ? (M.l + W - M.r) / 2 : M.l + (v - x0) / (x1 - x0) * (W - M.l - M.r);
+    y = v => M.t + (hi - v) / (hi - lo) * (H - M.t - M.b);
+    for (let v = lo; v <= hi + step / 2; v += step) {
+      svg.append(SVG('line', { x1: M.l, x2: W - M.r, y1: y(v), y2: y(v), stroke: v === 0 ? 'var(--axis)' : 'var(--grid)', 'stroke-width': 1 }));
+      const t = SVG('text', { x: M.l - 6, y: y(v) + 4, 'text-anchor': 'end', fill: 'var(--text-muted)', 'font-size': 11 });
+      t.textContent = compact(v);
+      svg.append(t);
+    }
+    const xstep = niceStep(Math.max(1, (x1 - x0) / 5));
+    for (let v = Math.ceil(x0 / xstep) * xstep; v <= x1; v += xstep) {
+      const t = SVG('text', { x: x(v), y: H - 6, 'text-anchor': 'middle', fill: 'var(--text-muted)', 'font-size': 11 });
+      t.textContent = v;
+      svg.append(t);
+    }
+    if (x1 === x0) {
+      const t = SVG('text', { x: x(x0), y: H - 6, 'text-anchor': 'middle', fill: 'var(--text-muted)', 'font-size': 11 });
+      t.textContent = x0;
+      svg.append(t);
+    }
+    for (const s of series) {
+      const pts = s.values.map((v, i) => `${x(years[i]).toFixed(1)},${y(v).toFixed(1)}`);
+      if (area && series.length === 1 && years.length > 1) {
+        svg.append(SVG('path', { d: `M${x(x0)},${y(0)}L${pts.join('L')}L${x(x1)},${y(0)}Z`, fill: s.color, 'fill-opacity': 0.1 }));
+      }
+      if (years.length > 1) {
+        svg.append(SVG('path', { d: `M${pts.join('L')}`, fill: 'none', stroke: s.color, 'stroke-width': 2, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }));
+      }
+      const li = s.values.length - 1;
+      svg.append(SVG('circle', { cx: x(years[li]), cy: y(s.values[li]), r: 4, fill: s.color, stroke: 'var(--surface)', 'stroke-width': 2 }));
+    }
+    endLabels();
+    const cross = SVG('line', { y1: M.t, y2: H - M.b, stroke: 'var(--axis)', 'stroke-width': 1, visibility: 'hidden', 'data-cross': 1 });
+    svg.append(cross);
+    for (const s of series) svg.append(SVG('circle', { r: 4, fill: s.color, stroke: 'var(--surface)', 'stroke-width': 2, visibility: 'hidden', 'data-dot': 1 }));
+    svg.append(SVG('rect', { x: M.l - 8, y: 0, width: W - M.l - M.r + 16, height: H, fill: 'transparent', 'data-hit': 1 }));
+    if (focus >= 0) show(focus);
+  }
+
+  // Values at the right end, nudged apart only when they would overlap.
+  function endLabels() {
+    const li = years.length - 1;
+    const labels = series.map(s => ({ v: s.values[li], y: y(s.values[li]) })).sort((a, b) => a.y - b.y);
+    for (let i = 1; i < labels.length; i++) if (labels[i].y - labels[i - 1].y < 13) labels[i].y = labels[i - 1].y + 13;
+    for (const l of labels) {
+      const t = SVG('text', { x: x(years[li]) + 9, y: l.y + 4, fill: 'var(--text-secondary)', 'font-size': 11 });
+      t.textContent = compact(l.v);
+      svg.append(t);
+    }
+  }
+
+  function show(i) {
+    focus = i;
+    const px = x(years[i]);
+    const cross = svg.querySelector('[data-cross]');
+    cross.setAttribute('x1', px); cross.setAttribute('x2', px); cross.setAttribute('visibility', 'visible');
+    svg.querySelectorAll('[data-dot]').forEach((d, k) => {
+      d.setAttribute('cx', px); d.setAttribute('cy', y(series[k].values[i])); d.setAttribute('visibility', 'visible');
+    });
+    tip.replaceChildren($('div', { class: 'yr' }, `Year ${years[i]}`), ...series.map(s =>
+      $('div', { class: 'row' }, $('i', { style: `background:${s.color}` }), $('b', {}, fmt(s.values[i])), series.length > 1 ? $('span', {}, s.label) : null)));
+    tip.style.display = 'block';
+    const sr = svg.getBoundingClientRect(), br = box.getBoundingClientRect();
+    const left = sr.left - br.left + px * sr.width / W, tw = tip.offsetWidth;
+    tip.style.left = `${left + 12 + tw > box.clientWidth ? left - tw - 12 : left + 12}px`;
+    tip.style.top = `${sr.top - br.top + 4}px`;
+  }
+  function hide() {
+    focus = -1;
+    tip.style.display = 'none';
+    svg.querySelectorAll('[data-cross],[data-dot]').forEach(e => e.setAttribute('visibility', 'hidden'));
+  }
+  function nearest(clientX) {
+    const r = svg.getBoundingClientRect();
+    const vx = (clientX - r.left) / r.width * W;
+    let best = 0;
+    years.forEach((yr, i) => { if (Math.abs(x(yr) - vx) < Math.abs(x(years[best]) - vx)) best = i; });
+    return best;
+  }
+  svg.addEventListener('pointermove', e => show(nearest(e.clientX)));
+  svg.addEventListener('pointerleave', hide);
+  svg.addEventListener('focus', () => show(focus >= 0 ? focus : years.length - 1));
+  svg.addEventListener('blur', hide);
+  svg.addEventListener('keydown', e => {
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+      e.preventDefault();
+      show(Math.max(0, Math.min(years.length - 1, (focus < 0 ? years.length - 1 : focus) + (e.key === 'ArrowRight' ? 1 : -1))));
+    } else if (e.key === 'Escape') { hide(); }
+  });
+  new ResizeObserver(draw).observe(box);
+  return box;
+}
+
+function niceStep(raw) {
+  const p = Math.pow(10, Math.floor(Math.log10(raw || 1)));
+  for (const m of [1, 2, 2.5, 5, 10]) if (raw <= m * p) return m * p;
+  return 10 * p;
+}
+
+// ---------------------------------------------------------------- page
+
+const STATUS = {
+  playing: run => run.id === DATA.current ? 'Playing now' : 'Reigning',
+  fallen: run => `Fallen in ${run.fallYear}`,
+  timesup: run => run.fallReason || 'Reign ended',
+};
+const kingdomName = run => run.kingdom || 'Unnamed kingdom';
+// Some scenario rulers carry their title in the name already ("King Harlaus").
+const rulerName = run => (run.title && !run.ruler.startsWith(run.title + ' ') ? `${run.title} ${run.ruler}` : run.ruler) || 'Unknown ruler';
+
+function render() {
+  const app = document.getElementById('app');
+  if (!DATA || !DATA.runs.length) {
+    document.getElementById('generated').textContent = DATA ? `Updated ${DATA.generated}` : '';
+    app.replaceChildren($('div', { class: 'card empty' },
+      'No runs recorded yet. Start or load a game in Warsim: the tracker adds a row every in-game year, and this page is rewritten as you play.'));
+    return;
+  }
+  prepare(DATA);
+  document.getElementById('generated').textContent =
+    `Updated ${DATA.generated} · this page is rewritten as you play and reloads when you switch back to it`;
+  const runs = [...DATA.runs].sort((a, b) => (b.id === DATA.current) - (a.id === DATA.current) || b.updated.localeCompare(a.updated) || b.id - a.id);
+  let selected = runs.find(r => `#run-${r.id}` === location.hash) || runs[0];
+
+  const total = f => runs.reduce((s, r) => s + f(r), 0);
+  const tile = (label, value, note) => $('div', { class: 'tile card' },
+    $('div', { class: 'label' }, label), $('div', { class: 'value' }, value), note ? $('div', { class: 'note' }, note) : null);
+  const fallen = runs.filter(r => r.status === 'fallen').length;
+  const tiles = $('div', { class: 'tiles' },
+    tile('Runs', fmt(runs.length), fallen ? `${fmt(fallen)} fallen` : null),
+    tile('Years ruled', fmt(total(r => r.years))),
+    tile('Battles fought', fmt(total(r => r.final.BattleCount || 0))),
+    tile('Enemies slain', fmt(total(r => r.final.TotalKills || 0))),
+    tile('Troops lost', fmt(total(r => r.final.TotalDeaths || 0))),
+    tile('Gold earned', compact(total(r => r.goldEarned)), 'from yearly income'),
+    tile('Time played', duration(total(r => r.seconds))));
+
+  const best = (f) => runs.reduce((b, r) => (f(r) > f(b) ? r : b), runs[0]);
+  const record = (label, f, show = fmt) => {
+    const r = best(f);
+    return $('div', { class: 'tile card record', tabindex: 0, role: 'button', onclick: () => select(r), onkeydown: e => { if (e.key === 'Enter') select(r); } },
+      $('div', { class: 'label' }, label), $('div', { class: 'value' }, show(f(r))), $('div', { class: 'note' }, kingdomName(r)));
+  };
+  const records = $('div', { class: 'records' },
+    record('Most gold held', r => r.peak.YourGold || 0),
+    record('Largest army', r => r.peak.YourMen || 0),
+    record('Most land', r => r.peak.YourLand || 0),
+    record('Best public opinion', r => r.peak.PublicOpinion || 0),
+    record('Longest reign', r => r.years, v => plural(v, 'year', 'years')));
+
+  const head = ['Kingdom', 'Years', 'Status', 'Battles', 'Slain', 'Lost', 'Peak gold', 'Peak men', 'Peak land', 'Time'];
+  const tbody = $('tbody');
+  for (const r of runs) {
+    const tr = $('tr', { tabindex: 0, 'data-id': r.id, onclick: () => select(r), onkeydown: e => { if (e.key === 'Enter') select(r); } },
+      $('td', {}, $('div', { class: 'kingdom' }, kingdomName(r)), $('div', { class: 'ruler' }, rulerName(r))),
+      $('td', {}, `${r.startYear}–${r.lastYear}`),
+      $('td', {}, $('span', { class: `status ${r.status}`, title: r.fallReason || '' }, STATUS[r.status](r))),
+      $('td', {}, fmt(r.final.BattleCount || 0)),
+      $('td', {}, fmt(r.final.TotalKills || 0)),
+      $('td', {}, fmt(r.final.TotalDeaths || 0)),
+      $('td', {}, fmt(r.peak.YourGold || 0)),
+      $('td', {}, fmt(r.peak.YourMen || 0)),
+      $('td', {}, fmt(r.peak.YourLand || 0)),
+      $('td', {}, duration(r.seconds)));
+    tbody.append(tr);
+  }
+  const runsTable = $('section', { class: 'card' }, $('h2', {}, 'Runs'),
+    $('div', { class: 'table-wrap' }, $('table', { id: 'runs' }, $('thead', {}, $('tr', {}, ...head.map(h => $('th', {}, h)))), tbody)));
+
+  const detail = $('section', {});
+  app.replaceChildren($('section', {}, tiles, records), runsTable, detail);
+
+  function select(run) {
+    selected = run;
+    history.replaceState(null, '', `#run-${run.id}`);
+    tbody.querySelectorAll('tr').forEach(tr => tr.setAttribute('aria-selected', tr.dataset.id == run.id));
+    renderDetail(detail, run);
+  }
+  select(selected);
+}
+
+function renderDetail(detail, run) {
+  const years = run.rows.map(r => r[0]);
+  const c1 = 'var(--series-1)', c2 = 'var(--series-2)';
+  const single = (title, key) => lineChart({ title, years, area: true, series: [{ label: title, values: run.col(key), color: c1 }] });
+  const facts = [
+    `${rulerName(run)} · ${plural(run.years, 'year', 'years')} from ${run.startYear}`,
+    run.status !== 'playing' && run.fallReason ? run.fallReason : null,
+    run.gameOvers ? plural(run.gameOvers, 'defeat', 'defeats') : null,
+    run.loads ? plural(run.loads, 'load', 'loads') : null,
+  ].filter(Boolean).join(' · ');
+  const tableBox = $('div', { class: 'card', style: 'display:none; margin-top:12px' });
+  const toggle = $('button', { class: 'link', 'aria-expanded': 'false', onclick: () => {
+    const open = tableBox.style.display === 'none';
+    tableBox.style.display = open ? 'block' : 'none';
+    toggle.setAttribute('aria-expanded', open);
+    toggle.textContent = open ? 'Hide yearly table' : 'Show yearly table';
+    if (open && !tableBox.firstChild) tableBox.append(yearTable(run));
+  } }, 'Show yearly table');
+
+  detail.replaceChildren(
+    $('div', { class: 'card' },
+      $('div', { class: 'detail-head' }, $('h2', { style: 'margin:0' }, kingdomName(run)), toggle),
+      $('p', { class: 'sub', style: 'margin-top:4px' }, facts)),
+    $('div', { class: 'charts' },
+      single('Gold', 'YourGold'),
+      single('Men', 'YourMen'),
+      single('Land', 'YourLand'),
+      single('Public opinion', 'PublicOpinion'),
+      lineChart({ title: 'Yearly income and expenses', years, series: [
+        { label: 'Income', values: run.income, color: c1 },
+        { label: 'Expenses', values: run.expense, color: c2 }] }),
+      lineChart({ title: 'Battle toll (running total)', years, series: [
+        { label: 'Enemies slain', values: run.col('TotalKills'), color: c1 },
+        { label: 'Troops lost', values: run.col('TotalDeaths'), color: c2 }] })),
+    tableBox);
+}
+
+function yearTable(run) {
+  const cols = DATA.columns;
+  return $('div', { class: 'table-wrap' }, $('table', {},
+    $('thead', {}, $('tr', {}, ...cols.map(c => $('th', {}, c.label)))),
+    $('tbody', {}, ...[...run.rows].reverse().map(r => $('tr', {}, ...r.map((v, i) => $('td', {}, i === 0 ? v : fmt(v))))))));
+}
+
+render();
+// The tracker rewrites this file while you play; pick up the new numbers when you come back to it,
+// staying where you were on the page.
+try {
+  const y = sessionStorage.getItem('warsim-scroll');
+  if (y) { sessionStorage.removeItem('warsim-scroll'); scrollTo(0, +y); }
+} catch (e) { /* storage blocked: reload starts at the top */ }
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState !== 'visible') return;
+  try { sessionStorage.setItem('warsim-scroll', String(scrollY)); } catch (e) { /* see above */ }
+  location.reload();
+});
+</script>
+</body>
+</html>

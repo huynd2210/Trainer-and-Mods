@@ -1,0 +1,38 @@
+Session transport starting on 127.0.0.1:27856
+Authenticated guest Guest
+Remote native actor ready: independent skills=True control=True
+Network movement: host distance=0 guest distance=4.870599 received sequence=116
+Network attacks: host shots=0 guest shots=1
+Network skill use: host=0 guest=1
+Granted all 40 native items to guest; inventory host=0 guest=40
+All-item ownership check passed: host inventory and 16 equipment stats unchanged
+Skill smoke 0: Horn Blast invoked on guest
+Skill smoke 1: Triple Shot invoked on guest
+Skill smoke 2: Multi-Shot invoked on guest
+Skill smoke 3: Arrow Rain invoked on guest
+Transferred missing native sprite 820  704x562 61881 bytes
+Skill smoke 4: Molting Escape invoked on guest
+Skill smoke 5: Aimed Shot invoked on guest
+Transferred missing native sprite 850  354x187 7811 bytes
+Skill smoke 6: Sniping invoked on guest
+Skill smoke 7: Dragon Arrow invoked on guest
+Skill smoke 8: Lizard-Swampthrow invoked on guest
+Transferred missing native sprite 882  704x562 61881 bytes
+Skill smoke 9: Explosive Arrow invoked on guest
+Skill smoke 10: Lizard-Slash invoked on guest
+Skill smoke 11: Lizard-Talisman invoked on guest
+Skill smoke 12: Lizard-Psychokinesis invoked on guest
+Skill smoke 13: Returning Blade invoked on guest
+Skill smoke 14: Flash Bomb invoked on guest
+Skill smoke 15: Buried Bomb invoked on guest
+Skill smoke 16: Powder Keg invoked on guest
+Skill smoke 17: Tiger's Eye invoked on guest
+Skill smoke passed: 18 skills invoked; host singleton stable
+Shared transition started; host state=Idle
+Native transition iterator state=4 result=True
+Native transition iterator state=5 result=True
+Native transition iterator state=-1 result=False
+Transition parents: leader=<root> leaderState=Idle
+Shared stage transition completed: generation=2 stage=1 guest inventory=40
+NATIVE GAMEPLAY CHECKS PASSED: all 18 skills smoke-tested; all 40 items isolated; shared transition to stage 1 preserves guest inventory
+HOST INTEGRATION PASSED: authoritative input and 835 snapshots

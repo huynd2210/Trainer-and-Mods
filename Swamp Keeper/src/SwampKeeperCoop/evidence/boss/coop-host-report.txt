@@ -1,0 +1,45 @@
+Session transport starting on 127.0.0.1:27856
+Authenticated guest Guest
+Remote native actor ready: independent skills=True control=True
+Network movement: host distance=0 guest distance=4.870599 received sequence=123
+Network attacks: host shots=0 guest shots=1
+Shared transition started; host state=Idle
+Native transition iterator state=4 result=True
+Native transition iterator state=-1 result=False
+Transition parents: leader=<root> leaderState=Idle
+Shared stage transition completed: generation=2 stage=3 guest inventory=0
+Boss Boss_Bear started with both actors present
+Boss targeting with guest near: target was the nearer actor in 286/286 samples (guest nearer in 286); attacks landed near=1 far=0
+Boss targeting with host near: target was the nearer actor in 385/385 samples (host nearer in 385); attacks landed near=1 far=0
+Boss fight strikes Boss_Bear_Shield/Boss_Bear_Shield (Idle)
+Boss fight strikes the boss: armor=0 state=Attack invincible=False at=(198.53, 0.87, 0.00) shield=True shields=3
+Boss Boss_Bear killed by guest: guest kills +1 host kills +0
+Boss stage 3 ended natively with both actors alive
+Shared transition started; host state=Idle
+Native transition iterator state=4 result=True
+Native transition iterator state=-1 result=False
+Transition parents: leader=<root> leaderState=Idle
+Shared stage transition completed: generation=3 stage=7 guest inventory=0
+Boss Boss_Fox started with both actors present
+Boss targeting with guest near: target was the nearer actor in 236/236 samples (guest nearer in 231); attacks landed near=1 far=1
+Boss targeting with host near: target was the nearer actor in 237/237 samples (host nearer in 237); attacks landed near=3 far=0
+Boss fight strikes Boss_Fox_Bead/Bead_2 (Run)
+Boss fight strikes Boss_Fox_Bead/Bead_1 (Run)
+Boss fight strikes Boss_Fox_Bead/Bead_4 (Run)
+Boss fight strikes Boss_Fox_Bead/Bead_0 (Run)
+Boss fight strikes Boss_Fox_Bead/Bead_3 (Run)
+Boss Boss_Fox killed by guest: guest kills +1 host kills +0
+Boss stage 7 ended natively with both actors alive
+Shared transition started; host state=Idle
+Native transition iterator state=4 result=True
+Native transition iterator state=-1 result=False
+Transition parents: leader=<root> leaderState=Idle
+Shared stage transition completed: generation=4 stage=10 guest inventory=0
+Boss Boss_Tiger started with both actors present
+Boss targeting with guest near: target was the nearer actor in 236/236 samples (guest nearer in 234); attacks landed near=1 far=2
+Boss targeting with host near: target was the nearer actor in 232/232 samples (host nearer in 232); attacks landed near=7 far=0
+Boss fight strikes Enemy_Range_Crossbowman/Crossbowman (3) (Run)
+Boss Boss_Tiger killed by guest: guest kills +1 host kills +0
+Final boss death reached the native run-clear screen
+BOSS CHECKS PASSED: Bear, Fox and Tiger each targeted and hit the nearer actor, were killed by the guest with the kill credited to the guest actor only, and ended their stage natively
+HOST INTEGRATION PASSED: authoritative input and 2303 snapshots

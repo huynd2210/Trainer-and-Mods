@@ -1,0 +1,39 @@
+<Project>
+  <!-- Shared build settings for Probably Stolen mods. The game ships its own mod
+       loader (Mods\<ID>\manifest.xml + DLL implementing IMod) and its own Harmony,
+       so everything here is referenced from the game folder and never copied. -->
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <DebugType>none</DebugType>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <GameDir Condition="'$(GameDir)' == ''">$(MSBuildThisFileDirectory)..\Probably Stolen</GameDir>
+    <Managed>$(GameDir)\Probably Stolen_Data\Managed</Managed>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="Assembly-CSharp" HintPath="$(Managed)\Assembly-CSharp.dll" Private="false" />
+    <Reference Include="Assembly-CSharp-firstpass" HintPath="$(Managed)\Assembly-CSharp-firstpass.dll" Private="false" />
+    <Reference Include="0Harmony" HintPath="$(Managed)\0Harmony.dll" Private="false" />
+    <Reference Include="UnityEngine" HintPath="$(Managed)\UnityEngine.dll" Private="false" />
+    <Reference Include="UnityEngine.CoreModule" HintPath="$(Managed)\UnityEngine.CoreModule.dll" Private="false" />
+    <Reference Include="UnityEngine.InputLegacyModule" HintPath="$(Managed)\UnityEngine.InputLegacyModule.dll" Private="false" />
+    <Reference Include="UnityEngine.AudioModule" HintPath="$(Managed)\UnityEngine.AudioModule.dll" Private="false" />
+    <Reference Include="UnityEngine.TextRenderingModule" HintPath="$(Managed)\UnityEngine.TextRenderingModule.dll" Private="false" />
+    <Reference Include="UnityEngine.UIModule" HintPath="$(Managed)\UnityEngine.UIModule.dll" Private="false" />
+    <Reference Include="UnityEngine.UI" HintPath="$(Managed)\UnityEngine.UI.dll" Private="false" />
+  </ItemGroup>
+
+  <!-- After a build, install the mod into the game's Mods folder:
+       Mods\<ModId>\manifest.xml + <ModId>.dll -->
+  <!-- Pass -p:SkipInstall=true while the game is running: it holds the loaded DLL. -->
+  <Target Name="InstallMod" AfterTargets="Build" Condition="'$(SkipInstall)' != 'true'">
+    <PropertyGroup>
+      <ModInstallDir>$(GameDir)\Mods\$(AssemblyName)</ModInstallDir>
+    </PropertyGroup>
+    <Copy SourceFiles="$(TargetPath);$(MSBuildProjectDirectory)\manifest.xml" DestinationFolder="$(ModInstallDir)" />
+  </Target>
+</Project>

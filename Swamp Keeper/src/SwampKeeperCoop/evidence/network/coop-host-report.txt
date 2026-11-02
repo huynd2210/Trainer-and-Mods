@@ -1,0 +1,20 @@
+Session transport starting on 127.0.0.1:27856
+Authenticated guest Guest
+Remote native actor ready: independent skills=True control=True
+Network movement: host distance=0 guest distance=4.870599 received sequence=137
+Network attacks: host shots=0 guest shots=1
+Latency play: rtt=240 ms; guest moved/attacked through the proxy; guest kills=0 items=5
+Host upstream 337.0 KiB/s over 6 s (2.63 Mbit/s)
+Proxy instructed to cut the link; guest kills=1 items=5
+Connection lost (closed); preserving both actors and run progression
+Drop 1 detected by host 0.1 s after the cut; run paused, input cleared
+Reconnected: actor inventories and run identity preserved
+Guest rejoined after drop 1 (1.7 s down); same actor, items, kills and run
+Proxy instructed to stall the link silently (half-open)
+Peer silent for 8 s; closing the dead link
+Connection lost (closed); preserving both actors and run progression
+Drop 2 detected by host 8.0 s after the stall; run paused, input cleared
+Reconnected: actor inventories and run identity preserved
+Guest rejoined after drop 2 (1.6 s down); same actor, items, kills and run
+NETWORK CHECKS PASSED: 252 ms RTT play; cut and silent stall both detected; run paused, guest rejoined via F7 menu twice; actor, inventory, kills and run identity preserved
+HOST INTEGRATION PASSED: authoritative input and 480 snapshots

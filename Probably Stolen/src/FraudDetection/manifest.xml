@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Mod>
+  <ID>FraudDetection</ID>
+  <Name>Fraud Detection</Name>
+  <Author>NyanDoggo</Author>
+  <ModVersion>1.0.0</ModVersion>
+  <Description>Knows when a label lies. Hover an item: anything that isn't what it claims (counterfeit cigarettes, stamps and injectors, impure water and chemicals, worn equipment, ingots, wine...) shows what it really is and its real value change. Inspecting a counterfeit opens with the right issue already ticked, so you just press Confront.</Description>
+  <Assemblies>
+    <Assembly>FraudDetection.dll</Assembly>
+  </Assemblies>
+  <Capabilities />
+</Mod>

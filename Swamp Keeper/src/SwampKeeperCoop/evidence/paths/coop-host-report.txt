@@ -1,0 +1,120 @@
+Session transport starting on 127.0.0.1:27856
+Authenticated guest Guest
+Remote native actor ready: independent skills=True control=True
+Preparation interactable: DifficultyStatue DifficultyStatue at (1.91, 14.33, 14.34)
+Preparation interactable: Workbench Workbench at (-3.13, 12.14, 0.00)
+Preparation interactable: ItemCollection ItemCollection at (5.44, 11.74, 0.00)
+Preparation interactable: Well Well at (-4.64, 3.39, 0.00)
+Preparation interactable: Ladder Ladder at (0.00, 14.49, 0.00)
+Preparation interactable: Workbench Workbench at (78.03, -0.92, -1.00)
+Preparation interactable: Workbench Workbench at (213.83, -55.77, -1.00)
+Preparation interactable: Workbench Workbench at (302.18, -28.10, -1.00)
+Guest's ladder interaction opened the host's battle-settings popup; host advances
+Separate prepared loadouts equipped: host= guest=
+Shared transition started; host state=Ladder
+Native transition iterator state=1 result=True
+Guest started the run through the native ladder interaction
+Native transition iterator state=2 result=True
+Native transition iterator state=3 result=True
+Native transition iterator state=-1 result=False
+Transition parents: leader=<root> leaderState=MoveUp
+Shared stage transition completed: generation=2 stage=0 guest inventory=0
+Path stage 0 1_1 (Stage) playable; both actors present; guest inventory=0
+Shared transition started; host state=Idle
+Native transition iterator state=4 result=True
+Path exit from stage 0 triggered by guest
+Native transition iterator state=5 result=True
+Native transition iterator state=-1 result=False
+Transition parents: leader=<root> leaderState=Idle
+Shared stage transition completed: generation=3 stage=1 guest inventory=0
+Path stage 1 1_Pass (Stage_Pass) playable; both actors present; guest inventory=0
+Shared transition started; host state=Idle
+Native transition iterator state=4 result=True
+Path exit from stage 1 triggered by host
+Native transition iterator state=-1 result=False
+Transition parents: leader=<root> leaderState=Idle
+Shared stage transition completed: generation=4 stage=2 guest inventory=0
+Path stage 2 1_2 (Stage) playable; both actors present; guest inventory=0
+Shared transition started; host state=Idle
+Native transition iterator state=4 result=True
+Path exit from stage 2 triggered by guest
+Native transition iterator state=-1 result=False
+Transition parents: leader=<root> leaderState=Idle
+Shared stage transition completed: generation=5 stage=3 guest inventory=0
+Path stage 3 1_Boss (Stage_Boss) playable; both actors present; guest inventory=0
+Boss fight strikes Boss_Bear_Shield/Boss_Bear_Shield (Idle)
+Boss fight strikes the boss: armor=0 state=Attack invincible=False at=(198.58, -3.81, 0.00) shield=True shields=3
+Boss Boss_Bear killed by host: host kills +1 guest kills +0
+Boss stage 3 ended natively
+Stage 3 exits through Merchant NPC_Merchant
+Exit attempt: leader=guest first=none state=Idle control=True
+Exit attempt: leader=guest first=none state=Idle control=True
+Shared transition started; host state=Ride
+Native transition iterator state=1 result=True
+Native transition iterator state=2 result=True
+Path exit from stage 3 triggered by guest
+Native transition iterator state=3 result=True
+Native transition iterator state=-1 result=False
+Transition parents: leader=InGameManagers/GameManager/DropMerchant/Car/PlayerPos leaderState=RideOn
+Shared stage transition completed: generation=6 stage=4 guest inventory=0
+Guest regrouped with the host after a native scripted move (Idle)
+Path stage 4 2_1 (Stage) playable; both actors present; guest inventory=0
+Shared transition started; host state=Idle
+Native transition iterator state=4 result=True
+Path exit from stage 4 triggered by guest
+Native transition iterator state=5 result=True
+Native transition iterator state=-1 result=False
+Transition parents: leader=<root> leaderState=Idle
+Shared stage transition completed: generation=7 stage=5 guest inventory=0
+Path stage 5 2_Pass (Stage_Pass) playable; both actors present; guest inventory=0
+Shared transition started; host state=Idle
+Native transition iterator state=4 result=True
+Path exit from stage 5 triggered by host
+Native transition iterator state=-1 result=False
+Transition parents: leader=<root> leaderState=Idle
+Shared stage transition completed: generation=8 stage=6 guest inventory=0
+Path stage 6 2_2 (Stage) playable; both actors present; guest inventory=0
+Shared transition started; host state=Idle
+Native transition iterator state=4 result=True
+Path exit from stage 6 triggered by guest
+Native transition iterator state=-1 result=False
+Transition parents: leader=<root> leaderState=Idle
+Shared stage transition completed: generation=9 stage=7 guest inventory=0
+Path stage 7 2_Boss (Stage_Boss) playable; both actors present; guest inventory=0
+Boss fight strikes Boss_Fox_Bead/Bead_2 (Run)
+Boss fight strikes Boss_Fox_Bead/Bead_1 (Run)
+Boss fight strikes Boss_Fox_Bead/Bead_4 (Run)
+Boss fight strikes Boss_Fox_Bead/Bead_0 (Run)
+Boss fight strikes Boss_Fox_Bead/Bead_3 (Run)
+Boss Boss_Fox killed by host: host kills +1 guest kills +0
+Boss stage 7 ended natively
+Stage 7 exits through Merchant NPC_Merchant
+Exit attempt: leader=host first=none state=Ride control=False
+Shared transition started; host state=Ride
+Native transition iterator state=1 result=True
+Native transition iterator state=2 result=True
+Path exit from stage 7 triggered by host
+Native transition iterator state=3 result=True
+Native transition iterator state=6 result=True
+Native transition iterator state=-1 result=False
+Transition parents: leader=<root> leaderState=Idle
+Shared stage transition completed: generation=10 stage=8 guest inventory=0
+Path stage 8 3 (Stage_3) playable; both actors present; guest inventory=0
+Shared transition started; host state=Idle
+Native transition iterator state=4 result=True
+Path exit from stage 8 triggered by guest
+Native transition iterator state=5 result=True
+Native transition iterator state=-1 result=False
+Transition parents: leader=<root> leaderState=Idle
+Shared stage transition completed: generation=11 stage=9 guest inventory=0
+Path stage 9 3_Pass (Stage_3_Pass) playable; both actors present; guest inventory=0
+Shared transition started; host state=Idle
+Native transition iterator state=4 result=True
+Path exit from stage 9 triggered by host
+Native transition iterator state=-1 result=False
+Transition parents: leader=<root> leaderState=Idle
+Shared stage transition completed: generation=12 stage=10 guest inventory=0
+Path stage 10 3_Boss (Stage_Boss) playable; both actors present; guest inventory=0
+Boss Boss_Tiger killed by guest: host kills +0 guest kills +1
+PATH CHECKS PASSED: every stage 0-10 entered and left through native triggers by alternating actors; 3 bosses killed in-run; run-clear screen reached
+HOST INTEGRATION PASSED: authoritative input and 1670 snapshots

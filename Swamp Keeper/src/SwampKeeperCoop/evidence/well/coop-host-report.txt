@@ -1,0 +1,82 @@
+Session transport starting on 127.0.0.1:27856
+Authenticated guest Guest
+Remote native actor ready: independent skills=True control=True
+Guest's Well interaction opened the host's battle-settings popup; host advances
+Separate prepared loadouts equipped: host= guest=
+Shared transition started; host state=WellDive
+Native transition iterator state=1 result=True
+Native transition iterator state=2 result=True
+Native transition iterator state=3 result=True
+Guest entered the Well from preparation through the native Well interaction
+Native transition iterator state=-1 result=False
+Transition parents: leader=<root> leaderState=WellLand
+Shared stage transition completed: generation=2 stage=11 guest inventory=0
+Well state: trial=0 start=False end=False endless=False bossWave=False spawnBoss=False spawned=0/100 left=0 alive=3 startButton=False moving=False
+Guest regrouped with the host after a native scripted move (Idle)
+Well playable with both actors: trial=0 start=False end=False endless=False bossWave=False spawnBoss=False spawned=0/100 left=0 alive=3 startButton=False
+Well trial 0 started by guest
+Well state: trial=0 start=True end=False endless=False bossWave=False spawnBoss=False spawned=1/100 left=99 alive=3 startButton=False moving=False
+Well state: trial=0 start=True end=False endless=False bossWave=False spawnBoss=False spawned=7/100 left=93 alive=3 startButton=False moving=False
+Well state: trial=0 start=True end=False endless=False bossWave=False spawnBoss=False spawned=14/100 left=86 alive=3 startButton=False moving=False
+Well state: trial=0 start=True end=False endless=False bossWave=False spawnBoss=False spawned=17/100 left=83 alive=3 startButton=False moving=False
+Well state: trial=0 start=True end=False endless=False bossWave=False spawnBoss=False spawned=23/100 left=77 alive=3 startButton=False moving=False
+Well state: trial=0 start=True end=False endless=False bossWave=False spawnBoss=False spawned=27/100 left=73 alive=3 startButton=False moving=False
+Well state: trial=0 start=True end=False endless=False bossWave=False spawnBoss=False spawned=32/100 left=68 alive=3 startButton=False moving=False
+Well state: trial=0 start=True end=False endless=False bossWave=False spawnBoss=False spawned=38/100 left=62 alive=3 startButton=False moving=False
+Well state: trial=0 start=True end=False endless=False bossWave=False spawnBoss=False spawned=49/100 left=51 alive=3 startButton=False moving=False
+Well state: trial=0 start=True end=False endless=False bossWave=False spawnBoss=False spawned=50/100 left=50 alive=3 startButton=False moving=False
+Well state: trial=0 start=True end=False endless=False bossWave=False spawnBoss=False spawned=55/100 left=45 alive=3 startButton=False moving=False
+Well state: trial=0 start=True end=False endless=False bossWave=False spawnBoss=False spawned=60/100 left=40 alive=3 startButton=False moving=False
+Well state: trial=0 start=True end=False endless=False bossWave=False spawnBoss=False spawned=65/100 left=35 alive=3 startButton=False moving=False
+Well state: trial=0 start=True end=False endless=False bossWave=False spawnBoss=False spawned=74/100 left=26 alive=3 startButton=False moving=False
+Well state: trial=0 start=True end=False endless=False bossWave=False spawnBoss=False spawned=76/100 left=24 alive=3 startButton=False moving=False
+Well state: trial=0 start=True end=False endless=False bossWave=False spawnBoss=False spawned=83/100 left=17 alive=3 startButton=False moving=False
+Well state: trial=0 start=True end=False endless=False bossWave=False spawnBoss=False spawned=92/100 left=8 alive=3 startButton=False moving=False
+Well state: trial=0 start=True end=False endless=False bossWave=False spawnBoss=False spawned=94/100 left=6 alive=3 startButton=False moving=False
+Well trial cleared (1/3): trial=1 start=True end=True endless=False bossWave=False spawnBoss=False spawned=100/100 left=0 alive=3 startButton=False host kills=0 guest kills=100
+Well state: trial=1 start=False end=False endless=False bossWave=False spawnBoss=False spawned=100/100 left=0 alive=3 startButton=True moving=False
+Well trial 1 started by host
+Well state: trial=1 start=True end=False endless=False bossWave=False spawnBoss=False spawned=4/100 left=96 alive=3 startButton=False moving=False
+Well state: trial=1 start=True end=False endless=False bossWave=False spawnBoss=False spawned=11/100 left=89 alive=3 startButton=False moving=False
+Well state: trial=1 start=True end=False endless=False bossWave=False spawnBoss=False spawned=18/100 left=82 alive=3 startButton=False moving=False
+Well state: trial=1 start=True end=False endless=False bossWave=False spawnBoss=False spawned=23/100 left=78 alive=4 startButton=False moving=False
+Well state: trial=1 start=True end=False endless=False bossWave=False spawnBoss=False spawned=30/100 left=70 alive=3 startButton=False moving=False
+Well state: trial=1 start=True end=False endless=False bossWave=False spawnBoss=False spawned=33/100 left=67 alive=3 startButton=False moving=False
+Well state: trial=1 start=True end=False endless=False bossWave=False spawnBoss=False spawned=39/100 left=62 alive=4 startButton=False moving=False
+Well state: trial=1 start=True end=False endless=False bossWave=False spawnBoss=False spawned=47/100 left=53 alive=3 startButton=False moving=False
+Well state: trial=1 start=True end=False endless=False bossWave=False spawnBoss=False spawned=55/100 left=45 alive=3 startButton=False moving=False
+Well state: trial=1 start=True end=False endless=False bossWave=False spawnBoss=False spawned=57/100 left=43 alive=3 startButton=False moving=False
+Well state: trial=1 start=True end=False endless=False bossWave=False spawnBoss=False spawned=63/100 left=37 alive=3 startButton=False moving=False
+Well state: trial=1 start=True end=False endless=False bossWave=False spawnBoss=False spawned=71/100 left=29 alive=3 startButton=False moving=False
+Well state: trial=1 start=True end=False endless=False bossWave=False spawnBoss=False spawned=77/100 left=23 alive=3 startButton=False moving=False
+Well state: trial=1 start=True end=False endless=False bossWave=False spawnBoss=False spawned=87/100 left=13 alive=3 startButton=False moving=False
+Well state: trial=1 start=True end=False endless=False bossWave=False spawnBoss=False spawned=89/100 left=11 alive=3 startButton=False moving=False
+Well state: trial=1 start=True end=False endless=False bossWave=False spawnBoss=False spawned=95/100 left=5 alive=3 startButton=False moving=False
+Well state: trial=1 start=True end=False endless=False bossWave=False spawnBoss=True spawned=100/100 left=0 alive=3 startButton=False moving=False
+Well state: trial=1 start=True end=False endless=False bossWave=False spawnBoss=True spawned=100/100 left=0 alive=3 startButton=False moving=False
+Boss fight strikes the boss: armor=0 state=Idle invincible=False at=(-2.50, -49.00, 0.00) shield=False shields=0
+Well trial cleared (2/3): trial=2 start=True end=True endless=False bossWave=False spawnBoss=True spawned=100/100 left=0 alive=2 startButton=False host kills=101 guest kills=100
+Well state: trial=2 start=False end=False endless=False bossWave=False spawnBoss=False spawned=100/100 left=0 alive=2 startButton=True moving=False
+Well trial 2 started by guest
+Well state: trial=2 start=True end=False endless=False bossWave=False spawnBoss=False spawned=4/100 left=96 alive=2 startButton=False moving=False
+Well state: trial=2 start=True end=False endless=False bossWave=False spawnBoss=False spawned=14/100 left=86 alive=2 startButton=False moving=False
+Well state: trial=2 start=True end=False endless=False bossWave=False spawnBoss=False spawned=21/100 left=79 alive=2 startButton=False moving=False
+Well state: trial=2 start=True end=False endless=False bossWave=False spawnBoss=False spawned=24/100 left=76 alive=2 startButton=False moving=False
+Well state: trial=2 start=True end=False endless=False bossWave=False spawnBoss=False spawned=33/100 left=67 alive=2 startButton=False moving=False
+Well state: trial=2 start=True end=False endless=False bossWave=False spawnBoss=False spawned=38/100 left=62 alive=2 startButton=False moving=False
+Well state: trial=2 start=True end=False endless=False bossWave=False spawnBoss=False spawned=44/100 left=56 alive=2 startButton=False moving=False
+Well state: trial=2 start=True end=False endless=False bossWave=False spawnBoss=False spawned=50/100 left=50 alive=2 startButton=False moving=False
+Well state: trial=2 start=True end=False endless=False bossWave=False spawnBoss=False spawned=56/100 left=44 alive=2 startButton=False moving=False
+Well state: trial=2 start=True end=False endless=False bossWave=False spawnBoss=False spawned=62/100 left=38 alive=2 startButton=False moving=False
+Well state: trial=2 start=True end=False endless=False bossWave=False spawnBoss=False spawned=71/100 left=29 alive=2 startButton=False moving=False
+Well state: trial=2 start=True end=False endless=False bossWave=False spawnBoss=False spawned=77/100 left=23 alive=2 startButton=False moving=False
+Well state: trial=2 start=True end=False endless=False bossWave=False spawnBoss=False spawned=83/100 left=17 alive=2 startButton=False moving=False
+Well state: trial=2 start=True end=False endless=False bossWave=False spawnBoss=False spawned=89/100 left=11 alive=2 startButton=False moving=False
+Well state: trial=2 start=True end=False endless=False bossWave=False spawnBoss=False spawned=96/100 left=4 alive=2 startButton=False moving=False
+Well trial cleared (3/3): trial=3 start=True end=True endless=False bossWave=False spawnBoss=False spawned=100/100 left=0 alive=2 startButton=False host kills=101 guest kills=200
+Well state: trial=3 start=False end=False endless=False bossWave=False spawnBoss=False spawned=100/100 left=0 alive=2 startButton=False moving=False
+Co-op actor down: guest; survivor continues
+Co-op actor down: host; survivor continues
+Both players down; native run-ending sequence started
+WELL CHECKS PASSED: guest entered the Well; 3 trials (boss trial True) started from the Well button and cleared by alternating players; one fallen player kept the run going; team wipe reached the Well's run-end screen
+HOST INTEGRATION PASSED: authoritative input and 4264 snapshots

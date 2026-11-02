@@ -1,0 +1,9 @@
+Session transport starting on 127.0.0.1:27856
+Local asset catalog: sprites=6725 materials=50 tilemaps=0
+Guest simulation stopped; authoritative rendering enabled
+Guest received stage=-1 generation=1
+First authoritative snapshot: actors=2 sprites=827
+Guest received stage=11 generation=1
+GUEST INTEGRATION PASSED: snapshots=162 replicas=45 missing sprites=0
+Guest rendered the Well
+INTEGRATION PASSED: peer exited after verification

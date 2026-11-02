@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>disable</Nullable>
+    <AssemblyName>Il2CppPeek</AssemblyName>
+    <RootNamespace>Il2CppPeek</RootNamespace>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <NoWarn>$(NoWarn);CS0618</NoWarn>
+  </PropertyGroup>
+
+  <!--
+    Reuses LibCpp2IL (to locate the compiled method) and Iced (to disassemble it) from the
+    BepInEx install, so this needs no NuGet packages.
+  -->
+  <ItemGroup>
+    <Reference Include="LibCpp2IL"><HintPath>$(BepInExCore)\LibCpp2IL.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="AssetRipper.Primitives"><HintPath>$(BepInExCore)\AssetRipper.Primitives.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="Iced"><HintPath>$(BepInExCore)\Iced.dll</HintPath><Private>true</Private></Reference>
+  </ItemGroup>
+
+</Project>

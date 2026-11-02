@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Mod>
+  <ID>InstantEvaporator</ID>
+  <Name>Instant Evaporator</Name>
+  <Author>NyanDoggo</Author>
+  <ModVersion>1.0.0</ModVersion>
+  <Description>The Evaporator does a whole night's work every second (one game tick) instead of once a night: about 300 ml per second, more with performance modules. Each second it works costs the same Energy Cell power as one night, so power per litre is unchanged. An empty or already dry evaporator uses nothing. Distillate and the Solvent Recovery Module work as before.</Description>
+  <Assemblies>
+    <Assembly>InstantEvaporator.dll</Assembly>
+  </Assemblies>
+  <Capabilities />
+</Mod>

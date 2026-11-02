@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Swamp Keeper Co-op — Radmin VPN Guide</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0f14;
+      --panel: #121923;
+      --panel-2: #182231;
+      --text: #edf3f8;
+      --muted: #9fb0bf;
+      --accent: #65d18a;
+      --accent-2: #7ab8ff;
+      --warn: #ffd166;
+      --border: #263547;
+      --code: #0a1119;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #142131 0, var(--bg) 38rem);
+      color: var(--text);
+      line-height: 1.55;
+    }
+
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 48px auto 72px;
+    }
+
+    .hero, .card {
+      background: color-mix(in srgb, var(--panel) 94%, transparent);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: 0 18px 60px rgba(0,0,0,.25);
+    }
+
+    .hero { padding: 34px; }
+    .card { padding: 26px; margin-top: 18px; }
+
+    h1, h2, h3 { line-height: 1.2; margin-top: 0; }
+    h1 { font-size: clamp(2rem, 5vw, 3.2rem); margin-bottom: 12px; }
+    h2 { font-size: 1.45rem; margin-bottom: 14px; }
+    h3 { font-size: 1.06rem; margin-bottom: 8px; }
+
+    p { margin: 10px 0; }
+    a { color: var(--accent-2); }
+    strong { color: #fff; }
+    .muted { color: var(--muted); }
+
+    .badge {
+      display: inline-block;
+      margin-bottom: 14px;
+      padding: 5px 10px;
+      border: 1px solid #346548;
+      border-radius: 999px;
+      color: #b8f7cb;
+      background: #10251a;
+      font-size: .86rem;
+      font-weight: 700;
+    }
+
+    .important {
+      border-left: 4px solid var(--warn);
+      background: #241f11;
+      padding: 14px 16px;
+      border-radius: 10px;
+      margin: 16px 0;
+    }
+
+    .good {
+      border-left: 4px solid var(--accent);
+      background: #102118;
+      padding: 14px 16px;
+      border-radius: 10px;
+      margin: 16px 0;
+    }
+
+    ol, ul { padding-left: 24px; }
+    li { margin: 9px 0; }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    .step {
+      border: 1px solid var(--border);
+      background: var(--panel-2);
+      border-radius: 14px;
+      padding: 18px;
+    }
+
+    .step-num {
+      display: inline-grid;
+      place-items: center;
+      width: 30px;
+      height: 30px;
+      margin-bottom: 10px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #07110b;
+      font-weight: 900;
+    }
+
+    code, .value {
+      font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+      background: var(--code);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 2px 6px;
+      color: #cce3ff;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+
+    th, td {
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      padding: 11px 10px;
+      vertical-align: top;
+    }
+
+    th { color: var(--muted); font-size: .9rem; }
+
+    .checklist li::marker { color: var(--accent); }
+
+    footer {
+      color: var(--muted);
+      text-align: center;
+      margin-top: 28px;
+      font-size: .86rem;
+    }
+
+    @media (max-width: 700px) {
+      main { width: min(100% - 20px, 920px); margin-top: 20px; }
+      .hero, .card { padding: 21px; border-radius: 14px; }
+      .steps { grid-template-columns: 1fr; }
+      table { font-size: .92rem; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="hero">
+      <span class="badge">Swamp Keeper v1.05 · Online Co-op</span>
+      <h1>Playing through Radmin VPN</h1>
+      <p class="muted">Use Radmin VPN to put both PCs on the same virtual LAN, then connect the guest directly to the host's Radmin IP from the co-op menu.</p>
+
+      <div class="good">
+        <strong>No router port forwarding is needed when both players use Radmin VPN.</strong> The guest connects through Radmin's virtual network instead.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Before you start</h2>
+      <ul class="checklist">
+        <li>Both players need the <strong>same Swamp Keeper version</strong> and the <strong>same co-op mod build</strong>.</li>
+        <li>Both PCs need <strong>Radmin VPN</strong>. Download it from <a href="https://www.radmin-vpn.com/" target="_blank" rel="noopener">radmin-vpn.com</a>.</li>
+        <li>The co-op mod uses <strong>TCP port <code>27856</code></strong>.</li>
+        <li>Keep the game at the <strong>title screen</strong> until the host and guest have connected.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>1. Create the Radmin network</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <h3>Host</h3>
+          <p>Open <strong>Radmin VPN</strong> and choose <strong>Create network</strong>.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <h3>Host</h3>
+          <p>Choose a <strong>Network name</strong> and <strong>Password</strong>, then press <strong>Create</strong>.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <h3>Guest</h3>
+          <p>Open Radmin VPN and choose <strong>Join network</strong>.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <h3>Guest</h3>
+          <p>Enter the host's Radmin <strong>Network name</strong> and <strong>Password</strong>, then press <strong>Join</strong>.</p>
+        </div>
+      </div>
+
+      <div class="important">
+        The <strong>Radmin network password</strong> and the <strong>Swamp Keeper session code</strong> are two separate things. You will use both.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>2. Find the host's Radmin IP</h2>
+      <p>Once both players are in the same Radmin network, the host will appear in the network member list.</p>
+      <p>Copy the <strong>host's Radmin VPN IP address</strong>. It will normally look like:</p>
+      <p><span class="value">26.x.x.x</span></p>
+      <p class="muted">Use this Radmin IP in Swamp Keeper. Do not use the host's normal home/LAN address such as 192.168.x.x.</p>
+
+      <p>Before opening the game, the guest can right-click the host in Radmin VPN and choose <strong>Ping</strong>. A successful ping is a good sign that the virtual LAN is working.</p>
+    </section>
+
+    <section class="card">
+      <h2>3. Start the Swamp Keeper co-op session</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Host</th>
+            <th>Guest</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Launch Swamp Keeper and stay on the <strong>title screen</strong>.</td>
+            <td>Launch Swamp Keeper and stay on the <strong>title screen</strong>.</td>
+          </tr>
+          <tr>
+            <td>Press <strong>F7</strong> to open <strong>ONLINE CO-OP</strong>.</td>
+            <td>Press <strong>F7</strong> to open <strong>ONLINE CO-OP</strong>.</td>
+          </tr>
+          <tr>
+            <td>Create/copy the <strong>Session Code</strong> and click <strong>Host</strong>.</td>
+            <td>Enter the <strong>same Session Code</strong>.</td>
+          </tr>
+          <tr>
+            <td>Send the guest your <strong>Radmin IP</strong> and Session Code.</td>
+            <td>Enter the host's <strong>Radmin IP (26.x.x.x)</strong> as the host address.</td>
+          </tr>
+          <tr>
+            <td>Wait for the guest to connect.</td>
+            <td>Click <strong>Join</strong>.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>4. Choose items and skills</h2>
+      <ol>
+        <li>Each player opens the co-op menu with <strong>F7</strong>.</li>
+        <li>Choose your own <strong>items</strong> and your two <strong>skills</strong>.</li>
+        <li>Each player presses <strong>Ready</strong>.</li>
+        <li>Once <strong>both players are ready</strong>, the host enters the run normally.</li>
+      </ol>
+
+      <p>The host and guest have separate loadouts and separate player characters. The host controls run progression.</p>
+    </section>
+
+    <section class="card">
+      <h2>What information do I send my friend?</h2>
+      <table>
+        <tbody>
+          <tr>
+            <th>Radmin network name</th>
+            <td>Used to join the same virtual LAN.</td>
+          </tr>
+          <tr>
+            <th>Radmin network password</th>
+            <td>Used only by Radmin VPN.</td>
+          </tr>
+          <tr>
+            <th>Host Radmin IP</th>
+            <td>Usually <code>26.x.x.x</code>. Guest enters this in the Swamp Keeper co-op menu.</td>
+          </tr>
+          <tr>
+            <th>Swamp Keeper Session Code</th>
+            <td>Both players must use the same code for the co-op session.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>Troubleshooting</h2>
+
+      <h3>Guest cannot connect</h3>
+      <ol>
+        <li>Confirm both PCs appear in the <strong>same Radmin VPN network</strong>.</li>
+        <li>From the guest PC, right-click the host in Radmin and run <strong>Ping</strong>.</li>
+        <li>Confirm the guest entered the host's <strong>Radmin IP</strong>, usually <code>26.x.x.x</code>.</li>
+        <li>Confirm both players entered the exact same <strong>Swamp Keeper Session Code</strong>.</li>
+        <li>Confirm both players have the same game/mod version.</li>
+        <li>Allow <strong>Swamp Keeper</strong> and/or <strong>TCP 27856</strong> through Windows Firewall on the host.</li>
+      </ol>
+
+      <h3>Radmin Ping fails</h3>
+      <p>Fix the Radmin connection first. If Radmin itself cannot reach the host, Swamp Keeper will not be able to connect through it either.</p>
+
+      <h3>The game says the session code is wrong</h3>
+      <p>The Radmin password does not replace the game's Session Code. Copy the code shown in the <strong>F7 ONLINE CO-OP</strong> menu exactly.</p>
+
+      <h3>Windows Firewall prompt appears</h3>
+      <p>Allow Swamp Keeper network access. If it was previously denied, open <strong>Windows Security → Firewall &amp; network protection → Allow an app through firewall</strong> and allow Swamp Keeper.</p>
+
+      <h3>Do I need to forward port 27856 on my router?</h3>
+      <p><strong>No.</strong> When using Radmin VPN, both PCs communicate through the Radmin virtual LAN. Router port forwarding is unnecessary.</p>
+    </section>
+
+    <section class="card">
+      <h2>Fast checklist</h2>
+      <ol>
+        <li>Both install Radmin VPN.</li>
+        <li>Host: <strong>Create network</strong>.</li>
+        <li>Guest: <strong>Join network</strong>.</li>
+        <li>Guest pings host successfully in Radmin.</li>
+        <li>Host sends guest the host's <strong>26.x.x.x Radmin IP</strong>.</li>
+        <li>Both launch Swamp Keeper and stay at the title screen.</li>
+        <li>Both press <strong>F7</strong>.</li>
+        <li>Host clicks <strong>Host</strong>; guest enters host Radmin IP and clicks <strong>Join</strong>.</li>
+        <li>Both choose loadouts and press <strong>Ready</strong>.</li>
+        <li>Host starts the run.</li>
+      </ol>
+    </section>
+
+    <footer>
+      Radmin VPN terminology checked against the official Radmin VPN help page. Swamp Keeper co-op default port: TCP 27856.
+    </footer>
+  </main>
+</body>
+</html>

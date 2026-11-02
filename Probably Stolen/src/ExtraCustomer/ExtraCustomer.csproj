@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>ExtraCustomer</AssemblyName>
+    <RootNamespace>ExtraCustomer</RootNamespace>
+    <Version>1.3.0</Version>
+  </PropertyGroup>
+</Project>

@@ -1,0 +1,18 @@
+Session transport starting on 127.0.0.1:27856
+Authenticated guest Guest
+Remote native actor ready: independent skills=True control=True
+Transferred missing native sprite 1 Enemy_Bowman_Shadow 22x3 91 bytes
+Network movement: host distance=0 guest distance=4.870603 received sequence=127
+Network attacks: host shots=0 guest shots=1
+Network skill use: host=0 guest=1
+Granted all 40 native items to guest; inventory host=0 guest=40
+All-item ownership check passed: host inventory and 16 equipment stats unchanged
+Skill smoke passed: 18 skills invoked; host singleton stable
+Shared transition started; host state=Idle
+Native transition iterator state=4 result=True
+Native transition iterator state=5 result=True
+Native transition iterator state=-1 result=False
+Transition parents: leader=<root> leaderState=Idle
+Shared stage transition completed: generation=2 stage=1 guest inventory=40
+NATIVE GAMEPLAY CHECKS PASSED: all 18 skills smoke-tested; all 40 items isolated; shared transition to stage 1 preserves guest inventory
+HOST INTEGRATION PASSED: authoritative input and 315 snapshots

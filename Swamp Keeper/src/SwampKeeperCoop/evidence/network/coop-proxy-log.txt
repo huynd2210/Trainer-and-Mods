@@ -1,0 +1,6 @@
+03:43:27 relaying ('127.0.0.1', 27857) -> ('127.0.0.1', 27856) with 100+30 ms one-way delay
+03:43:41 link 1 opened
+03:44:10 cut applied to 1 live link(s)
+03:44:12 link 2 opened
+03:44:15 stall applied to 1 live link(s)
+03:44:24 link 3 opened

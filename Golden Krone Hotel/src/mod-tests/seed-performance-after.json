@@ -1,0 +1,42 @@
+{
+  "baseline": false,
+  "idle": {
+    "capture": [],
+    "restore": [],
+    "forecast": [],
+    "mapPaints": 0,
+    "mutations": 0
+  },
+  "measurements": [
+    {
+      "index": 0,
+      "captureMs": 23.900000005960464,
+      "restoreMs": 54.19999999552965,
+      "forecastMs": 30.399999998509884,
+      "guardMs": 26.19999999552965,
+      "fullGuardMs": 91.90000000596046,
+      "records": 1370,
+      "totalFloorRecords": 293709
+    },
+    {
+      "index": 9,
+      "captureMs": 23.299999997019768,
+      "restoreMs": 62.30000000447035,
+      "forecastMs": 61.5,
+      "guardMs": 24.900000005960464,
+      "fullGuardMs": 88.29999999701977,
+      "records": 1370,
+      "totalFloorRecords": 293709
+    },
+    {
+      "index": 24,
+      "captureMs": 24.799999997019768,
+      "restoreMs": 66.80000000447035,
+      "forecastMs": 141.89999999850988,
+      "guardMs": 48.5,
+      "fullGuardMs": 114.79999999701977,
+      "records": 1364,
+      "totalFloorRecords": 293709
+    }
+  ]
+}
