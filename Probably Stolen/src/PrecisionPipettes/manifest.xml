@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Mod>
+  <ID>PrecisionPipettes</ID>
+  <Name>Precision Pipettes</Name>
+  <Author>NyanDoggo</Author>
+  <ModVersion>1.0.0</ModVersion>
+  <Description>Adds 0.5 ml and 0.1 ml droppers for doses smaller than the vanilla 1 ml one. They work exactly like the vanilla droppers (draw when empty, drop it all when full), show their volume in fractions of a ml, and have a green (0.5 ml) or red (0.1 ml) bulb so you can tell them apart from the teal 1 ml and purple 5 ml. The Retired Chemist sells both whenever they offer the 1 ml dropper.</Description>
+  <GameVersions>
+    <Version>0.46</Version>
+  </GameVersions>
+  <Assemblies>
+    <Assembly>PrecisionPipettes.dll</Assembly>
+  </Assemblies>
+  <Capabilities />
+</Mod>

@@ -1,6 +1,6 @@
 # Probably Stolen: Cyberpunk Shopkeeper Sim mods
 
-Ten mods by NyanDoggo for the game's built-in mod loader (no BepInEx needed). Made for v0.46D.
+Eleven mods by NyanDoggo for the game's built-in mod loader (no BepInEx needed). Made for v0.46D.
 
 - **No Rent Increase**: the landlord stops raising the weekly rent. Deals you accept
   yourself (vending machines, starting perks) still change it.
@@ -41,6 +41,10 @@ Ten mods by NyanDoggo for the game's built-in mod loader (no BepInEx needed). Ma
 - **Precise Temperature Control**: the Heating Plate's target temperature can be set to
   the degree at any module count (-/+ 1 °C, Shift-click 10 °C); the plate stops at the
   target and holds it exactly. Max temperature and heating speed still follow the modules.
+- **Precision Pipettes**: 0.5 ml and 0.1 ml droppers, used like the vanilla ones, with a
+  green (0.5 ml) or red (0.1 ml) bulb to tell them from the teal 1 ml and purple 5 ml. The
+  Retired Chemist sells both whenever they offer the 1 ml dropper. Sell or trash them
+  before removing the mod.
 
 ## Install
 
