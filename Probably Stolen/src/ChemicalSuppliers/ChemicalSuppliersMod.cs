@@ -47,6 +47,7 @@ namespace ChemicalSuppliers
             StoreClientListDict.storeClientDict[Suppliers.ChemicalMerchantId] = Suppliers.CreateChemicalMerchant;
             StoreClientListDict.storeClientDict[Suppliers.MushroomSellerId] = Suppliers.CreateMushroomSeller;
             ModHook.OnGenerateCustomerNormal += AddMushroomSellerWalkIn;
+            StarchLook.Apply();
 
             // Decides in its Start whether our own hotkey is needed.
             listener = new GameObject("ChemicalSuppliers.Hotkey");
@@ -57,6 +58,7 @@ namespace ChemicalSuppliers
         public void OnDisable()
         {
             ModHook.OnGenerateCustomerNormal -= AddMushroomSellerWalkIn;
+            StarchLook.Restore();
             ModHelper.RemoveGameOptions(Id);
             if (listener != null)
                 Object.Destroy(listener);

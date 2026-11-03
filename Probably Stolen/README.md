@@ -29,7 +29,8 @@ Eleven mods by NyanDoggo for the game's built-in mod loader (no BepInEx needed).
   before disabling the mod.
 - **Chemical Suppliers**: two new sellers for the drug lab. The **Chemical Merchant**
   sells alcohol, reducing agent, pure N-Methylol Base for
-  Phanta (no stabilizer, so no acid step) and cheap 2 L starch bottles for cutting a batch;
+  Phanta (no stabilizer, so no acid step) and cheap 2 L starch bottles for cutting a batch
+  (starch shows milky white in clear containers, not water teal);
   the reagents cost 2x base price by default (50-500% in its settings). The **Shady
   Mushroom Seller** sells a wholesale lot of Dream Caps and Nightmare Caps and walks in on
   20% of days (0-100 in its settings). Call either one: it detects Extra Customer at

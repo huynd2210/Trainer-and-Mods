@@ -3,7 +3,7 @@
   <ID>ChemicalSuppliers</ID>
   <Name>Chemical Suppliers</Name>
   <Author>NyanDoggo</Author>
-  <ModVersion>1.4.0</ModVersion>
+  <ModVersion>1.4.1</ModVersion>
   <Description>Two new sellers for the drug lab. The Chemical Merchant sells alcohol, reducing agent, pure N-Methylol Base for Phanta and cheap starch filler. The Shady Mushroom Seller sells a big lot of Dream Caps and Nightmare Caps at a wholesale discount; they walk in on their own (20% of days by default, 0 to 100 in this mod's settings) and can also be called. With Extra Customer running, call both from its F8 list; without it, this mod sets up its own key: F7 for the merchant, Shift+F7 for the mushroom seller.</Description>
   <GameVersions>
     <Version>0.46</Version>

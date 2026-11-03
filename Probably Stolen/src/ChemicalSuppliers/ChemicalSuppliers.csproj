@@ -2,6 +2,6 @@
   <PropertyGroup>
     <AssemblyName>ChemicalSuppliers</AssemblyName>
     <RootNamespace>ChemicalSuppliers</RootNamespace>
-    <Version>1.4.0</Version>
+    <Version>1.4.1</Version>
   </PropertyGroup>
 </Project>

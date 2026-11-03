@@ -12,7 +12,8 @@ Two new sellers for the drug lab.
     same stuff bought pills are cut with. It pours like a liquid, but it doesn't evaporate,
     so the Chem Finisher doesn't call it a "wet ingredient", and no filter catches it. Mix it
     into a dried batch to stretch it or pull its purity down, e.g. Phanta into the safe
-    60–74% range. The Water Purifier does strip it.
+    60–74% range. The Water Purifier does strip it. With the mod on, pure starch shows
+    milky white in any clear container instead of the game's default water teal.
 
   The alcohol, reducing agent and N-Methylol Base cost twice their base price by default,
   so the supply boxes stay the cheaper route. Change it (50% to 500%) under **Chemical
