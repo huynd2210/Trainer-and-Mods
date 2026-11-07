@@ -7,12 +7,21 @@ Call exactly the customer you want.
   - **Buyers:** anything (merchant), food, water, materials/tools/modules/energy cells,
     medical, household, substances, cigarettes and treats, weapons/armor/ammo, firearms,
     luxury, contraband, seeds.
-  - **Sellers:** cigarettes/food stamps/injectors, substances and chemicals, water, food,
-    materials, machines, medical, household, firearms and weapons, mixed and rare goods,
-    and the retired specialists who sell equipment. With the **Chemical Suppliers** mod
+  - **Sellers:** first, one button each for a **Cigarette seller**, a **Food stamp
+    seller** and a **Lottery ticket seller** (the Lottery Representative). Then injectors,
+    substances and chemicals, water, food, materials, machines, medical, household,
+    firearms and weapons, mixed and rare goods, and the retired specialists who sell
+    equipment. The cigarette seller is this mod's own: the game's scavenger who brings
+    cigarettes, stamps or injectors at random, minus the randomness (that scavenger is
+    still listed under mixed goods). With the **Chemical Suppliers** mod
     installed, its Chemical Merchant and Shady Mushroom Seller are listed under
     substances and chemicals too.
   - **Barter and services:** the barter customers, appraisal jobs, the information dealer.
+  - The **Clinic Volunteer** (under injectors), who normally only comes during the Oxymore
+    wave, brings 2 to 6 Pure White injectors depending on your lower-level reputation. They
+    are free by default; turn off *Clinic Volunteer's injectors are free* in this mod's
+    settings to make him charge the normal price. The volunteers the Oxymore event sends
+    stay free either way.
 
   Hover a name to see what they trade (and the tier, for the display-case customers).
   Click it to put them at the end of today's queue: you hear a chime and the customer
@@ -27,8 +36,13 @@ Call exactly the customer you want.
 A two-beep error sound means nobody was added: the shop isn't open, or for Shift+F8,
 every random customer has visited recently. Customers the game hasn't unlocked yet (water
 traders, specialists, the hypertech smuggler, appraisal jobs...) stay greyed out until it
-has; hover them to see what unlocks them. Rebind F8 under
-**Options > Keybinds > Call a customer**.
+has; hover them to see what unlocks them.
+
+**Rebinding F8:** open this mod's settings in the **Mods** menu, click the key button next
+to *Call a customer*, press the new key (Esc cancels) and click **Apply**. **Reset** puts F8
+back. The same key is also listed under **Options > Keybinds > Call a customer**; changing
+it in either place changes both. Keys already used by the game or another mod are refused,
+as in the Options window.
 
 ## Install
 

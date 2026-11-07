@@ -1,6 +1,6 @@
 # Probably Stolen: Cyberpunk Shopkeeper Sim mods
 
-Eleven mods by NyanDoggo for the game's built-in mod loader (no BepInEx needed). Made for v0.46D.
+Thirteen mods by NyanDoggo for the game's built-in mod loader (no BepInEx needed). Made for v0.46D.
 
 - **No Rent Increase**: the landlord stops raising the weekly rent. Deals you accept
   yourself (vending machines, starting perks) still change it.
@@ -8,10 +8,14 @@ Eleven mods by NyanDoggo for the game's built-in mod loader (no BepInEx needed).
   buyers, sellers, barterers and service customers, grouped by what they trade (food,
   water, medical, materials, household, substances, cigarettes/stamps/injectors, weapons,
   firearms, contraband, specialists...); click one to put them at the end of today's queue. Shift+F8 adds a
-  random customer. Rebind in Options > Keybinds. Every morning it also adds extra
+  random customer. Rebind F8 in the mod's settings (Mods menu: click the key, press the
+  new one, Apply) or in Options > Keybinds. Every morning it also adds extra
   customers on top of the normal ones: 1 by default, 0 to 10 in the mod's settings.
   With Chemical Suppliers installed, its two sellers are in the F8 list too, and that mod
-  then adds no key of its own.
+  then adds no key of its own. The list includes the Clinic Volunteer, who normally only
+  comes during the Oxymore wave and gives away 2 to 6 Pure White injectors; turn off
+  *Clinic Volunteer's injectors are free* in the mod's settings to make him charge the
+  normal price instead.
 - **Fraud Detection**: hovering an item shows what it really is when its label lies
   (counterfeit cigarettes, stamps and injectors, impure water and chemicals, worn or
   expired goods...) and the real value change. The inspection screen opens with the
@@ -46,6 +50,13 @@ Eleven mods by NyanDoggo for the game's built-in mod loader (no BepInEx needed).
   green (0.5 ml) or red (0.1 ml) bulb to tell them from the teal 1 ml and purple 5 ml. The
   Retired Chemist sells both whenever they offer the 1 ml dropper. Sell or trash them
   before removing the mod.
+- **Unlimited Reputation**: faction reputation keeps climbing past 200, and everything
+  that scales with it (haggling odds, supplier chances, black market stock, tips) keeps
+  scaling. The panel shows the real number; the -200 floor is unchanged.
+- **More Run Stats**: a Shady Deals tab on the end-of-run summary with contraband sold
+  by type (drugs, weapons, access cards, other), scam profit (what mislabelled goods
+  earned above their honest price, plus the biggest single scam) and stolen goods sold.
+  Counts from when the mod is enabled; the totals are kept in the save.
 
 ## Install
 

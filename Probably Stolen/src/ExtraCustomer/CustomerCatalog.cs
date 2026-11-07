@@ -16,11 +16,13 @@ namespace ExtraCustomer
         internal class Entry
         {
             public string Id;
-            public int Tier;            // 1-3 for the display case's t1/t2/t3 buyers, else 0
+            public string Name;         // button text in place of the game's name, which says nothing of what they sell
+            public int Tier;           // 1-3 for the display case's t1/t2/t3 buyers, else 0
             public string Suffix;       // tells apart customers the game gives the same name
             public string Note;         // what they bring or want, for the tooltip
             public Func<bool> Locked;   // non-null: returns true while the game has not unlocked it
             public string LockedReason;
+            public Action<StoreClient> Prepare; // non-null: adjusts the client this mod calls, before it is queued
         }
 
         internal class Group
@@ -98,14 +100,22 @@ namespace ExtraCustomer
 
         internal static readonly Group[] Sellers =
         {
-            Text("Cigarettes, food stamps and injectors",
-                E("scavInspectable", note: "Cigarettes, food stamps or injectors; some are fake",
-                    unlocked: () => PlayerStore.Instance.isStampIntroduced || PlayerStore.Instance.isVisualInspectionIntroduced
-                                    || PlayerStore.Instance.isInjectorIntroduced,
-                    lockedReason: "Comes once the game has introduced cigarettes, stamps or injectors."),
-                E("scavStamp", note: "Food stamps; some are fake"),
+            Text("Cigarettes, food stamps and lottery tickets",
+                E(CigaretteSeller.ClientId, name: "Cigarette seller", note: "Cigarette packs only; some are fake",
+                    unlocked: () => PlayerStore.Instance.isVisualInspectionIntroduced,
+                    lockedReason: "Comes once the game has introduced cigarettes."),
+                E("scavStamp", name: "Food stamp seller", note: "Food stamps only; some are fake",
+                    unlocked: () => !StartingPerk.IsBannedCommissary(),
+                    lockedReason: "Your Banned Commissary perk keeps stamp sellers away."),
+                E("lotteryRep", name: "Lottery ticket seller", note: "The Lottery Representative: 10 lottery tickets and 5 scratchers; buys winning tickets",
+                    unlocked: LotteryHelper.IsLotteryUnlocked,
+                    lockedReason: "Comes once the game has unlocked the lottery (after day 14).")),
+            Text("Injectors",
                 E("shadyPharma", note: "Injectors and bandages, stolen"),
-                E("scalper", note: "A genuine injector, marked up")),
+                E("scalper", note: "A genuine injector, marked up"),
+                E(ClinicVolunteer.ClientId,
+                    note: "2 Pure White injectors, plus 1 more at each 33/66/99/149 lower-level reputation; free unless turned off in this mod's settings. Normally only comes during the Oxymore wave",
+                    prepare: ClinicVolunteer.Prepare)),
             Text("Substances and chemicals",
                 E("lowerLevelChemist", note: "Dream dust, salve, caffeine pills; buys chemical supplies"),
                 E("rareLowerLevelChemist", note: "Dream dust, injectors, pills; buys chemical supplies"),
@@ -155,6 +165,10 @@ namespace ExtraCustomer
                 E("weapon_armor_surplus_client")),
             Text("Mixed and rare goods",
                 E("scavGeneral", note: "A mixed haul"),
+                E("scavInspectable", suffix: "cigs, stamps or injectors", note: "One of cigarettes, food stamps or injectors, at random; some are fake",
+                    unlocked: () => PlayerStore.Instance.isStampIntroduced || PlayerStore.Instance.isVisualInspectionIntroduced
+                                    || PlayerStore.Instance.isInjectorIntroduced,
+                    lockedReason: "Comes once the game has introduced cigarettes, stamps or injectors."),
                 E("thief", note: "Stolen premium goods, keycards, modules, loot crates"),
                 E("brokeUpperLevel", note: "Upper-level gear, cheap"),
                 E("lower_level_rare_merchant", note: "Rare equipment and modules"),
@@ -216,9 +230,12 @@ namespace ExtraCustomer
         };
 
         private static Entry E(string id, int tier = 0, string suffix = null, string note = null,
-            Func<bool> unlocked = null, string lockedReason = null) => new Entry
+            Func<bool> unlocked = null, string lockedReason = null, string name = null,
+            Action<StoreClient> prepare = null) => new Entry
         {
             Id = id,
+            Prepare = prepare,
+            Name = name,
             Tier = tier,
             Suffix = suffix,
             Note = note,

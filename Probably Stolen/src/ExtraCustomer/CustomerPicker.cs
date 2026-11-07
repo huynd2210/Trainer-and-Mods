@@ -111,9 +111,9 @@ namespace ExtraCustomer
         private static void AddCustomerButton(CustomUIBuilder builder, CustomerCatalog.Entry entry)
         {
             (string name, StoreClient.ClientIntent intent) = Describe(entry.Id);
-            string id = entry.Id;
+            name = entry.Name ?? name;
             string label = entry.Suffix == null ? name : name + " (" + entry.Suffix + ")";
-            builder.AddButton(label, () => ExtraCustomerMod.Feedback(ExtraCustomerMod.AddCustomer(id)));
+            builder.AddButton(label, () => ExtraCustomerMod.Feedback(ExtraCustomerMod.AddCustomer(entry)));
             builder.Last?.SetFixedWidth(ButtonWidth);
 
             if (entry.Locked != null && entry.Locked())

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Mod>
+  <ID>UnlimitedReputation</ID>
+  <Name>Unlimited Reputation</Name>
+  <Author>NyanDoggo</Author>
+  <ModVersion>1.0.0</ModVersion>
+  <Description>Faction reputation no longer stops at 200. It keeps climbing, and everything that scales with reputation (haggling odds, supplier chances, stock, tips) keeps scaling with it. The -200 floor is unchanged.</Description>
+  <GameVersions>
+    <Version>0.46</Version>
+  </GameVersions>
+  <Assemblies>
+    <Assembly>UnlimitedReputation.dll</Assembly>
+  </Assemblies>
+  <Capabilities />
+</Mod>
