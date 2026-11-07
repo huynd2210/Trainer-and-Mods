@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Headless stand-in for ModShardLauncher's Compile + Patch buttons. Expects to sit in ModShardLauncher\ModSources\_tools\mslpack. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <NoWarn>CS8632;NU1701</NoWarn>
+    <MslDir>$(MSBuildThisFileDirectory)..\..\..\</MslDir>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="ModShardLauncher"><HintPath>$(MslDir)ModShardLauncher.dll</HintPath></Reference>
+    <Reference Include="UndertaleModLib"><HintPath>$(MslDir)UndertaleModLib.dll</HintPath></Reference>
+    <PackageReference Include="ModShardPackerReference" Version="1.0.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+</Project>
