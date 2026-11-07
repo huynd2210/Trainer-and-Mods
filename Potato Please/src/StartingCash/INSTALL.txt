@@ -1,0 +1,30 @@
+Potato Please - Starting Cash
+=============================
+
+This archive contains BepInEx 6 (bleeding edge be.781, IL2CPP, win-x64) and the Starting Cash mod.
+
+Install
+-------
+1. Close the game.
+2. Extract everything in this archive into your Potato Please game folder - the one holding
+   PotatoPlease.exe and GameAssembly.dll. You should end up with:
+       PotatoPlease.exe
+       winhttp.dll
+       doorstop_config.ini
+       dotnet\
+       BepInEx\core\
+       BepInEx\plugins\StartingCash.dll
+3. Start the game.
+
+The FIRST launch takes a minute or two longer while BepInEx converts the game's IL2CPP code into
+assemblies it can work with. This happens once.
+
+Use
+---
+Press F8 in a game to get 10,000 rubles. The key and the amount are in
+BepInEx\config\dev.potatoplease.startingcash.cfg after the first launch.
+
+Uninstall
+---------
+Delete winhttp.dll, doorstop_config.ini, .doorstop_version, the dotnet folder and the BepInEx
+folder. Nothing in the game's own files is modified. Money already added stays in your saves.
