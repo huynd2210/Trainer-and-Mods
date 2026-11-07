@@ -1,0 +1,21 @@
+{
+    "name": "BestHand",
+    "namespace": "Huynd",
+    "version_number": "1.0.0",
+    "description": "Shows which cards in your hand make the highest score, using the game's own scoring.",
+    "website_url": "https://github.com/huynd2210/Trainer-and-Mods",
+    "dependencies": [],
+    "extra": {
+        "godot": {
+            "authors": ["huynd"],
+            "tags": ["Quality of Life"],
+            "description_rich": "",
+            "optional_dependencies": [],
+            "load_before": [],
+            "incompatibilities": [],
+            "compatible_mod_loader_version": ["7.0.0"],
+            "compatible_game_version": ["1.0.0"],
+            "config_schema": {}
+        }
+    }
+}

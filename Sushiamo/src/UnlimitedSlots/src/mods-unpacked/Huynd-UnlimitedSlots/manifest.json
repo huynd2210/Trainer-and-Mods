@@ -1,0 +1,21 @@
+{
+    "name": "UnlimitedSlots",
+    "namespace": "Huynd",
+    "version_number": "1.0.0",
+    "description": "No cap on how many tools and sauces you can hold.",
+    "website_url": "https://github.com/huynd2210/Trainer-and-Mods",
+    "dependencies": [],
+    "extra": {
+        "godot": {
+            "authors": ["huynd"],
+            "tags": ["Gameplay"],
+            "description_rich": "",
+            "optional_dependencies": [],
+            "load_before": [],
+            "incompatibilities": [],
+            "compatible_mod_loader_version": ["7.0.0"],
+            "compatible_game_version": ["1.0.0"],
+            "config_schema": {}
+        }
+    }
+}
