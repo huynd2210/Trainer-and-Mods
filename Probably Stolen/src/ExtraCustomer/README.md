@@ -2,27 +2,41 @@
 
 Call exactly the customer you want.
 
-- **F8** while the shop is open opens *Call a customer*: about 150 of the game's regular
-  customers, grouped by what they trade.
+- **F8** opens *Call a customer*: about 150 of the game's regular customers, grouped by what
+  they trade. While the shop is open, a click puts them at the end of today's queue; in the
+  morning, before you raise the shutter, they are booked and join the queue when you open.
+  At night it refuses with a double beep.
   - **Buyers:** anything (merchant), food, water, materials/tools/modules/energy cells,
     medical, household, substances, cigarettes and treats, weapons/armor/ammo, firearms,
     luxury, contraband, seeds.
   - **Sellers:** first, one button each for a **Cigarette seller**, a **Food stamp
     seller** and a **Lottery ticket seller** (the Lottery Representative). Then injectors,
     substances and chemicals, water, food, materials, machines, medical, household,
-    firearms and weapons, mixed and rare goods, and the retired specialists who sell
+    firearms and weapons, mixed and rare goods, the Revolution's **Raider** (stolen raid
+    loot) and **Quartermaster** (bulk ore, scrap or nutrifruit), who normally only come
+    with the Revolution's reputation perks, and the retired specialists who sell
     equipment. The cigarette seller is this mod's own: the game's scavenger who brings
     cigarettes, stamps or injectors at random, minus the randomness (that scavenger is
     still listed under mixed goods). With the **Chemical Suppliers** mod
     installed, its Chemical Merchant and Shady Mushroom Seller are listed under
     substances and chemicals too.
-  - **Barter and services:** the barter customers, appraisal jobs, the information dealer.
+  - **Barter and services:** the barter customers, appraisal jobs, the information dealer,
+    the upper-level charity volunteer and the corporate waste manager.
+  - **From other mods:** any customer another mod adds to the game's customer list shows
+    up here automatically, under that mod's name. Customers a mod only drops straight into
+    the queue (without registering them with the game) can't be called on demand and are
+    not listed. Duplicates are left out: a mod's customer that is the same as one already
+    listed (Agri Expansion's guests are the game's retired specialists under another name)
+    isn't listed twice, and a batch of numbered ids that each send a random ordinary
+    customer (Agri Expansion's 650 perfume-audience ids) is one *random* button.
   - The **Clinic Volunteer** (under injectors), who normally only comes during the Oxymore
-    wave, brings 2 to 6 Pure White injectors depending on your lower-level reputation. They
-    are free by default; turn off *Clinic Volunteer's injectors are free* in this mod's
-    settings to make him charge the normal price. The volunteers the Oxymore event sends
-    stay free either way.
+    wave, brings 2 to 6 free Pure White injectors depending on your lower-level reputation,
+    as in the base game.
 
+  Type in the search box at the top to narrow the list: every word must appear in the
+  name, what they trade, the group or the mod's name ("water sells", "agri"). The dropdown
+  next to it shows one section only (buyers, sellers, barter and services, other mods).
+  Both are remembered the next time you open the window.
   Hover a name to see what they trade (and the tier, for the display-case customers).
   Click it to put them at the end of today's queue: you hear a chime and the customer
   counter goes up. The window stays open, so you can queue several. F8 or Esc closes it.

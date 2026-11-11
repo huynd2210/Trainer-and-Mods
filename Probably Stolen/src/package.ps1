@@ -24,6 +24,11 @@ foreach ($mod in $mods.Name) {
     if (Test-Path $srcStage) { Remove-Item -Recurse -Force $srcStage }
     New-Item -ItemType Directory -Force (Join-Path $srcStage $mod) | Out-Null
     Get-ChildItem $proj -File | Copy-Item -Destination (Join-Path $srcStage $mod)
+    # Subfolders too (e.g. ModItemKeeper\Tests), without build output.
+    Get-ChildItem $proj -Directory | Where-Object { $_.Name -notin 'bin', 'obj' } | ForEach-Object {
+        robocopy $_.FullName (Join-Path $srcStage "$mod\$($_.Name)") /E /XD bin obj /NFL /NDL /NJH /NJS /NP | Out-Null
+        if ($LASTEXITCODE -ge 8) { throw "copy failed: $($_.FullName)" }
+    }
     Copy-Item (Join-Path $root 'Directory.Build.props'), (Join-Path $root 'package.ps1') $srcStage
     $srcZip = Join-Path $dist "$mod-Source.zip"
     if (Test-Path $srcZip) { Remove-Item $srcZip }

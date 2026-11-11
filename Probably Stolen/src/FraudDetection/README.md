@@ -8,9 +8,14 @@ dialogue, discounts and reputation work as normal.
   green (better). Covers every hidden condition: counterfeit cigarettes, food stamps and
   injectors, water and chemical purity, ingot purity, wine, freshness, rust, dents,
   expiry, replicas and the rest. Honest items get no extra lines.
+- **At a glance.** Items you could buy get a small badge in the top-right corner: a red
+  **X** when a label claims more than the item is, a green **+** when it has something that
+  could lie and nothing does. Items with nothing to check, and your own items, get none.
 - **Counterfeits.** The tooltip names the flaw (`Counterfeit - confront: Seal issues`),
   and the inspection screen opens with that flaw already ticked. Press **Confront**.
   If a seller says their item is fake but it is genuine, the "Genuine" box is ticked.
+- **Turn it off mid-run** under **Options > Game Settings > Fraud Detection**, then Apply.
+  Takes effect at once, no restart; the choice is remembered.
 
 For appraisal jobs, see the separate **Auto Appraisal** mod.
 

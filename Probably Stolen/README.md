@@ -1,21 +1,23 @@
 # Probably Stolen: Cyberpunk Shopkeeper Sim mods
 
-Thirteen mods by NyanDoggo for the game's built-in mod loader (no BepInEx needed). Made for v0.46D.
+Nineteen mods by NyanDoggo for the game's built-in mod loader (no BepInEx needed). Made for v0.46D.
 
 - **No Rent Increase**: the landlord stops raising the weekly rent. Deals you accept
   yourself (vending machines, starting perks) still change it.
-- **Extra Customer**: F8 while the shop is open lists about 150 of the game's regular
-  buyers, sellers, barterers and service customers, grouped by what they trade (food,
-  water, medical, materials, household, substances, cigarettes/stamps/injectors, weapons,
-  firearms, contraband, specialists...); click one to put them at the end of today's queue. Shift+F8 adds a
-  random customer. Rebind F8 in the mod's settings (Mods menu: click the key, press the
-  new one, Apply) or in Options > Keybinds. Every morning it also adds extra
-  customers on top of the normal ones: 1 by default, 0 to 10 in the mod's settings.
-  With Chemical Suppliers installed, its two sellers are in the F8 list too, and that mod
-  then adds no key of its own. The list includes the Clinic Volunteer, who normally only
-  comes during the Oxymore wave and gives away 2 to 6 Pure White injectors; turn off
-  *Clinic Volunteer's injectors are free* in the mod's settings to make him charge the
-  normal price instead.
+- **Extra Customer**: F8 lists about 150 of the game's regular buyers, sellers, barterers
+  and service customers, grouped by what they trade (food, water, medical, materials,
+  household, substances, cigarettes/stamps/injectors, weapons, firearms, contraband,
+  specialists...), plus a "From other mods" section for customers other mods register. A
+  search box (name, goods or mod) and a section filter sit on top. Click one to put them at
+  the end of today's queue; in the morning, before you open the shutter, they are booked
+  and arrive once you open. Shift+F8 adds a random customer. Rebind F8 in the mod's
+  settings (Mods menu) or in Options > Keybinds. Every morning it also adds extra customers
+  on top of the normal ones: 1 by default, 0 to 10 in the mod's settings. Customers another
+  mod adds in numbered copies are listed once (identical copies dropped, random ones folded
+  into one entry). With Chemical Suppliers installed, its two sellers are in the F8 list
+  too. The list includes the Clinic Volunteer, who normally only comes during the Oxymore
+  wave; a setting chooses whether his injectors are free, free with full resale value, or
+  normal price.
 - **Fraud Detection**: hovering an item shows what it really is when its label lies
   (counterfeit cigarettes, stamps and injectors, impure water and chemicals, worn or
   expired goods...) and the real value change. The inspection screen opens with the
@@ -57,6 +59,26 @@ Thirteen mods by NyanDoggo for the game's built-in mod loader (no BepInEx needed
   by type (drugs, weapons, access cards, other), scam profit (what mislabelled goods
   earned above their honest price, plus the biggest single scam) and stolen goods sold.
   Counts from when the mod is enabled; the totals are kept in the save.
+- **Pawn Counter**: customers short on cash put a valuable, bulky item on your counter and
+  ask for a loan against it. Lend the credits and hold the item until they come back to buy
+  it back with a holding fee (by shelf space and risk, per day). Sell it early and they
+  want its worth plus what you got for it; about one in ten never return and the item is
+  yours.
+- **Ticket Booth**: become a licensed lottery retailer. Order tickets and scratchers by
+  phone, sell them to the lower levels, pay their winners from your till and catch the
+  forgers (the clue is always on the ticket). Everything is adjustable in its options.
+- **Shared Storage**: every save gets one Shared Storage Bay whose contents are shared by
+  all your saves and carry over into new runs. It is one bay seen from every save, not a
+  copy machine, and syncs each time the game saves.
+- **Cause of Death**: hover a dead fish or rat and its `[Dead]` tag says why, e.g.
+  `[Dead: starved]` or `[Dead: unpowered tank, polluted water]`.
+- **Mod Item Keeper**: remove a mod, keep its stuff. Without it, a save loaded without a
+  mod drops everything stored inside that mod's items. With it, those contents are kept
+  with the save and go back inside when you reinstall the mod, or into your inventory if
+  the container was sold or trashed. Keep it enabled while the other mod is out.
+- **Perf Probe**: a lag diagnostic. Times every other mod's patches and event handlers and
+  the game methods they patch, and writes a summary each minute, with every frame over
+  50 ms, to `ModData\PerfProbe`. Install it while hunting lag, remove it afterwards.
 
 ## Install
 

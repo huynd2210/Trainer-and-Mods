@@ -5,6 +5,8 @@ game's own dialogue, payment and reputation work as normal.
 
 - **Hover an appraisal item** to see `True value: N`.
 - **Inspect it** and the estimate box already holds that exact number.
+- **Turn it off mid-run** under **Options > Game Settings > Auto Appraisal**, then Apply.
+  Takes effect at once, no restart; the choice is remembered.
 
 To catch counterfeits and hidden conditions, see the separate **Fraud Detection** mod.
 

@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Offline tests of KeeperCore against real saves. Not part of the mod build. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+  <!-- The shared Directory.Build.props targets net472 and references the game; not wanted here. -->
+  <ItemGroup>
+    <Reference Remove="@(Reference)" />
+    <Compile Include="..\KeeperCore.cs" Link="KeeperCore.cs" />
+  </ItemGroup>
+  <Target Name="InstallMod" />
+</Project>

@@ -3,8 +3,8 @@
   <ID>ExtraCustomer</ID>
   <Name>Extra Customer</Name>
   <Author>NyanDoggo</Author>
-  <ModVersion>1.6.0</ModVersion>
-  <Description>Call the customers you want. Press F8 while the shop is open to pick any of the game's ~150 regular buyers, sellers, barterers and service customers, grouped by what they trade (food, water, medical, materials, household, substances, dedicated cigarette, food stamp and lottery ticket sellers, injectors, weapons, firearms, contraband, specialists...); one click puts them at the end of today's queue. Shift+F8 adds a random customer. Rebind it in this mod's settings (Mods menu) or under Options > Keybinds. Every morning it also adds extra random customers (1 by default; 0 to 10 in this mod's settings).</Description>
+  <ModVersion>1.9.1</ModVersion>
+  <Description>Call the customers you want. Press F8 to pick any of the game's ~150 regular buyers, sellers, barterers and service customers, grouped by what they trade (food, water, medical, materials, household, substances, dedicated cigarette, food stamp and lottery ticket sellers, injectors, weapons, firearms, contraband, specialists...), plus any customers your other mods add; one click puts them at the end of today's queue (in the morning, before you open the shutter, they are booked and arrive once you open). Shift+F8 adds a random customer. Rebind it in this mod's settings (Mods menu) or under Options > Keybinds. Every morning it also adds extra random customers (1 by default; 0 to 10 in this mod's settings).</Description>
   <GameVersions>
     <Version>0.46</Version>
   </GameVersions>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Mod>
+  <ID>CauseOfDeath</ID>
+  <Name>Cause of Death</Name>
+  <Author>NyanDoggo</Author>
+  <ModVersion>1.0.0</ModVersion>
+  <Description>Dead fish and rats say why they died. Hover a carcass and its red Dead tag reads, for example, [Dead: starved], [Dead: toxic water, low water] or [Dead: mauled by a bigger cagemate]. Only deaths after the mod is enabled are recorded.</Description>
+  <GameVersions>
+    <Version>0.46</Version>
+  </GameVersions>
+  <Assemblies>
+    <Assembly>CauseOfDeath.dll</Assembly>
+  </Assemblies>
+  <Capabilities />
+</Mod>

@@ -9,7 +9,7 @@ namespace FraudDetection
 
         internal static void Add(RichTextBuilder builder, GameItem item)
         {
-            if (builder == null || item == null)
+            if (!FraudDetectionMod.Active || builder == null || item == null)
                 return;
             AddHiddenFeatures(builder, item);
             AddConfrontHint(builder, item);
@@ -33,7 +33,7 @@ namespace FraudDetection
             }
         }
 
-        private static bool IsLie(ItemFeature feature)
+        internal static bool IsLie(ItemFeature feature)
         {
             if (feature == null || feature.isDisabled || feature.IsExposed() || feature.IsFeatureMatch())
                 return false;

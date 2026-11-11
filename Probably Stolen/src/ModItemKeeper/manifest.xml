@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Mod>
+  <ID>ModItemKeeper</ID>
+  <Name>Mod Item Keeper</Name>
+  <Author>NyanDoggo</Author>
+  <ModVersion>1.0.0</ModVersion>
+  <Description>Remove a mod, keep its stuff. When a save loads without a mod, the game turns that mod's items into empty "unknown" placeholders and throws away whatever was inside them. With Mod Item Keeper, the contents are kept with the save instead. Reinstall the mod and they go back inside; if the container was sold or trashed meanwhile, they land in your inventory. Keep this mod enabled while the other mod is out.</Description>
+  <GameVersions>
+    <Version>0.46</Version>
+  </GameVersions>
+  <Assemblies>
+    <Assembly>ModItemKeeper.dll</Assembly>
+  </Assemblies>
+  <Capabilities />
+</Mod>

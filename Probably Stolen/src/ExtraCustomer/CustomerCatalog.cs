@@ -23,6 +23,10 @@ namespace ExtraCustomer
             public Func<bool> Locked;   // non-null: returns true while the game has not unlocked it
             public string LockedReason;
             public Action<StoreClient> Prepare; // non-null: adjusts the client this mod calls, before it is queued
+            public string[] Ids;        // non-null: a family of interchangeable ids; a click calls a random one
+            public bool IsRandom;       // the id gives a different customer each time
+
+            internal string PickId() => Ids == null ? Id : Ids[UnityEngine.Random.Range(0, Ids.Length)];
         }
 
         internal class Group
@@ -34,7 +38,9 @@ namespace ExtraCustomer
         internal static readonly Group[] Buyers =
         {
             Text("Anything",
-                E("merchant", note: "Buys any item that isn't contraband")),
+                E("merchant", note: "Buys any item that isn't contraband"),
+                E("lower_level_flexi_buyer", suffix: "flexible",
+                    note: "Buys whichever of food, medical, materials or household goods you own the most of")),
             Types(new[] { "FOOD" },
                 E("spacerFoodI", tier: 1), E("hungrySpacer", tier: 1), E("spacerChef", tier: 1),
                 E("expeditionSupplier", tier: 2), E("privateChef", tier: 3),
@@ -46,6 +52,7 @@ namespace ExtraCustomer
             Types(new[] { "WATER" },
                 E("thirstySpacer", tier: 1), E("scavWaterShopper", tier: 1), E("waterSpace2", tier: 2), E("waterStockpiler", tier: 3),
                 E("panicBuyer", suffix: "panic buyer"), E("corporateBuyer"), E("generic_water_buyer"),
+                E("scavWaterMinor", note: "High-quality water only; also sells a bottled water"),
                 E("annoyedEngineer", note: "Food or clean water"),
                 E("cluelessTouristBuyer", note: "Food, water and substances")),
             Types(new[] { "MATERIAL", "TOOL", "MODULE", "ENERGY_CELL" },
@@ -113,9 +120,8 @@ namespace ExtraCustomer
             Text("Injectors",
                 E("shadyPharma", note: "Injectors and bandages, stolen"),
                 E("scalper", note: "A genuine injector, marked up"),
-                E(ClinicVolunteer.ClientId,
-                    note: "2 Pure White injectors, plus 1 more at each 33/66/99/149 lower-level reputation; free unless turned off in this mod's settings. Normally only comes during the Oxymore wave",
-                    prepare: ClinicVolunteer.Prepare)),
+                E("clinicVolunteer",
+                    note: "2 Pure White injectors, plus 1 more at each 33/66/99/149 lower-level reputation, free. Normally only comes during the Oxymore wave")),
             Text("Substances and chemicals",
                 E("lowerLevelChemist", note: "Dream dust, salve, caffeine pills; buys chemical supplies"),
                 E("rareLowerLevelChemist", note: "Dream dust, injectors, pills; buys chemical supplies"),
@@ -178,6 +184,10 @@ namespace ExtraCustomer
                     lockedReason: "Unlocks with the hypertech smuggler network upgrade."),
                 E("inventor", note: "Inventions; buys materials"),
                 E("inventorStorage", note: "Storage and machine bays")),
+            // Not in the game's customer dictionary; see OwnRegistrations.
+            Text("Revolution",
+                E("revRaider", note: "Stolen raid loot at wholesale: modules, electronics, police guns, medical, meat, household goods. Normally weekly with the Revolution's raid loot perk"),
+                E("revQuartermaster", note: "A bulk lot of ore, scrap metal or nutrifruit at wholesale. Normally weekly with the Revolution's quartermaster perk")),
             Text("Specialists (equipment)",
                 E("retired_junker", unlocked: () => PlayerStore.Instance.IsJunkerStart() || NetworkUpgrade.IsRuinedMachineUnlocked(),
                     lockedReason: "Unlocks with the ruined machine network upgrade."),
@@ -211,7 +221,12 @@ namespace ExtraCustomer
                     unlocked: () => PlayerStore.Instance.isAppraisalIntroduced,
                     lockedReason: "Comes once the game has introduced appraisals."),
                 E("shadyCustomerInformation", note: "Sells information")),
+            Text("Handouts and offers",
+                E("upperLevelCharity", note: "Gives free goods of each type an event has pushed 66% or more above market price, or a small aid package if your counter is empty; otherwise nothing. Normally comes with the upper level's charity perk"),
+                E("radioactiveWasteCustomer", note: "Pays you 100 per barrel to take 1, 3 or 5 barrels of nuclear waste off his hands")),
         };
+
+        internal static IEnumerable<Entry> All => Buyers.Concat(Sellers).Concat(Others).SelectMany(g => g.Entries);
 
         internal static bool Exists(string id) => StoreClientListDict.storeClientDict.ContainsKey(id);
 

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Mod>
+  <ID>TicketBooth</ID>
+  <Name>Ticket Booth</Name>
+  <Author>NyanDoggo</Author>
+  <ModVersion>1.1.0</ModVersion>
+  <Description>Become a licensed lottery retailer. After the first week the Lottery Representative offers you a retailer licence for 300 credits; take it and you get the Lottery Board's phone line, which ships lottery tickets and scratchers in bulk every 5 days. Lower-level citizens come to buy them from you, and come back to cash their wins at your counter, paid from your till. Some of those winning tickets are forged: check the stamp, the edition, the numbers and the symbols before you pay. Refusing an honest winner costs reputation. Optional meme mode lets customers hit the jackpot.</Description>
+  <GameVersions>
+    <Version>0.46</Version>
+  </GameVersions>
+  <Assemblies>
+    <Assembly>TicketBooth.dll</Assembly>
+  </Assemblies>
+  <Capabilities />
+</Mod>

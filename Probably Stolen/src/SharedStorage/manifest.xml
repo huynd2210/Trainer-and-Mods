@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Mod>
+  <ID>SharedStorage</ID>
+  <Name>Shared Storage</Name>
+  <Author>NyanDoggo</Author>
+  <ModVersion>1.0.0</ModVersion>
+  <Description>Every save gets a Shared Storage Bay (the storage bay with the cyan lid). Whatever is inside it is shared by all your saves and carries over into new runs: put something in, and it is waiting in the bay in every other save. It is one bay, not a copy machine: take an item out in one save and it is gone from the others. The contents sync each time the game saves.</Description>
+  <GameVersions>
+    <Version>0.46</Version>
+  </GameVersions>
+  <Assemblies>
+    <Assembly>SharedStorage.dll</Assembly>
+  </Assemblies>
+  <Capabilities />
+</Mod>

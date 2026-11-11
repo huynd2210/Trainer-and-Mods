@@ -3,8 +3,8 @@
   <ID>FraudDetection</ID>
   <Name>Fraud Detection</Name>
   <Author>NyanDoggo</Author>
-  <ModVersion>1.0.1</ModVersion>
-  <Description>Knows when a label lies. Hover an item: anything that isn't what it claims (counterfeit cigarettes, stamps and injectors, impure water and chemicals, worn equipment, ingots, wine...) shows what it really is and its real value change. Inspecting a counterfeit opens with the right issue already ticked, so you just press Confront.</Description>
+  <ModVersion>1.2.0</ModVersion>
+  <Description>Knows when a label lies. Hover an item: anything that isn't what it claims (counterfeit cigarettes, stamps and injectors, impure water and chemicals, worn equipment, ingots, wine...) shows what it really is and its real value change. Items you could buy get a red X or green + badge in the corner. Inspecting a counterfeit opens with the right issue already ticked, so you just press Confront.</Description>
   <GameVersions>
     <Version>0.46</Version>
   </GameVersions>

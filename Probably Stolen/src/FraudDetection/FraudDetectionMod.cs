@@ -5,16 +5,42 @@ namespace FraudDetection
 {
     public class FraudDetectionMod : IMod
     {
-        public void Init(ModManifest manifest) { }
+        internal const string Id = "FraudDetection";
+
+        // Options > Game Settings > "Fraud Detection": switches the mod off and on mid-run.
+        // Kept in the game's settings file, so it survives a restart.
+        private const string EnabledSaveKey = "mod_FraudDetection_enabled";
+        internal static bool Active = true;
+
+        public void Init(ModManifest manifest)
+        {
+            Active = !ES3.KeyExists(EnabledSaveKey) || ES3.Load<bool>(EnabledSaveKey);
+        }
 
         public void OnEnable()
         {
             ModHook.OnCreateTooltipLate += TruthTooltip.Add;
+            ModHelper.AddGameOptionToggle(Id, "gameplay", "enabled",
+                () => "Fraud Detection",
+                () => Active,
+                SetActive,
+                () => "Shows what items really are, the red X / green + badges, and pre-ticks confront answers. Turn off to inspect by yourself.");
         }
 
         public void OnDisable()
         {
             ModHook.OnCreateTooltipLate -= TruthTooltip.Add;
+            ModHelper.RemoveGameOptions(Id);
+        }
+
+        private static void SetActive(bool value)
+        {
+            bool changed = Active != value;
+            Active = value;
+            if (!ES3.KeyExists(EnabledSaveKey) || ES3.Load<bool>(EnabledSaveKey) != value)
+                ES3.Save(EnabledSaveKey, value);
+            if (changed)
+                ItemBadge.RefreshVisible();
         }
     }
 
@@ -24,7 +50,7 @@ namespace FraudDetection
     {
         internal static void Tick(InspectionUIManager ui, GameItem item, Inspectable kind)
         {
-            if (ui == null || item == null || !kind.StillOpen(item))
+            if (!FraudDetectionMod.Active || ui == null || item == null || !kind.StillOpen(item))
                 return;
 
             Toggle[] toggles = { ui.toggle1, ui.toggle2, ui.toggle3, ui.toggle4, ui.toggle5 };

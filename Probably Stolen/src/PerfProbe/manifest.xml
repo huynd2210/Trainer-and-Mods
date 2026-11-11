@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Mod>
+  <ID>PerfProbe</ID>
+  <Name>Perf Probe</Name>
+  <Author>NyanDoggo</Author>
+  <ModVersion>1.0.0</ModVersion>
+  <Description>A diagnostic for lag. Times every other mod's code (their patches and event handlers) and the game methods they patch, and notes every frame that took over 50 ms with what ran in it. Writes a summary each minute to ModData\PerfProbe. Install it while hunting lag, remove it afterwards: timing adds a little overhead of its own.</Description>
+  <GameVersions>
+    <Version>0.46</Version>
+  </GameVersions>
+  <Assemblies>
+    <Assembly>PerfProbe.dll</Assembly>
+  </Assemblies>
+  <Capabilities />
+</Mod>
