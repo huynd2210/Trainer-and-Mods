@@ -12,17 +12,19 @@ namespace PawnCounter
         private static ConfigEntry<int> firstDay;
         private static ConfigEntry<int> chance;
         private static ConfigEntry<int> maxActive;
-        private static ConfigEntry<int> chanceWhenFull;
+        private static ConfigEntry<int> falloff;
         private static ConfigEntry<int> loanPercent;
         private static ConfigEntry<int> lossPremiumPercent;
         private static ConfigEntry<int> storageFee;
         private static ConfigEntry<int> riskFee;
         private static ConfigEntry<int> minValue;
+        private static ConfigEntry<int> boxChance;
+        private static ConfigEntry<int> lockedChance;
 
         internal static int FirstDay => firstDay?.Value ?? 3;
         internal static int Chance => chance?.Value ?? 45;
         internal static int MaxActive => maxActive?.Value ?? 3;
-        internal static int ChanceWhenFull => chanceWhenFull?.Value ?? 10;
+        internal static int Falloff => falloff?.Value ?? 35;
         internal static int LoanPercent => loanPercent?.Value ?? 55;
         internal static int LossPremiumPercent => lossPremiumPercent?.Value ?? 25;
         internal static Terms.Rates FeeRates => new Terms.Rates
@@ -31,6 +33,8 @@ namespace PawnCounter
             PerRisk = riskFee?.Value ?? 10,
         };
         internal static int MinValue => minValue?.Value ?? 150;
+        internal static int BoxChance => boxChance?.Value ?? 65;
+        internal static int LockedChance => lockedChance?.Value ?? 50;
 
         public void Init(ModManifest manifest)
         {
@@ -42,14 +46,22 @@ namespace PawnCounter
                 () => "Chance of a pawner each day (%)", 0, 100,
                 () => "Chance each morning that someone comes in to pawn something.");
             maxActive = config.Define("maxActive", 3, "Pawners",
-                () => "Pawns held before pawners slow down", 1, 10,
-                () => "While you hold this many pawned items or more, the daily chance drops to the one below.");
-            chanceWhenFull = config.Define("chanceWhenFull", 10, "Pawners",
-                () => "Chance of a pawner each day when full (%)", 0, 100,
-                () => "Chance each morning of a pawner while you hold the number of pawns above. 0 = none until one is settled.");
+                () => "Pawns held before pawners fall off", 1, 10,
+                () => "Hold this many pawned items and the daily chance starts dropping steeply (see below).");
+            falloff = config.Define("falloffPercent", 35, "Pawners",
+                () => "Falloff per pawn past the limit (%)", 0, 100,
+                () => "Each pawn you hold from the limit on multiplies the daily chance by this. At 35% with a 45% chance and a limit of 3: "
+                      + "16% holding 3, 6% holding 4, 2% holding 5. 0 = none until one is settled.");
             minValue = config.Define("minValue", 150, "Pawners",
                 () => "Cheapest item a pawner brings (credits)", 0, 2000,
                 () => "Items worth less than this are never brought in. The pool is already limited to valuable, bulky things.");
+            boxChance = config.Define("boxChance", 65, "Pawners",
+                () => "Chance a pawner brings a box (%)", 0, 100,
+                () => "Chance that what a pawner brings is a packed crate rather than a single item.");
+            lockedChance = config.Define("lockedChance", 50, "Pawners",
+                () => "Chance a pawned box is locked (%)", 0, 100,
+                () => "Share of pawned boxes that arrive locked. Unlocked ones let you see what's inside before you lend. "
+                      + "Unlocking a pawned box is fine; taking anything out of it counts as selling it.");
             loanPercent = config.Define("loanPercent", 55, "Terms",
                 () => "Loan asked, as % of the item's worth", 20, 90,
                 () => "What a pawner asks to borrow, as a share of what the item is worth. Each pawner varies by 10% either way.");

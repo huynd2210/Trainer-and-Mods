@@ -6,6 +6,17 @@ namespace PawnCounter
     internal static class Tags
     {
         internal const string PawnId = "PC_PAWN_ID";        // on an item you hold as a pawn
+        internal const string PawnPart = "PC_PAWN_PART";    // on each thing packed in a pawned box (the pawn's id)
+
+        // The pawn an item is, or is packed in; 0 if neither.
+        internal static int PawnOf(GameItem item)
+        {
+            if (item.IsTag(PawnId))
+                return item.GetTagReadonly(PawnId).GetInt();
+            if (item.IsTag(PawnPart))
+                return item.GetTagReadonly(PawnPart).GetInt();
+            return 0;
+        }
         internal const string OfferLoan = "PC_OFFER_LOAN";  // on an item a pawner has put on the counter
         internal const string OfferRedeem = "PC_OFFER_REDEEM";
         internal const string OfferDue = "PC_OFFER_DUE";

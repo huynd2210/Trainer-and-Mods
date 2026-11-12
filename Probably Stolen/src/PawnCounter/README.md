@@ -35,19 +35,28 @@ never come back, it's yours to sell.
 
 Only valuable and bulky things: at least 150 credits and 6 grid cells.
 
-- **Lower-level citizens:** metal scanner, AquaScan, plant analyser, combat machete, stun baton,
-  surgery toolset, medium backpack, locked service or medical crate.
-- **Technicians:** chem scanner, gene scanner, advanced module extractor, rare electronics, metal
-  scanner, X-ray scanner, aug scanner, advanced turbo booster, locked engineering crate.
-- **Upper-level clients** (from day 10): neuroactive perfume, gene scanner, hypertech electronics,
-  X-ray scanner.
-- **Shady types** (from day 7): revolver, shotgun, SMG, heavy handmade pistol, stun gun, rare
-  electronics, pistol (Glock receiver), C4, an MBS nerve-agent canister, large military backpack,
-  locked security or evidence crate.
+**Boxes come in more often than anything else** (about two pawns in three):
 
-Locked crates (service and medical from lower-level citizens, engineering from technicians,
-security and evidence from shady types) come sealed. The loan follows what is inside, so it
-hints at the contents. Break one open and the owner can't have it back: it counts as sold.
+- **Lower-level citizens:** service or medical crate.
+- **Technicians:** engineering or service crate.
+- **Upper-level clients:** medical or engineering crate.
+- **Shady types:** security or evidence crate.
+
+About half arrive **locked** (the loan follows what's inside, so it hints at the contents) and
+half **unlocked**, so you can look inside before you lend. **Unlocking a pawned box is fine.
+Taking anything out is not:** while anything the owner packed is missing, the box counts as sold.
+The owner won't take it back, and they want its worth plus whatever you got for what you took.
+Put it all back before they come and it's fine again. Items from a box say so in their tooltip.
+
+The rest are single items:
+
+- **Lower-level citizens:** metal scanner, AquaScan, plant analyser, combat machete, stun baton,
+  surgery toolset, medium backpack.
+- **Technicians:** chem scanner, gene scanner, advanced module extractor, rare electronics, metal
+  scanner, aug scanner, advanced turbo booster.
+- **Upper-level clients** (from day 10): neuroactive perfume, gene scanner, hypertech electronics.
+- **Shady types** (from day 7): revolver, shotgun, SMG, heavy handmade pistol, stun gun, rare
+  electronics, pistol (Glock receiver), C4, an MBS nerve-agent canister, large military backpack.
 
 Shady pawners and some lower-level citizens sometimes bring **stolen** goods. **Contraband:** the
 stun baton (low); revolver, heavy handmade pistol, Glock and evidence crate (mid); shotgun, SMG,
@@ -56,8 +65,8 @@ owner will still come back for theirs. That is what the risk fee pays for.
 
 ## Settings (Mods > Pawn Counter)
 
-First day, daily chance, pawns held before they slow down, daily chance once you hold that
-many, cheapest item, loan size (% of worth), storage
+First day, daily chance, pawns held before the chance falls off, how steeply it falls (each pawn
+held from that limit on multiplies the chance; default 35%: 16% holding 3, 6% holding 4, 2% holding 5), cheapest item, chance of a box, share of boxes that are locked, loan size (% of worth), storage
 fee (per cell per day), risk fee (per risk level per day), and the penalty for a sold pawn (% on
 top of its worth and what you got for it). Fee changes apply to new pawns; ones you already hold
 keep the terms you agreed.

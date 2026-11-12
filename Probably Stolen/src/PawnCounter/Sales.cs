@@ -14,9 +14,10 @@ namespace PawnCounter
         {
             try
             {
-                if (item == null || !State.Ready || !item.IsTag(Tags.PawnId))
+                // The pawned item itself, or something taken out of a pawned box.
+                int id = item == null || !State.Ready ? 0 : Tags.PawnOf(item);
+                if (id == 0)
                     return;
-                int id = item.GetTagReadonly(Tags.PawnId).GetInt();
                 List<Pawn> pawns = State.Pawns;
                 Pawn pawn = pawns.FirstOrDefault(p => p.Id == id);
                 if (pawn == null)
@@ -52,7 +53,7 @@ namespace PawnCounter
         {
             try
             {
-                if (item != null && item.IsTag(Tags.PawnId))
+                if (item != null && Tags.PawnOf(item) != 0)
                     PawnSales.Record(item, PaidValuePerItem(__instance, item));
             }
             catch (Exception e)

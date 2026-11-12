@@ -61,9 +61,10 @@ Nineteen mods by NyanDoggo for the game's built-in mod loader (no BepInEx needed
   Counts from when the mod is enabled; the totals are kept in the save.
 - **Pawn Counter**: customers short on cash put a valuable, bulky item on your counter and
   ask for a loan against it. Lend the credits and hold the item until they come back to buy
-  it back with a holding fee (by shelf space and risk, per day). Sell it early and they
-  want its worth plus what you got for it; about one in ten never return and the item is
-  yours.
+  it back with a holding fee (by shelf space and risk, per day). Most bring a packed crate,
+  locked or not: unlocking it is fine, but take anything out and it counts as sold until it is
+  back. Sell it early and they want its worth plus what you got for it; about one in ten never
+  return and the item is yours. Once you hold 3 pawns, new pawners get steeply rarer.
 - **Ticket Booth**: become a licensed lottery retailer. Order tickets and scratchers by
   phone, sell them to the lower levels, pay their winners from your till and catch the
   forgers (the clue is always on the ticket). Everything is adjustable in its options.

@@ -33,8 +33,23 @@ namespace PawnCounter
         internal int DueDay;
         internal bool WillReturn;    // decided when you take the item, so reloading the morning changes nothing
         internal int SoldFor;        // what you got for it if you let it go (sold, bartered, handed in); 0 if seized or still held
+        internal string Contents = "";  // a box's contents when you took it, "uid:units,..."; empty for anything else
 
         internal int Compensation => Terms.Compensation(Worth, SoldFor, PawnCounterMod.LossPremiumPercent);
+
+        internal static Dictionary<int, int> ParseContents(string text)
+        {
+            Dictionary<int, int> map = new Dictionary<int, int>();
+            if (string.IsNullOrEmpty(text))
+                return map;
+            foreach (string entry in text.Split(','))
+            {
+                string[] kv = entry.Split(':');
+                if (kv.Length == 2 && Int(kv[0]) != 0)
+                    map[Int(kv[0])] = Int(kv[1]);
+            }
+            return map;
+        }
 
         internal string Serialize()
         {
@@ -43,15 +58,15 @@ namespace PawnCounter
                 Id.ToString(CultureInfo.InvariantCulture), Uid.ToString(CultureInfo.InvariantCulture), Clean(Kind), Clean(Owner), Clean(Sprite),
                 Clean(ItemName), Worth.ToString(CultureInfo.InvariantCulture), Loan.ToString(CultureInfo.InvariantCulture),
                 Redeem.ToString(CultureInfo.InvariantCulture), DueDay.ToString(CultureInfo.InvariantCulture), WillReturn ? "1" : "0",
-                SoldFor.ToString(CultureInfo.InvariantCulture),
+                SoldFor.ToString(CultureInfo.InvariantCulture), Contents ?? "",
             });
         }
 
         internal static Pawn Parse(string line)
         {
             string[] f = line.Split('|');
-            // 11 fields: saved by 1.0/1.1, before SoldFor existed.
-            if (f.Length != 11 && f.Length != 12)
+            // 11 fields: saved by 1.0/1.1, before SoldFor existed. 12: before box contents.
+            if (f.Length < 11 || f.Length > 13)
                 return null;
             int id = Int(f[0]), uid = Int(f[1]);
             if (id <= 0 || uid == 0)
@@ -61,6 +76,7 @@ namespace PawnCounter
                 Id = id, Uid = uid, Kind = f[2], Owner = f[3], Sprite = f[4], ItemName = f[5],
                 Worth = Int(f[6]), Loan = Int(f[7]), Redeem = Int(f[8]), DueDay = Int(f[9]), WillReturn = f[10] == "1",
                 SoldFor = f.Length > 11 ? Int(f[11]) : 0,
+                Contents = f.Length > 12 ? f[12] : "",
             };
         }
 
@@ -95,6 +111,21 @@ namespace PawnCounter
     }
 
     // What a pawner asks for, and what the deal is worth to each side.
+    // How likely a new pawner is today. Up to the limit it is the plain daily chance; each pawn
+    // held at or past the limit multiplies it by the falloff, so the odds drop off a cliff.
+    internal static class Arrivals
+    {
+        // Chance in tenths of a percent, so the tail past the cliff doesn't round to zero.
+        internal static int PerMille(int active, int limit, int chancePercent, int falloffPercent)
+        {
+            double c = Math.Max(0, chancePercent) * 10.0;
+            int over = active - limit + 1;
+            if (over > 0)
+                c *= Math.Pow(Math.Max(0, falloffPercent) / 100.0, over);
+            return (int)Math.Round(c);
+        }
+    }
+
     internal static class Terms
     {
         internal const int LoanSpread = 10;     // the asked loan varies +-10% of worth around the setting
@@ -188,6 +219,7 @@ namespace PawnCounter
         internal int Weight;
         internal int MinDay;
         internal string[] Items;
+        internal string[] Boxes;     // the game's crates; brought more often than Items (boxChance)
         internal int ReturnChance;   // % that they come back for it
         internal int HaggleChance;   // % that they take your lower offer
         internal int StolenChance;   // % that what they bring is stolen
@@ -200,8 +232,8 @@ namespace PawnCounter
             new PawnerKind
             {
                 Id = "lower", Weight = 40, MinDay = 0, ReturnChance = 88, HaggleChance = 60, StolenChance = 15,
-                Items = new[] { "metal_scanner", "aquascan", "plant_analyser", "combat_machete", "stun_baton", "surgery_tool", "backpack_medium",
-                                "loot_crate_service", "loot_crate_medical" },
+                Items = new[] { "metal_scanner", "aquascan", "plant_analyser", "combat_machete", "stun_baton", "surgery_tool", "backpack_medium" },
+                Boxes = new[] { "loot_crate_service", "loot_crate_medical" },
                 Openers = new[] { "Rent's due and the landlord doesn't take excuses.", "Times are hard. I need cash, today.", "I'm not selling it. I just need a loan." },
                 Thanks = new[] { "Knew I could count on you.", "Thanks. I'll remember this." },
                 Angry = new[] { "The whole level will hear about this.", "Thief. Everyone down below will know." },
@@ -209,8 +241,8 @@ namespace PawnCounter
             new PawnerKind
             {
                 Id = "tech", Weight = 30, MinDay = 0, ReturnChance = 92, HaggleChance = 45, StolenChance = 5,
-                Items = new[] { "chem_scanner", "gene_scanner", "module_extractor_advanced", "rare_electronic", "metal_scanner", "xray_scanner", "aug_scanner", "turbo_booster_adv",
-                                "loot_crate_engineering" },
+                Items = new[] { "chem_scanner", "gene_scanner", "module_extractor_advanced", "rare_electronic", "metal_scanner", "aug_scanner", "turbo_booster_adv" },
+                Boxes = new[] { "loot_crate_engineering", "loot_crate_service" },
                 Openers = new[] { "Shift pay got delayed again.", "I need credits until payday. This is good collateral.", "I need this back, so treat it well." },
                 Thanks = new[] { "Good. Back to work, then.", "Pleasure doing business." },
                 Angry = new[] { "The crews talk. They'll hear what you do.", "Unbelievable. Never again." },
@@ -218,7 +250,10 @@ namespace PawnCounter
             new PawnerKind
             {
                 Id = "upper", Weight = 15, MinDay = 10, ReturnChance = 95, HaggleChance = 25, StolenChance = 0,
-                Items = new[] { "self_refilling_neuroactive_perfume", "gene_scanner", "hypertech_electronic", "xray_scanner" },
+                // No xray_scanner, here or for techs: the game never hands it out and its sprite
+                // ("spectral_analyser") is a blank white placeholder.
+                Items = new[] { "self_refilling_neuroactive_perfume", "gene_scanner", "hypertech_electronic" },
+                Boxes = new[] { "loot_crate_medical", "loot_crate_engineering" },
                 Openers = new[] { "A temporary cash flow problem. Nothing more.", "Discretion, please. I need liquid credits.", "Consider it a favour. I will be generous when I return." },
                 Thanks = new[] { "Discreet and reliable. Good.", "As expected. Good day." },
                 Angry = new[] { "My friends upstairs will hear about this.", "You will regret this." },
@@ -227,8 +262,8 @@ namespace PawnCounter
             {
                 Id = "shady", Weight = 15, MinDay = 7, ReturnChance = 87, HaggleChance = 55, StolenChance = 35,
                 Items = new[] { "revolver", "shotgun", "smg", "heavy_handmade_pistol", "stun_gun", "rare_electronic",
-                                "glock_receiver", "c4", "canister_mbs", "backpack_large_military",
-                                "loot_crate_security", "loot_crate_evidence" },
+                                "glock_receiver", "c4", "canister_mbs", "backpack_large_military" },
+                Boxes = new[] { "loot_crate_security", "loot_crate_evidence" },
                 Openers = new[] { "Don't ask where it's from. Ask what it's worth.", "I need cash quick, and I'll be back for it.", "Keep this out of sight, yeah?" },
                 Thanks = new[] { "Good. You're alright.", "No questions asked. I like that." },
                 Angry = new[] { "People like me don't forget.", "You just made enemies." },

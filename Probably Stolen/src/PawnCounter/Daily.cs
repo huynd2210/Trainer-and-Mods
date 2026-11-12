@@ -84,9 +84,9 @@ namespace PawnCounter
         {
             if (today < PawnCounterMod.FirstDay)
                 return;
-            // Holding your limit only makes pawners rarer, not impossible.
-            int chance = active >= PawnCounterMod.MaxActive ? PawnCounterMod.ChanceWhenFull : PawnCounterMod.Chance;
-            if (Rng.Range(1, 100) > chance)
+            // Past your limit pawners get steeply rarer, never impossible.
+            int perMille = Arrivals.PerMille(active, PawnCounterMod.MaxActive, PawnCounterMod.Chance, PawnCounterMod.Falloff);
+            if (Rng.Range(1, 1000) > perMille)
                 return;
             PawnerKind kind = PawnerKind.PickFor(Rng, today);
             GameItem item = Pool.Spawn(Rng, kind, PawnCounterMod.MinValue);

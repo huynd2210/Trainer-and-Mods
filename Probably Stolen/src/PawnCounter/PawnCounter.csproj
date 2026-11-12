@@ -2,6 +2,6 @@
   <PropertyGroup>
     <AssemblyName>PawnCounter</AssemblyName>
     <RootNamespace>PawnCounter</RootNamespace>
-    <Version>1.5.0</Version>
+    <Version>1.6.1</Version>
   </PropertyGroup>
 </Project>

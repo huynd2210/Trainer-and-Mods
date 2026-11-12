@@ -23,6 +23,14 @@ namespace PawnCounter
                 return;
             }
 
+            if (item.IsTag(Tags.PawnPart) && !item.IsTag(Tags.PawnId) && GeneralHelper.IsItemOwned(item))
+            {
+                Pawn owner = State.Find(item.GetTagReadonly(Tags.PawnPart).GetInt());
+                if (owner != null)
+                    builder.AddLine("Packed in " + owner.Owner + "'s pawned " + owner.ItemName + ": keep it in the box", ignoreEmpty: true, Bad);
+                return;
+            }
+
             if (!item.IsTag(Tags.PawnId) || !GeneralHelper.IsItemOwned(item))
                 return;
             Pawn pawn = State.Find(item.GetTagReadonly(Tags.PawnId).GetInt());
@@ -32,8 +40,15 @@ namespace PawnCounter
             string when = pawn.DueDay > today ? "on day " + pawn.DueDay
                 : pawn.DueDay == today ? "today" : "late (was due day " + pawn.DueDay + ")";
             builder.AddLine("Pawned by " + pawn.Owner + ": back " + when + " to pay " + Pawners.Credits(pawn.Redeem), ignoreEmpty: true, Info);
-            if (item.IsTag(Pool.LockedContainerTag))
-                builder.AddLine("Locked: open it and it counts as sold", ignoreEmpty: true, Bad);
+            if (Pool.IsBox(item))
+            {
+                if (!Pool.Intact(pawn, item))
+                    builder.AddLine("Something's missing from the box: counts as sold until it's back", ignoreEmpty: true, Bad);
+                else if (!string.IsNullOrEmpty(pawn.Contents))
+                    builder.AddLine("Unlocking is fine; take anything out and it counts as sold", ignoreEmpty: true, Plain);
+                else
+                    builder.AddLine("Locked: open it and it counts as sold", ignoreEmpty: true, Bad);
+            }
             builder.AddLine("Sell it and they'll want its worth (" + Pawners.Credits(pawn.Worth) + ") plus what you got for it, +"
                 + PawnCounterMod.LossPremiumPercent + "%", ignoreEmpty: true, Bad);
         }

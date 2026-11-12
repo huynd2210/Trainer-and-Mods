@@ -120,6 +120,16 @@ namespace PawnCounter
             };
             item.ModifyTag(Tags.PawnId, s => s.Enable().SetInt(pawn.Id));
             ModHelper.SetItemOwnerShip(item, true);
+            if (Pool.IsBox(item))
+            {
+                // You hold the contents too; each one knows whose box it belongs in.
+                foreach (GameItem child in item.FindAllChildItems())
+                {
+                    ModHelper.SetItemOwnerShip(child, true);
+                    child.ModifyTag(Tags.PawnPart, s => s.Enable().SetInt(pawn.Id));
+                }
+                pawn.Contents = Pool.Snapshot(item);
+            }
             ModHelper.MoveItemToBackCounter(item);
             State.Add(pawn);
             Debug.Log("[PawnCounter] Pawned " + pawn.ItemName + " (worth " + worth + ") for " + loan + ", back day " + due + " for " + redeem + (willReturn ? "" : ", won't return"));
@@ -196,7 +206,7 @@ namespace PawnCounter
                 give.NextDialogue()
                     .SetText(who, PawnerKind.Pick(rng, kind.Thanks))
                     .SetEndAction(delegate { DialogUIManager.Instance.CurrentClientLeave(); });
-            }, () => { GameItem held = Held(pawn); return held != null && !Pool.Opened(held); });
+            }, () => { GameItem held = Held(pawn); return held != null && Pool.Intact(State.Find(pawn.Id) ?? pawn, held); });
 
             Dialogue gone = new Dialogue();
             gone.SetText("PLAYER", "I can't give it back.");
@@ -276,6 +286,10 @@ namespace PawnCounter
             GameItem item = Held(pawn);
             if (item != null)
                 item.DisableTag(Tags.PawnId);
+            if (!string.IsNullOrEmpty(pawn.Contents))
+                foreach (GameItem part in EmporiumEntry.Instance.GetAllItems())
+                    if (part.IsTag(Tags.PawnPart) && part.GetTagReadonly(Tags.PawnPart).GetInt() == pawn.Id)
+                        part.DisableTag(Tags.PawnPart);
             State.Remove(pawn.Id);
         }
 

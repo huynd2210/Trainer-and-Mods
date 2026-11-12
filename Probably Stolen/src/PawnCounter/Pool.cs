@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using UnityEngine;
 
@@ -43,12 +44,21 @@ namespace PawnCounter
         // Ids already found too cheap or too small this session (logged once).
         private static readonly HashSet<string> rejected = new HashSet<string>();
 
-        // A fresh item from the kind's list that is valuable and bulky enough, or null.
-        // The list is curated; the check runs on the live item so a game update that makes
-        // something cheap or small just drops it.
+        // A fresh item the pawner brings, valuable and bulky enough, or null. Boxes come first
+        // as often as the box chance says; either list falls back to the other.
         internal static GameItem Spawn(IRng rng, PawnerKind kind, int minValue)
         {
-            List<string> ids = kind.Items.Where(id => !rejected.Contains(id)).ToList();
+            bool box = rng.Range(1, 100) <= PawnCounterMod.BoxChance;
+            string[] first = box ? kind.Boxes : kind.Items;
+            string[] second = box ? kind.Items : kind.Boxes;
+            return SpawnFrom(rng, first, minValue) ?? SpawnFrom(rng, second, minValue);
+        }
+
+        // The lists are curated; the check runs on the live item so a game update that makes
+        // something cheap or small just drops it.
+        private static GameItem SpawnFrom(IRng rng, string[] list, int minValue)
+        {
+            List<string> ids = list.Where(id => !rejected.Contains(id)).ToList();
             while (ids.Count > 0)
             {
                 string id = ids[rng.Range(0, ids.Count - 1)];
@@ -62,6 +72,8 @@ namespace PawnCounter
                     rejected.Add(id);
                     continue;
                 }
+                if (IsBox(item))
+                    PrepareBox(rng, item);
                 int worth = Worth(item);
                 int cells = Cells(item);
                 if (worth >= minValue && cells >= MinCells)
@@ -89,10 +101,42 @@ namespace PawnCounter
         internal const string LockedContainerTag = "LOCKED_CONTAINER_TAG";
         private const string BehindLockTag = "ITEM_BEHIND_LOCK_TAG";
 
-        // A pawned crate you broke open can't go back as it came.
-        internal static bool Opened(GameItem item)
+        // A box: one of the game's crates, locked or not (the tag stays after unlocking).
+        internal static bool IsBox(GameItem item)
         {
-            return item.IsTag(LockedContainerTag) && !LockHelper.IsCurrentlyLocked(item);
+            return item.IsTag(LockedContainerTag) && item.contentWindow != null;
+        }
+
+        // The owner packed it, so it is not loot: unlocking must not reroll what's inside
+        // (the game refills unscanned crates for a luckier player). Half come unlocked, and
+        // what's inside belongs to the owner until you take the deal.
+        private static void PrepareBox(IRng rng, GameItem box)
+        {
+            PreBuiltItemHelper.MarkCrateScanned(box);
+            if (rng.Range(1, 100) > PawnCounterMod.LockedChance)
+                LockHelper.UnlockContainer(box, force: true);
+            foreach (GameItem child in box.FindAllChildItems())
+                GeneralHelper.SetItemOwned(child, false);
+        }
+
+        // What is inside a box, as "uid:units,uid:units", so the owner can check it later.
+        internal static string Snapshot(GameItem box)
+        {
+            return string.Join(",", box.FindAllChildItems()
+                .Select(c => c.GetUniqueID().ToString(CultureInfo.InvariantCulture) + ":" + c.unitCount.ToString(CultureInfo.InvariantCulture)));
+        }
+
+        // Everything the owner packed is still in the box, at least as many of each.
+        // Unlocking doesn't matter; extra things you put in go with the box.
+        internal static bool Intact(Pawn pawn, GameItem box)
+        {
+            if (string.IsNullOrEmpty(pawn.Contents))
+                // Pawned before contents were recorded: the old rule, a crate must stay locked.
+                return !(box.IsTag(LockedContainerTag) && !LockHelper.IsCurrentlyLocked(box));
+            Dictionary<int, int> inside = new Dictionary<int, int>();
+            foreach (GameItem child in box.FindAllChildItems())
+                inside[child.uniqueId] = child.unitCount;
+            return Pawn.ParseContents(pawn.Contents).All(c => inside.TryGetValue(c.Key, out int units) && units >= c.Value);
         }
 
         internal static int Cells(GameItem item)

@@ -3,8 +3,8 @@
   <ID>PawnCounter</ID>
   <Name>Pawn Counter</Name>
   <Author>NyanDoggo</Author>
-  <ModVersion>1.6.0</ModVersion>
-  <Description>Customers short on cash bring a valuable, bulky item (scanners, tools, backpacks, weapons, explosives, luxury goods) and ask for a loan against it. Lend the credits and the item is yours to hold: the owner comes back on the day they named and buys it back, paying you a holding fee set by how bulky and how risky the item is. Some never come back, and the item is yours to sell. Sell it early and the owner wants its full worth plus what you got for it, plus a premium, when they return; refuse and their faction hears about it. Some of what comes in is stolen, and most guns, explosives and the stun baton are contraband: risky items earn a bigger fee, but mind the inspector.</Description>
+  <ModVersion>1.8.0</ModVersion>
+  <Description>Customers short on cash bring a packed crate (most often, locked or unlocked) or a valuable, bulky item (scanners, tools, backpacks, weapons, explosives, luxury goods) and ask for a loan against it. Unlocking a pawned crate is fine; take anything out and it counts as sold. Lend the credits and the item is yours to hold: the owner comes back on the day they named and buys it back, paying you a holding fee set by how bulky and how risky the item is. Some never come back, and the item is yours to sell. Sell it early and the owner wants its full worth plus what you got for it, plus a premium, when they return; refuse and their faction hears about it. Some of what comes in is stolen, and most guns, explosives and the stun baton are contraband: risky items earn a bigger fee, but mind the inspector.</Description>
   <GameVersions>
     <Version>0.46</Version>
   </GameVersions>
